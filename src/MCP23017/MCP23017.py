@@ -54,7 +54,7 @@ class MCP23017:
         if (bit_pattern >= 0) and (bit_pattern <= 0xFF):
             return 1
         else:
-            assert "Invalid Data, expected a one byte pattern"
+            assert 0, "Invalid Data, expected a one byte pattern"
             return 0
 
     def set_io_direction_port_a(self, bit_pattern):
