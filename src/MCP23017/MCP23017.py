@@ -26,6 +26,7 @@ GPIOB    = 0x13
 OLATA    = 0x14
 OLATB    = 0x15
 
+# global constans
 OUT = 0
 IN = 1
 LOW = 0
@@ -34,8 +35,6 @@ TRUE = 1
 FALSE = 0
 
 class MCP23017:
-    # constans
-
 
     I2CPort = 0x00                  # 0 = /dev/i2c-0 (port I2C0), 1 = /dev/i2c-1 (port I2C1)
     bus = 0x00                      # SMBUS-Object
