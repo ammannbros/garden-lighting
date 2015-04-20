@@ -53,7 +53,7 @@ class MCP23017:
         #TODO Reset ausfuehren
 
     @staticmethod
-    def check_uint8(self, bit_pattern):
+    def check_uint8(bit_pattern):
         #check if bit_pattern accords to uint8
         if (bit_pattern >= 0) and (bit_pattern <= 0xFF):
             return TRUE
