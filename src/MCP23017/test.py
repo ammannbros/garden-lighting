@@ -1,1 +1,16 @@
 __author__ = 'holzi'
+from MCP23017.MCP23017 import MCP23017
+
+
+Chip2 = MCP23017(0x21)
+
+Chip2.initDevice()
+Chip2.set_io_direction_port_a(0x00)   #PortA is completeley Output
+
+#Do a write check
+Chip2.write_byte_port_a(0x0A)
+
+if Chip2.read_byte_port_a() == 0x0A:
+    assert "PASS"
+else:
+    assert "FAIL"

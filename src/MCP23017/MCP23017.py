@@ -38,60 +38,72 @@ class MCP23017:
     devAddr = 0x00
     devRegMode = 0x00
 
+    def __init__(self, devaddr, i2cport = 1, devregmode = 0):
 
-def __init__(self, devaddr, i2cport = 1, devregmode = 0):
+        self.I2CPort = i2cport
+        self.bus = smbus.SMBus(self.I2CPort)
+        self.devAddr = devaddr
+        self.devRegMode = devregmode
 
-    self.I2CPort = i2cport
-    self.bus = smbus.SMBus(self.I2CPort)
-    self.devAddr = devaddr
-    self.devRegMode = devregmode
+    def initDevice(self):
+        pass
+        #TODO Reset ausfuehren
 
-def initDevice(self):
-    pass
-    #TODO Reset ausfuehren
-
-
-def check_uint8(bit_pattern):
-    #check bit_pattern
-    if (bit_pattern >= 0) and (bit_pattern <= 0xFF):
-        return 0
-    else:
-        assert "Invalid Data, expected a one byte pattern"
-        return 1
-
-def set_io_direction(self, port, bit_pattern):
-    ''' Controls the direction of the data I/O. [0 - Output] [1 - Input] '''
-
-    if check_uint8(bit_pattern):
-        #check Port
-        if port == "PortA":
-            port_addr = IODIRA
-        elif port == "PortB":
-            port_addr = IODIRB
+    def check_uint8(self, bit_pattern):
+        #check bit_pattern
+        if (bit_pattern >= 0) and (bit_pattern <= 0xFF):
+            return 0
         else:
-            assert "Invalid Port: Use \"A\" for PortA and \"B\" for PortB"
+            assert "Invalid Data, expected a one byte pattern"
+            return -1
 
-        self.bus.write_byte_data(self.devAddr, port_addr, bit_pattern)
-
-
-def set_input_polarity(self, port, bit_pattern):
-    ''' If a bit is set, the corresponding GPIO register bit will
-    reflect the inverted value on the pin.'''
-
-    if check_uint8(bit_pattern):
-        #check Port
-        if port == "PortA":
-            port_addr = IPOLA
-        elif port == "PortB":
-            port_addr = IPOLB
+    def set_io_direction_port_a(self, bit_pattern):
+        '''Controls the direction of the data I/O. [0 - Output] [1 - Input]'''
+        if self.check_uint8(bit_pattern):
+            #Write to bus
+            return self.bus.write_byte_data(self.devAddr, IODIRA, bit_pattern)
         else:
-            assert "Invalid Port: Use \"A\" for PortA and \"B\" for PortB"
+            return -1
 
-        self.bus.write_byte_data(self.devAddr, port_addr, bit_pattern)
+    def set_io_direction_port_b(self, bit_pattern):
+        '''Controls the direction of the data I/O. [0 - Output] [1 - Input]'''
+        if self.check_uint8(bit_pattern):
+            #Write to bus
+            return self.bus.write_byte_data(self.devAddr, IODIRB, bit_pattern)
+        else:
+            return -1
 
-def read_byte_port_a(self):
-    return self.bus.read_byte_data(self.devAddr, GPIOA)
+    def set_input_polarity_port_a(self, bit_pattern):
+        ''' If a bit is set, the corresponding GPIO register bit will
+        reflect the inverted value on the pin.'''
+        if self.check_uint8(bit_pattern):
+            return self.bus.write_byte_data(self.devAddr, IPOLA, bit_pattern)
+        else:
+            return -1
+
+    def set_input_polarity_port_b(self, bit_pattern):
+        ''' If a bit is set, the corresponding GPIO register bit will
+        reflect the inverted value on the pin.'''
+        if self.check_uint8(bit_pattern):
+            return self.bus.write_byte_data(self.devAddr, IPOLB, bit_pattern)
+        else:
+            return -1
+
+    def write_byte_port_a(self, bit_pattern):
+        if self.check_uint8(bit_pattern):
+            return self.bus.write_byte_data(self.devAddr, OLATA, bit_pattern)
+        else:
+            return -1
+
+    def write_byte_port_b(self, bit_pattern):
+        if self.check_uint8(bit_pattern):
+            return self.bus.write_byte_data(self.devAddr, OLATB, bit_pattern)
+        else:
+            return -1
+
+    def read_byte_port_a(self):
+        return self.bus.read_byte_data(self.devAddr, GPIOA)
 
 
-def read_byte_port_b(self):
-    return self.bus.read_byte_data(self.devAddr, GPIOB)
+    def read_byte_port_b(self):
+        return self.bus.read_byte_data(self.devAddr, GPIOB)
