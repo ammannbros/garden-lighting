@@ -52,10 +52,10 @@ class MCP23017:
     def check_uint8(self, bit_pattern):
         #check bit_pattern
         if (bit_pattern >= 0) and (bit_pattern <= 0xFF):
-            return 0
+            return 1
         else:
             assert "Invalid Data, expected a one byte pattern"
-            return -1
+            return 0
 
     def set_io_direction_port_a(self, bit_pattern):
         '''Controls the direction of the data I/O. [0 - Output] [1 - Input]'''
