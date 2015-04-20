@@ -64,7 +64,7 @@ class MCP23017:
 
     def set_io_direction_port_a(self, bit_pattern):
         '''Controls the direction of the data I/O. [0 - Output] [1 - Input]: PortA.'''
-        if check_uint8(bit_pattern):
+        if self.check_uint8(bit_pattern):
             #Write to bus
             return self.bus.write_byte_data(self.devAddr, IODIRA, bit_pattern)
         else:
