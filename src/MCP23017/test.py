@@ -14,4 +14,4 @@ print(status)
 if Chip2.read_byte_port_a() == 0x0A:
     print("PASS")
 else:
-    print("FAIL")
+    print("FAIL ")
