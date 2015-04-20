@@ -11,6 +11,6 @@ Chip2.set_io_direction_port_a(0x00)   #PortA is completeley Output
 Chip2.write_byte_port_a(0x0A)
 
 if Chip2.read_byte_port_a() == 0x0A:
-    assert "PASS"
+    print("PASS")
 else:
-    assert "FAIL"
+    print("FAIL")
