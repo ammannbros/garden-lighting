@@ -1,6 +1,6 @@
 __author__ = 'holzi'
 
-#!/usr/bin/python
+# !/usr/bin/python
 import smbus
 
 # Defines
@@ -27,14 +27,14 @@ OLATA    = 0x14
 OLATB    = 0x15
 
 class MCP23017:
-    #constans
+    # constans
     OUT = 0
     IN = 1
     LOW = 0
     HIGH = 1
 
     I2CPort = 0x00                  # 0 = /dev/i2c-0 (port I2C0), 1 = /dev/i2c-1 (port I2C1)
-    bus = 0x00                      #SMBUS-Object
+    bus = 0x00                      # SMBUS-Object
     devAddr = 0x00
     devRegMode = 0x00
 
@@ -74,7 +74,7 @@ class MCP23017:
             return -1
 
     def set_input_polarity_port_a(self, bit_pattern):
-        ''' If a bit is set, the corresponding GPIO register bit will
+        '''If a bit is set, the corresponding GPIO register bit will
         reflect the inverted value on the pin.'''
         if self.check_uint8(bit_pattern):
             return self.bus.write_byte_data(self.devAddr, IPOLA, bit_pattern)
@@ -82,7 +82,7 @@ class MCP23017:
             return -1
 
     def set_input_polarity_port_b(self, bit_pattern):
-        ''' If a bit is set, the corresponding GPIO register bit will
+        '''If a bit is set, the corresponding GPIO register bit will
         reflect the inverted value on the pin.'''
         if self.check_uint8(bit_pattern):
             return self.bus.write_byte_data(self.devAddr, IPOLB, bit_pattern)
@@ -103,7 +103,6 @@ class MCP23017:
 
     def read_byte_port_a(self):
         return self.bus.read_byte_data(self.devAddr, GPIOA)
-
 
     def read_byte_port_b(self):
         return self.bus.read_byte_data(self.devAddr, GPIOB)
