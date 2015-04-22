@@ -1,6 +1,5 @@
 __author__ = 'holzi'
 
-# !/usr/bin/python
 import smbus
 
 # Defines
