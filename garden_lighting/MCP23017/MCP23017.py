@@ -8,30 +8,6 @@ try:
 except RuntimeError:
     print("Error importing RPi.GPIO! Maybe you are not root?")
 
-    # Defines
-    IODIRA = 0x00
-    IODIRB = 0x01
-    IPOLA = 0x02
-    IPOLB = 0x03
-    GPINTENA = 0x04
-    GPINTENB = 0x05
-    DEFVALA = 0x06
-    DEFVALB = 0x07
-    INTCONA = 0x08
-    INTCONB = 0x09
-    IOCON = 0x0A     # 0x0B points to the same register
-    GPPUA = 0x0C
-    GPPUB = 0x0D
-    INTFA = 0x0E
-    INTFB = 0x0F
-    INTCAPA = 0x10
-    INTCAPB = 0x11
-    GPIOA = 0x12
-    GPIOB = 0x13
-    OLATA = 0x14
-    OLATB = 0x15
-
-
 # global constans
 OUT = 0
 IN = 1
@@ -76,26 +52,26 @@ class MCP23017:
 
     # Defines
     IODIRA = 0x00
-    IODIRB = 0x00
-    IPOLA = 0x00
-    IPOLB = 0x00
-    GPINTENA = 0x00
-    GPINTENB = 0x00
-    DEFVALA = 0x00
-    DEFVALB = 0x00
-    INTCONA = 0x00
-    INTCONB = 0x00
-    IOCON = 0x00     # 0x0B points to the same register
-    GPPUA = 0x00
-    GPPUB = 0x00
-    INTFA = 0x00
-    INTFB = 0x00
-    INTCAPA = 0x00
-    INTCAPB = 0x00
-    GPIOA = 0x00
-    GPIOB = 0x00
-    OLATA = 0x00
-    OLATB = 0x00
+    IODIRB = 0x01
+    IPOLA = 0x02
+    IPOLB = 0x03
+    GPINTENA = 0x04
+    GPINTENB = 0x05
+    DEFVALA = 0x06
+    DEFVALB = 0x07
+    INTCONA = 0x08
+    INTCONB = 0x09
+    IOCON = 0x0A     # 0x0B points to the same register
+    GPPUA = 0x0C
+    GPPUB = 0x0D
+    INTFA = 0x0E
+    INTFB = 0x0F
+    INTCAPA = 0x10
+    INTCAPB = 0x11
+    GPIOA = 0x12
+    GPIOB = 0x13
+    OLATA = 0x14
+    OLATB = 0x15
 
 
     I2CPort = 0x00                  # 0 = /dev/i2c-0 (port I2C0), 1 = /dev/i2c-1 (port I2C1)
@@ -126,28 +102,6 @@ class MCP23017:
         self.devAddr = dev_addr
         self.devRegMode = 0x00      # Only Byte mode supported so far
         self.RstPin = rst_pin
-
-        self.IODIRA = 0x00
-        self.IODIRB = 0x01
-        self.IPOLA = 0x02
-        self.IPOLB = 0x03
-        self.GPINTENA = 0x04
-        self.GPINTENB = 0x05
-        self.DEFVALA = 0x06
-        self.DEFVALB = 0x07
-        self.INTCONA = 0x08
-        self.INTCONB = 0x09
-        self.IOCON = 0x0A     # 0x0B points to the same register
-        self.GPPUA = 0x0C
-        self.GPPUB = 0x0D
-        self.INTFA = 0x0E
-        self.INTFB = 0x0F
-        self.INTCAPA = 0x10
-        self.INTCAPB = 0x11
-        self.GPIOA = 0x12
-        self.GPIOB = 0x13
-        self.OLATA = 0x14
-        self.OLATB = 0x15
 
 
     def __del__(self):
