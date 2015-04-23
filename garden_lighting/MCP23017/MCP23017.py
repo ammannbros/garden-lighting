@@ -1,7 +1,6 @@
 # coding=utf-8
 __author__ = 'holzi'
 
-# !/usr/bin/python
 import smbus
 import time
 try:

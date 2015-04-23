@@ -1,5 +1,5 @@
 __author__ = 'holzi'
-from MCP23017 import MCP23017
+from garden_lighting.MCP23017 import MCP23017
 
 def test():
     Chip2 = MCP23017(0x21)

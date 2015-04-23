@@ -1,0 +1,7 @@
+#!/usr/bin/python
+from garden_lighting.MCP23017 import MCP23017
+from garden_lighting.web.web import start_web
+
+
+if __name__ == '__main__':
+    start_web()
