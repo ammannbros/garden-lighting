@@ -8,6 +8,30 @@ try:
 except RuntimeError:
     print("Error importing RPi.GPIO! Maybe you are not root?")
 
+    # Defines
+    IODIRA = 0x00
+    IODIRB = 0x01
+    IPOLA = 0x02
+    IPOLB = 0x03
+    GPINTENA = 0x04
+    GPINTENB = 0x05
+    DEFVALA = 0x06
+    DEFVALB = 0x07
+    INTCONA = 0x08
+    INTCONB = 0x09
+    IOCON = 0x0A     # 0x0B points to the same register
+    GPPUA = 0x0C
+    GPPUB = 0x0D
+    INTFA = 0x0E
+    INTFB = 0x0F
+    INTCAPA = 0x10
+    INTCAPB = 0x11
+    GPIOA = 0x12
+    GPIOB = 0x13
+    OLATA = 0x14
+    OLATB = 0x15
+
+
 # global constans
 OUT = 0
 IN = 1
@@ -51,27 +75,28 @@ class MCP23017:
     '''
 
     # Defines
-    IODIRA   = 0x00
-    IODIRB   = 0x01
-    IPOLA    = 0x02
-    IPOLB    = 0x03
-    GPINTENA = 0x04
-    GPINTENB = 0x05
-    DEFVALA  = 0x06
-    DEFVALB  = 0x07
-    INTCONA  = 0x08
-    INTCONB  = 0x09
-    IOCON    = 0x0A     # 0x0B points to the same register
-    GPPUA    = 0x0C
-    GPPUB    = 0x0D
-    INTFA    = 0x0E
-    INTFB    = 0x0F
-    INTCAPA  = 0x10
-    INTCAPB  = 0x11
-    GPIOA    = 0x12
-    GPIOB    = 0x13
-    OLATA    = 0x14
-    OLATB    = 0x15
+    IODIRA = 0x00
+    IODIRB = 0x00
+    IPOLA = 0x00
+    IPOLB = 0x00
+    GPINTENA = 0x00
+    GPINTENB = 0x00
+    DEFVALA = 0x00
+    DEFVALB = 0x00
+    INTCONA = 0x00
+    INTCONB = 0x00
+    IOCON = 0x00     # 0x0B points to the same register
+    GPPUA = 0x00
+    GPPUB = 0x00
+    INTFA = 0x00
+    INTFB = 0x00
+    INTCAPA = 0x00
+    INTCAPB = 0x00
+    GPIOA = 0x00
+    GPIOB = 0x00
+    OLATA = 0x00
+    OLATB = 0x00
+
 
     I2CPort = 0x00                  # 0 = /dev/i2c-0 (port I2C0), 1 = /dev/i2c-1 (port I2C1)
     bus = 0x00                      # SMBUS-Object
@@ -79,7 +104,7 @@ class MCP23017:
     devRegMode = 0x00
     RstPin = 0xFF
 
-    def __init__(self, dev_addr, rst_pin = 0xFF ,  i2cport = 1):
+    def __init__(self, dev_addr, rst_pin = 0xFF,  i2cport = 1):
         '''
         Initialises the Class. You have to specify the I2C-address of your device
         and the I2C-port your raspberry uses
@@ -101,6 +126,34 @@ class MCP23017:
         self.devAddr = dev_addr
         self.devRegMode = 0x00      # Only Byte mode supported so far
         self.RstPin = rst_pin
+
+        self.IODIRA = 0x00
+        self.IODIRB = 0x01
+        self.IPOLA = 0x02
+        self.IPOLB = 0x03
+        self.GPINTENA = 0x04
+        self.GPINTENB = 0x05
+        self.DEFVALA = 0x06
+        self.DEFVALB = 0x07
+        self.INTCONA = 0x08
+        self.INTCONB = 0x09
+        self.IOCON = 0x0A     # 0x0B points to the same register
+        self.GPPUA = 0x0C
+        self.GPPUB = 0x0D
+        self.INTFA = 0x0E
+        self.INTFB = 0x0F
+        self.INTCAPA = 0x10
+        self.INTCAPB = 0x11
+        self.GPIOA = 0x12
+        self.GPIOB = 0x13
+        self.OLATA = 0x14
+        self.OLATB = 0x15
+
+
+    def __del__(self):
+        #needed to clear the RPi.GPIO
+        GPIO.cleanup(self.RstPin)
+        pass
 
     def initDevice(self):
         '''
@@ -151,7 +204,7 @@ class MCP23017:
 
         if self.check_uint8(bit_pattern):
             #Write to bus
-            return self.bus.write_byte_data(self.devAddr, IODIRA, bit_pattern)
+            return self.bus.write_byte_data(self.devAddr, self.IODIRA, bit_pattern)
         else:
             return -1
 
@@ -173,7 +226,7 @@ class MCP23017:
 
         if self.check_uint8(bit_pattern):
             #Write to bus
-            return self.bus.write_byte_data(self.devAddr, IODIRB, bit_pattern)
+            return self.bus.write_byte_data(self.devAddr, self.IODIRB, bit_pattern)
         else:
             return -1
 
@@ -194,7 +247,7 @@ class MCP23017:
         '''
         if self.check_uint8(bit_pattern):
             #Write to bus
-            return self.bus.write_byte_data(self.devAddr, IPOLA, bit_pattern)
+            return self.bus.write_byte_data(self.devAddr, self.IPOLA, bit_pattern)
         else:
             return -1
 
@@ -215,7 +268,7 @@ class MCP23017:
         '''
         if self.check_uint8(bit_pattern):
             #Write to bus
-            return self.bus.write_byte_data(self.devAddr, IPOLB, bit_pattern)
+            return self.bus.write_byte_data(self.devAddr, self.IPOLB, bit_pattern)
         else:
             return -1
 
@@ -238,7 +291,7 @@ class MCP23017:
         '''
         if self.check_uint8(bit_pattern):
             #Write to bus
-            return self.bus.write_byte_data(self.devAddr, GPINTENA, bit_pattern)
+            return self.bus.write_byte_data(self.devAddr, self.GPINTENA, bit_pattern)
         else:
             return -1
 
@@ -262,7 +315,7 @@ class MCP23017:
         '''
         if self.check_uint8(bit_pattern):
             #Write to bus
-            return self.bus.write_byte_data(self.devAddr, GPINTENB, bit_pattern)
+            return self.bus.write_byte_data(self.devAddr, self.GPINTENB, bit_pattern)
         else:
             return -1
 
@@ -282,7 +335,7 @@ class MCP23017:
         '''
         if self.check_uint8(bit_pattern):
             #Write to bus
-            return self.bus.write_byte_data(self.devAddr, DEFVALA, bit_pattern)
+            return self.bus.write_byte_data(self.devAddr, self.DEFVALA, bit_pattern)
         else:
             return -1
 
@@ -301,7 +354,7 @@ class MCP23017:
         '''
         if self.check_uint8(bit_pattern):
             #Write to bus
-            return self.bus.write_byte_data(self.devAddr, DEFVALB, bit_pattern)
+            return self.bus.write_byte_data(self.devAddr, self.DEFVALB, bit_pattern)
         else:
             return -1
 
@@ -324,7 +377,7 @@ class MCP23017:
         '''
         if self.check_uint8(bit_pattern):
             #Write to bus
-            return self.bus.write_byte_data(self.devAddr, INTCONA, bit_pattern)
+            return self.bus.write_byte_data(self.devAddr, self.INTCONA, bit_pattern)
         else:
             return -1
 
@@ -347,7 +400,7 @@ class MCP23017:
         '''
         if self.check_uint8(bit_pattern):
             #Write to bus
-            return self.bus.write_byte_data(self.devAddr, INTCONB, bit_pattern)
+            return self.bus.write_byte_data(self.devAddr, self.INTCONB, bit_pattern)
         else:
             return -1
 
@@ -369,7 +422,7 @@ class MCP23017:
         '''
         if self.check_uint8(bit_pattern):
             #Write to bus
-            return self.bus.write_byte_data(self.devAddr, GPPUA, bit_pattern)
+            return self.bus.write_byte_data(self.devAddr, self.GPPUA, bit_pattern)
         else:
             return -1
 
@@ -391,7 +444,7 @@ class MCP23017:
         '''
         if self.check_uint8(bit_pattern):
             #Write to bus
-            return self.bus.write_byte_data(self.devAddr, GPPUB, bit_pattern)
+            return self.bus.write_byte_data(self.devAddr, self.GPPUB, bit_pattern)
         else:
             return -1
 
@@ -412,7 +465,7 @@ class MCP23017:
 
         :return: The value of the specified register as 8-Bit-word
         '''
-        return self.bus.write_byte_data(self.devAddr, INTFA, bit_pattern)
+        return self.bus.write_byte_data(self.devAddr, self.INTFA)
 
     def read_interrupt_flag_reg_port_b(self):
         '''
@@ -431,7 +484,7 @@ class MCP23017:
 
         :return: The value of the specified register as 8-Bit-word
         '''
-        return self.bus.write_byte_data(self.devAddr, INTFB, bit_pattern)
+        return self.bus.write_byte_data(self.devAddr, self.INTFB)
 
     def read_interrupt_capture_reg_port_a(self):
         '''
@@ -448,7 +501,7 @@ class MCP23017:
 
         :return: The value of the specified register as 8-Bit-word
         '''
-        return self.bus.write_byte_data(self.devAddr, INTCAPA, bit_pattern)
+        return self.bus.write_byte_data(self.devAddr, self.INTCAPA)
 
     def read_interrupt_capture_reg_port_b(self, bit_pattern):
         '''
@@ -465,7 +518,7 @@ class MCP23017:
 
         :return: The value of the specified register as 8-Bit-word
         '''
-        return self.bus.write_byte_data(self.devAddr, INTCAPB, bit_pattern)
+        return self.bus.write_byte_data(self.devAddr, self.INTCAPB, bit_pattern)
 
     def read_byte_port_a(self):
         '''
@@ -478,7 +531,7 @@ class MCP23017:
 
         :return: The value of the specified register as 8-Bit-word
         '''
-        return self.bus.read_byte_data(self.devAddr, GPIOA)
+        return self.bus.read_byte_data(self.devAddr, self.GPIOA)
 
     def read_byte_port_b(self):
         '''
@@ -491,7 +544,7 @@ class MCP23017:
 
         :return: The value of the specified register as 8-Bit-word
         '''
-        return self.bus.read_byte_data(self.devAddr, GPIOB)
+        return self.bus.read_byte_data(self.devAddr, self.GPIOB)
 
     def write_byte_port_a(self, bit_pattern):
         '''
@@ -511,7 +564,7 @@ class MCP23017:
         '''
         if self.check_uint8(bit_pattern):
             #Write to bus
-            return self.bus.write_byte_data(self.devAddr, OLATA, bit_pattern)
+            return self.bus.write_byte_data(self.devAddr, self.OLATA, bit_pattern)
         else:
             return -1
 
@@ -533,7 +586,7 @@ class MCP23017:
         '''
         if self.check_uint8(bit_pattern):
             #Write to bus
-            return self.bus.write_byte_data(self.devAddr, OLATB, bit_pattern)
+            return self.bus.write_byte_data(self.devAddr, self.OLATB, bit_pattern)
         else:
             return -1
 
@@ -620,7 +673,7 @@ class MCP23017:
         '''
         if self.check_uint8(bit_pattern):
             #Write to bus
-            return self.bus.write_byte_data(self.devAddr, IOCON, bit_pattern)
+            return self.bus.write_byte_data(self.devAddr, self.IOCON, bit_pattern)
         else:
             return -1
 
