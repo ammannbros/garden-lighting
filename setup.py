@@ -9,6 +9,6 @@ setup(
     author='holzi, max',
     author_email='',
     description='',
-    install_requires=['Flask', 'Flask-Assets', 'pyScss', 'smbus-cffi'],
+    install_requires=['Flask', 'Flask-Assets', 'RPi.GPIO', 'pyScss', 'smbus-cffi'],
     scripts=['scripts/garden-lighting'],
 )
