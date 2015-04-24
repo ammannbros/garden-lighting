@@ -1,16 +1,48 @@
-
 <!DOCTYPE html>
 <html>
 <head lang="de">
     <meta charset="UTF-8">
     <title></title>
 
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/fuelux.min.js"></script>
     {% block head %}{% endblock %}
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+
+
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/fuelux.min.css">
+
+
+        <link rel=stylesheet type=text/css href="/static/sass/layout.css">
+
 </head>
 <body>
-{% block body %}{% endblock %}
+<header class="navbar navbar-fixed-top garden-docs-nav" role="banner">
+    <div class="container">
+        <div class="navbar-header">
+
+            <a href="/" class="navbar-brand">Garden Lighting</a>
+        </div>
+
+        <nav class="collapse navbar-collapse" role="navigation">
+            <ul class="nav navbar-nav">
+                <li {% if request.path == "/overview/" %}
+                    class="active"
+                {% endif %}>
+                    <a href="/overview/">Übersicht</a>
+                </li>
+                <li {% if request.path == "/about/" %}
+                    class="active"
+                {% endif %}>
+                    <a href="/about/">Über</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</header>
+<div id="content">
+    {% block body %}{% endblock %}
+</div>
 </body>
 </html>

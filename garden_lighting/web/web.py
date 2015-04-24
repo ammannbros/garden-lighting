@@ -1,8 +1,6 @@
-import os
-
-
 from flask import Flask, render_template, jsonify
-from flask.ext.assets import Environment, Bundle
+from flask.ext.libsass import Sass
+import pkg_resources
 
 from garden_lighting.web.devices import DeviceGroup, Action
 from garden_lighting.web.scheduler import DeviceScheduler
@@ -10,18 +8,13 @@ from garden_lighting.web.scheduler import DeviceScheduler
 
 app = Flask(__name__)
 
-env = Environment(app)
-env.load_path = [
-    os.path.join(os.path.dirname(__file__), 'sass')
-]
-
-env.register(
-    'css_all',
-    Bundle(
-        'lights.scss',
-        filters='pyscss',
-        output='css_all.css'
-    )
+Sass(
+    {'layout': 'static/sass/layout.scss',
+     'lights': 'static/sass/lights.scss'}, app,
+    url_path='/static/sass/',
+    include_paths=[
+        pkg_resources.resource_filename('garden_lighting.web', 'static/sass'),
+    ]
 )
 
 devices = DeviceGroup()
@@ -30,6 +23,16 @@ scheduler = DeviceScheduler(devices, 0.5)
 
 @app.route('/')
 def lights():
+    return render_template("lights.html")
+
+
+@app.route('/overview/')
+def overview():
+    return render_template("lights.html")
+
+
+@app.route('/about/')
+def about():
     return render_template("lights.html")
 
 

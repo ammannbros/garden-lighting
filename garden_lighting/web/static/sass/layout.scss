@@ -1,0 +1,53 @@
+$nav_text_color: #fff;
+$nav_bg_color_active: #1f2f3f;
+$nav_bg_color: #293f54;
+
+/*
+* Content view
+*/
+
+#content {
+  padding-top: 60px;
+  padding-bottom: 60px;
+  font-size: 24px;
+  text-align: left;
+}
+
+/*
+ * Main navigation
+ */
+
+.garden-docs-nav {
+  margin-bottom: 0;
+  background-color: $nav_bg_color;
+  border-bottom: 0;
+}
+
+.garden-docs-nav .navbar-nav > li > a {
+  color: $nav_text_color;
+}
+
+.garden-docs-nav .navbar-brand {
+  color: $nav_text_color;
+}
+
+.garden-docs-nav .navbar-nav > li > a:hover,
+.garden-docs-nav .navbar-nav > .active > a,
+.garden-docs-nav .navbar-nav > .active > a:hover {
+  color: $nav_text_color;
+  background-color: $nav_bg_color_active;
+}
+
+.garden-docs-nav .nav > li > a:focus {
+  background-color: #3e5265;
+}
+
+.garden-docs-nav .navbar-header .navbar-toggle {
+  border-color: $nav_text_color;
+}
+
+.garden-docs-nav .navbar-header .navbar-toggle:hover,
+.garden-docs-nav .navbar-header .navbar-toggle:focus {
+  background-color: $nav_bg_color_active;
+  border-color: #f9f9f9;
+}
