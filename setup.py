@@ -9,7 +9,7 @@ setup(
     author='holzi, max',
     author_email='',
     description='',
-    install_requires=['Flask', 'Flask-libsass',
+    install_requires=['Flask', 'Flask-libsass', 'Flask-Bower',
                       'RPi.GPIO', 'smbus-cffi'],
     scripts=['scripts/garden-lighting'],
 )

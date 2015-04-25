@@ -1,0 +1,67 @@
+{% extends "layout.html" %}
+
+{% block head %}
+    <script src="{{ url_for('bower.static', filename='clockpicker/dist/bootstrap-clockpicker.min.js') }}"></script>
+    <link rel=stylesheet type=text/css
+          href="{{ url_for('bower.static', filename='clockpicker/dist/bootstrap-clockpicker.min.css') }}">
+{% endblock %}
+
+
+{% block body %}
+    <div class="fuelux">
+
+        <div class="wizard" data-initialize="wizard" id="myWizard" style="overflow:visible">
+            <div class="actions">
+                <button type="button" class="btn btn-default btn-prev"><span
+                        class="glyphicon glyphicon-arrow-left"></span>Zurück
+                </button>
+                <button type="button" class="btn btn-default btn-next" data-last="Abschließen">Nächstes<span
+                        class="glyphicon glyphicon-arrow-right"></span></button>
+            </div>
+            <ul class="steps">
+                <li data-step="1" data-name="1" class="active"><span class="badge">1</span>1<span
+                        class="chevron"></span></li>
+                <li data-step="2" data-name="2"><span class="badge">2</span>2<span class="chevron"></span></li>
+                <li data-step="3" data-name="3"><span class="badge">3</span>3<span class="chevron"></span>
+                </li>
+            </ul>
+
+
+            <div class="step-content" style="overflow:visible">
+                <div class="step-pane active sample-pane" data-step="1">
+                    <h4>Wähle ein Licht</h4>
+
+                    <div class="checkbox">
+                        {% for n in range(1,20) %}
+
+                            <label class="checkbox-custom" data-initialize="checkbox">
+                                <input class="sr-only"
+                                        {% if n == 1 %}
+                                       checked="checked"
+                                        {% endif %} name="radioEx1" type="checkbox" value="{{ n }}">
+                                {{ n }}
+                            </label>
+
+                        {% endfor %}
+                    </div>
+
+                    <p></p>
+                </div>
+                <div class="step-pane" data-step="2">
+                    <h4>Wähle eine Zeitspanne</h4>
+
+                    {% include("scheduler.html") %}
+
+                    <p></p>
+                </div>
+                <div class="step-pane sample-pane" data-step="3">
+                    <h4>3</h4>
+
+                    <p></p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+{% endblock %}

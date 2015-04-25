@@ -1,5 +1,7 @@
 from flask import Flask, render_template, jsonify
 from flask.ext.libsass import Sass
+from flask.ext.bower import Bower
+
 import pkg_resources
 
 from garden_lighting.web.devices import DeviceGroup, Action
@@ -7,6 +9,7 @@ from garden_lighting.web.scheduler import DeviceScheduler
 
 
 app = Flask(__name__)
+Bower(app)
 
 Sass(
     {'layout': 'static/sass/layout.scss',
@@ -28,12 +31,22 @@ def lights():
 
 @app.route('/overview/')
 def overview():
-    return render_template("lights.html")
+    return render_template("lights.html", amount=6)
+
+
+@app.route('/all_lights/')
+def all_lights():
+    return render_template("lights.html", amount=20)
+
+
+@app.route('/controls/')
+def controls():
+    return render_template("controls.html")
 
 
 @app.route('/about/')
 def about():
-    return render_template("lights.html")
+    return render_template("about.html")
 
 
 @app.route('/api/<slot>/on/')
