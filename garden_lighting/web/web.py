@@ -26,7 +26,7 @@ scheduler = DeviceScheduler(devices, 0.5)
 
 @app.route('/')
 def lights():
-    return render_template("lights.html")
+    return render_template("lights.html", amount=6)
 
 
 @app.route('/overview/')
