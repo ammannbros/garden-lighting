@@ -245,7 +245,7 @@ class LightControl:
 
     def read_interrupt_capture(self):
         '''
-        This function returns the 16Bit input value of the controller
+        This function returns the 16Bit input-interrupt value of the controller
         Note: 2 reads are done via I2C (one for each device)
 
         Caution not tested
@@ -262,7 +262,7 @@ class LightControl:
     def read_interrupt_flags(self, part):
         '''
         his function reads the values ( '1' for 'ON', '0' for 'OFF)
-        of the inputs 0-7 or 8-15 as an 8Bit value
+        of the input-interrupt flags 0-7 or 8-15 as an 8Bit value
 
         Choose:  part = 0 for inputs 0-7
                  part = 1 for inputs 8-15
