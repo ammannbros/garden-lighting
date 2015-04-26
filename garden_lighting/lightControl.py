@@ -255,7 +255,7 @@ class LightControl:
         #TODO NOT TESTED!
 
         bit_patternA = self.ControlUnitA.read_interrupt_capture_reg_port_b()
-        bit_patternB = self.ControlUnitA.read_interrupt_capture_reg_port_b()
+        bit_patternB = self.ControlUnitB.read_interrupt_capture_reg_port_b()
 
         return (bit_patternB << 8) | bit_patternA
 

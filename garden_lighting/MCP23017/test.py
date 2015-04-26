@@ -1,4 +1,3 @@
-rebo
 __author__ = 'holzi'
 
 import sys

@@ -453,7 +453,7 @@ class MCP23017:
 
         :return: The value of the specified register as 8-Bit-word
         '''
-        return self.bus.read_block_data(self.devAddr, self.INTCAPA)
+        return self.bus.read_byte_data(self.devAddr, self.INTCAPA)
 
     def read_interrupt_capture_reg_port_b(self):
         '''
@@ -470,7 +470,7 @@ class MCP23017:
 
         :return: The value of the specified register as 8-Bit-word
         '''
-        return self.bus.read_block_data(self.devAddr, self.INTCAPB)
+        return self.bus.read_byte_data(self.devAddr, self.INTCAPB)
 
     def read_byte_port_a(self):
         '''
