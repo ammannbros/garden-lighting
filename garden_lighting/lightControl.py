@@ -8,6 +8,20 @@ FALSE = 0
 
 class LightControl:
 
+    '''
+    Implements access to all fuctions of the LightController
+    (Combines 2 RelaisArray modules)
+    
+    Interrupt is Configured as following:
+    
+    PortA disable
+    PortB enable 
+    PortB IOPol = negative (so active = value 1 on the Port)
+    Interrput Active High
+    Compare against DEVAL register (val = 0x00) (interrupt if differ)
+    
+    Please regard the documentation of the methods
+    '''
     ControlUnitA = 0x00
     ControlUnitB = 0x00
 
