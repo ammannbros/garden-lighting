@@ -105,20 +105,18 @@ class MCP23017:
 
 
     def __del__(self):
-        #needed to clear the RPi.GPIO
+        #needed to clear the RPi.GPIO channel
         GPIO.cleanup(self.RstPin)
-        pass
 
     def initDevice(self):
         '''
-        Does a reset to put all registers in inital state
+        Does a reset to put all registers in initial state
         '''
         #Set pin numbering mode
         GPIO.setmode(GPIO.BOARD)
 
-        #Define the teset pin as output
+        #Define the reset pin as output
         GPIO.setup(self.RstPin, GPIO.OUT)
-
         #Create a reset impulse
         GPIO.output(self.RstPin, GPIO.LOW)
         #wait for 50 ms
@@ -153,7 +151,7 @@ class MCP23017:
         0 = Pin is configured as an output.
 
         :param bit_pattern: A 8 bit word to write into the specified register
-        :return: Represents success: ['-1' if unsuccessful]
+        :return: Represents success: ['-1' if Input invalid]
         '''
 
         if self.check_uint8(bit_pattern):
@@ -175,7 +173,7 @@ class MCP23017:
         0 = Pin is configured as an output.
 
         :param bit_pattern: A 8 bit word to write into the specified register
-        :return: Represents success: ['-1' if unsuccessful]
+        :return: Represents success: ['-1' if Input invalid]
         '''
 
         if self.check_uint8(bit_pattern):
@@ -197,7 +195,7 @@ class MCP23017:
         0 = GPIO register bit will reflect the same logic state of the input pin.
 
         :param bit_pattern: A 8 bit word to write into the specified register
-        :return: Represents success: ['-1' if unsuccessful]
+        :return: Represents success: ['-1' if Input invalid]
         '''
         if self.check_uint8(bit_pattern):
             #Write to bus
@@ -218,7 +216,7 @@ class MCP23017:
         0 = GPIO register bit will reflect the same logic state of the input pin.
 
         :param bit_pattern: A 8 bit word to write into the specified register
-        :return: Represents success: ['-1' if unsuccessful]
+        :return: Represents success: ['-1' if Input invalid]
         '''
         if self.check_uint8(bit_pattern):
             #Write to bus
@@ -241,7 +239,7 @@ class MCP23017:
         0 = Disable GPIO input pin for interrupt-on-change event.
 
         :param bit_pattern: A 8 bit word to write into the specified register
-        :return: Represents success: ['-1' if unsuccessful]
+        :return: Represents success: ['-1' if Input invalid]
         '''
         if self.check_uint8(bit_pattern):
             #Write to bus
@@ -265,7 +263,7 @@ class MCP23017:
         0 = Disable GPIO input pin for interrupt-on-change event.
 
         :param bit_pattern: A 8 bit word to write into the specified register
-        :return: Represents success: ['-1' if unsuccessful]
+        :return: Represents success: ['-1' if Input invalid]
         '''
         if self.check_uint8(bit_pattern):
             #Write to bus
@@ -285,7 +283,7 @@ class MCP23017:
         pin will cause an interrupt to occur.
 
         :param bit_pattern: A 8 bit word to write into the specified register
-        :return: Represents success: ['-1' if unsuccessful]
+        :return: Represents success: ['-1' if Input invalid]
         '''
         if self.check_uint8(bit_pattern):
             #Write to bus
@@ -304,7 +302,7 @@ class MCP23017:
         pin will cause an interrupt to occur.
 
         :param bit_pattern: A 8 bit word to write into the specified register
-        :return: Represents success: ['-1' if unsuccessful]
+        :return: Represents success: ['-1' if Input invalid]
         '''
         if self.check_uint8(bit_pattern):
             #Write to bus
@@ -327,7 +325,7 @@ class MCP23017:
         0 = Pin value is compared against the previous pin value.
 
         :param bit_pattern: A 8 bit word to write into the specified register
-        :return: Represents success: ['-1' if unsuccessful]
+        :return: Represents success: ['-1' if Input invalid]
         '''
         if self.check_uint8(bit_pattern):
             #Write to bus
@@ -350,7 +348,7 @@ class MCP23017:
         0 = Pin value is compared against the previous pin value.
 
         :param bit_pattern: A 8 bit word to write into the specified register
-        :return: Represents success: ['-1' if unsuccessful]
+        :return: Represents success: ['-1' if Input invalid]
         '''
         if self.check_uint8(bit_pattern):
             #Write to bus
@@ -372,7 +370,7 @@ class MCP23017:
         0 = Pull-up disabled.
 
         :param bit_pattern: A 8 bit word to write into the specified register
-        :return: Represents success: ['-1' if unsuccessful]
+        :return: Represents success: ['-1' if Input invalid]
         '''
         if self.check_uint8(bit_pattern):
             #Write to bus
@@ -394,7 +392,7 @@ class MCP23017:
         0 = Pull-up disabled.
 
         :param bit_pattern: A 8 bit word to write into the specified register
-        :return: Represents success: ['-1' if unsuccessful]
+        :return: Represents success: ['-1' if Input invalid]
         '''
         if self.check_uint8(bit_pattern):
             #Write to bus
@@ -419,7 +417,7 @@ class MCP23017:
 
         :return: The value of the specified register as 8-Bit-word
         '''
-        return self.bus.write_byte_data(self.devAddr, self.INTFA)
+        return self.bus.read_byte_data(self.devAddr, self.INTFA)
 
     def read_interrupt_flag_reg_port_b(self):
         '''
@@ -438,7 +436,7 @@ class MCP23017:
 
         :return: The value of the specified register as 8-Bit-word
         '''
-        return self.bus.write_byte_data(self.devAddr, self.INTFB)
+        return self.bus.read_byte_data(self.devAddr, self.INTFB)
 
     def read_interrupt_capture_reg_port_a(self):
         '''
@@ -455,9 +453,9 @@ class MCP23017:
 
         :return: The value of the specified register as 8-Bit-word
         '''
-        return self.bus.write_byte_data(self.devAddr, self.INTCAPA)
+        return self.bus.read_block_data(self.devAddr, self.INTCAPA)
 
-    def read_interrupt_capture_reg_port_b(self, bit_pattern):
+    def read_interrupt_capture_reg_port_b(self):
         '''
         INTERRUPT CAPTURE REGISTER
         The INTCAP register captures the GPIO port value at
@@ -472,7 +470,7 @@ class MCP23017:
 
         :return: The value of the specified register as 8-Bit-word
         '''
-        return self.bus.write_byte_data(self.devAddr, self.INTCAPB, bit_pattern)
+        return self.bus.read_block_data(self.devAddr, self.INTCAPB)
 
     def read_byte_port_a(self):
         '''
@@ -514,7 +512,7 @@ class MCP23017:
         Note: Reading the output registers is done via the port registers (GPIO)
 
         :param bit_pattern: A 8 bit word to write into the specified register
-        :return: Represents success: ['-1' if unsuccessful]
+        :return: Represents success: ['-1' if Input invalid]
         '''
         if self.check_uint8(bit_pattern):
             #Write to bus
@@ -536,7 +534,7 @@ class MCP23017:
         Note: Reading the output registers is done via the port registers (GPIO)
 
         :param bit_pattern: A 8 bit word to write into the specified register
-        :return: Represents success: ['-1' if unsuccessful]
+        :return: Represents success: ['-1' if Input invalid]
         '''
         if self.check_uint8(bit_pattern):
             #Write to bus
@@ -623,7 +621,7 @@ class MCP23017:
         bit 0 Unimplemented: Read as ‘0’.
 
         :param bit_pattern: A 8 bit word to write into the specified register
-        :return: Represents success: ['-1' if unsuccessful]
+        :return: Represents success: ['-1' if Input invalid]
         '''
         if self.check_uint8(bit_pattern):
             #Write to bus

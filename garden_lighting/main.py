@@ -10,5 +10,5 @@ from lightControl import LightControl
 
 ControlUnit  = LightControl()
 
-ControlUnit.init_LightControl()
+ControlUnit.init()
 ControlUnit.set_multiple_lights(1 , (8,9,10,11))
