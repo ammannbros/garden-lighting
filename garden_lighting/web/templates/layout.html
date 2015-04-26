@@ -1,16 +1,61 @@
-
 <!DOCTYPE html>
 <html>
 <head lang="de">
     <meta charset="UTF-8">
     <title></title>
 
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="{{ url_for('bower.static', filename='jquery/dist/jquery.min.js') }}"></script>
+    <script src="{{ url_for('bower.static', filename='bootstrap/dist/js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('bower.static', filename='fuelux/dist/js/fuelux.min.js') }}"></script>
     {% block head %}{% endblock %}
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+
+
+    <link rel=stylesheet type=text/css
+          href="{{ url_for('bower.static', filename='bootstrap/dist/css/bootstrap.min.css') }}">
+    <link rel=stylesheet type=text/css href="{{ url_for('bower.static', filename='fuelux/dist/css/fuelux.min.css') }}">
+    <link rel=stylesheet type=text/css
+          href="{{ url_for('bower.static', filename='fontawesome/css/font-awesome.min.css') }}">
+
+    <link rel=stylesheet type=text/css href="/static/sass/layout.css">
 </head>
 <body>
-{% block body %}{% endblock %}
+<header class="navbar navbar-fixed-top garden-docs-nav" role="banner">
+    <div class="container">
+        <div class="navbar-header">
+            <a href="/" class="navbar-brand">Garden Lighting</a>
+        </div>
+
+        <nav class="collapse navbar-collapse" role="navigation">
+            <ul class="nav navbar-nav">
+                <li {% if request.path == "/overview/" %}
+                    class="active"
+                {% endif %}>
+                    <a href="/overview/">Übersicht</a>
+                </li>
+                <li {% if request.path == "/all_lights/" %}
+                    class="active"
+                {% endif %}>
+                    <a href="/all_lights/">Alle Lichter</a>
+                </li>
+                <li {% if request.path == "/about/" %}
+                    class="active"
+                {% endif %}>
+                    <a href="/about/">Über</a>
+                </li>
+            </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a id="cogs" class="fa icon-cogs" href="/controls/"></a>
+                </li>
+            </ul>
+
+        </nav>
+
+    </div>
+</header>
+<div id="content">
+    {% block body %}{% endblock %}
+</div>
 </body>
 </html>

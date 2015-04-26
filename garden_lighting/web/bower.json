@@ -1,0 +1,23 @@
+{
+  "name": "garde-lighting",
+  "version": "0.1",
+  "homepage": "https://github.com/ammannbros/garden-lighting",
+  "authors": [
+    "Max Ammann <maximilian.ammann@googlemail.com>"
+  ],
+  "dependencies": {
+      "jquery": "2.1.3",
+      "bootstrap": "3.3.4",
+      "fuelux": "3.6.3",
+      "fontawesome": "3.2.1",
+      "clockpicker": "*"
+  },
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
