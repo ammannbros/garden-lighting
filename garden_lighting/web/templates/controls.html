@@ -4,6 +4,7 @@
     <script src="{{ url_for('bower.static', filename='clockpicker/dist/bootstrap-clockpicker.min.js') }}"></script>
     <link rel=stylesheet type=text/css
           href="{{ url_for('bower.static', filename='clockpicker/dist/bootstrap-clockpicker.min.css') }}">
+    <link rel=stylesheet type=text/css href="/static/sass/controls.css">
 {% endblock %}
 
 
@@ -19,9 +20,9 @@
                         class="glyphicon glyphicon-arrow-right"></span></button>
             </div>
             <ul class="steps">
-                <li data-step="1" data-name="1" class="active"><span class="badge">1</span>1<span
+                <li data-step="1" data-name="1" class="active"><span class="badge">1</span>Lichter<span
                         class="chevron"></span></li>
-                <li data-step="2" data-name="2"><span class="badge">2</span>2<span class="chevron"></span></li>
+                <li data-step="2" data-name="2"><span class="badge">2</span>Zeitspanne<span class="chevron"></span></li>
                 <li data-step="3" data-name="3"><span class="badge">3</span>3<span class="chevron"></span>
                 </li>
             </ul>
@@ -29,19 +30,19 @@
 
             <div class="step-content" style="overflow:visible">
                 <div class="step-pane active sample-pane" data-step="1">
-                    <h4>Wähle ein Licht</h4>
+                    <h4>Wähle ein Lichter</h4>
 
                     <div class="checkbox">
                         {% for n in range(1,20) %}
-
-                            <label class="checkbox-custom" data-initialize="checkbox">
-                                <input class="sr-only"
-                                        {% if n == 1 %}
-                                       checked="checked"
-                                        {% endif %} name="radioEx1" type="checkbox" value="{{ n }}">
-                                {{ n }}
-                            </label>
-
+                            <div>
+                                <label class="checkbox-custom" data-initialize="checkbox">
+                                    <input class="sr-only"
+                                            {% if n == 1 %}
+                                           checked="checked"
+                                            {% endif %} name="radioEx1" type="checkbox" value="{{ n }}">
+                                    {{ n }}
+                                </label>
+                            </div>
                         {% endfor %}
                     </div>
 

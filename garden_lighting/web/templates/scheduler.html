@@ -1,40 +1,38 @@
-Von:<br>
-<fieldset class="btn-group" data-toggle="buttons">
-    <label class="btn btn-default">
-        <input type="checkbox" data-value="SU">Sun
-    </label>
-    <label class="btn btn-default">
-        <input type="checkbox" data-value="MO">Mon
-    </label>
-    <label class="btn btn-default">
-        <input type="checkbox" data-value="TU">Tue
-    </label>
-    <label class="btn btn-default">
-        <input type="checkbox" data-value="WE"> Wed
-    </label>
-    <label class="btn btn-default">
-        <input type="checkbox" data-value="TH"> Thu
-    </label>
-    <label class="btn btn-default">
-        <input type="checkbox" data-value="FR"> Fri
-    </label>
-    <label class="btn btn-default">
-        <input type="checkbox" data-value="SA"> Sat
-    </label>
-</fieldset>
+{% import 'time_select.html' as week %}
 
 
-<div class="input-group clockpicker">
-    <input type="text" class="form-control" value="09:30">
-    <span class="input-group-addon">
-        <span>Done</span>
-    </span>
+<div class="row">
+    <label class="col-sm-3">Start:</label>
+    {{ week.weekdays("col-md-4") }}
+
+    {{ week.time("col-md-3") }}
 </div>
 
-Für:<br>
-<div>
-<input type="text" class="form-control" value="0"> Stunden und <input type="text" class="form-control" value="0"> Minuten
+<div class="row">
+    <label class="col-sm-3">Für:</label>
+
+    <div id="duration" class="col-md-8">
+        <input id="hours" type="number" min="0" class="form-control pull-left" value="0"/>
+
+        <div class="pull-left duration-text">Stunden</div>
+        <input id="minutes" type="number" min="0" class="form-control pull-left" value="0"/>
+
+        <div class="pull-left duration-text">Minuten</div>
+    </div>
 </div>
+
+<div class="row" style="margin-top: 50px">
+    <label class="col-sm-3">Start:</label>
+    {{ week.weekdays("col-md-4", "radio") }}
+    {{ week.time("col-md-3") }}
+</div>
+<div class="row">
+    <label class="col-sm-3">Ende:</label>
+    {{ week.weekdays("col-md-4", "radio") }}
+    {{ week.time("col-md-3") }}
+</div>
+
+
 <script type="text/javascript">
     $('.clockpicker').clockpicker();
 </script>

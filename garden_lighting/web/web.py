@@ -13,7 +13,8 @@ Bower(app)
 
 Sass(
     {'layout': 'static/sass/layout.scss',
-     'lights': 'static/sass/lights.scss'}, app,
+     'lights': 'static/sass/lights.scss',
+     'controls': 'static/sass/controls.scss'}, app,
     url_path='/static/sass/',
     include_paths=[
         pkg_resources.resource_filename('garden_lighting.web', 'static/sass'),
