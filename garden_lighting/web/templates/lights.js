@@ -1,12 +1,12 @@
-var tiles = $('.tile');
+$("#toggle-on-off").bootstrapSwitch();
 
-tiles.click(function () {
-    if ($(this).hasClass("on")) {
-        $(this).find(".status").html("Aus");
-    } else {
-        $(this).find(".status").html("An");
-    }
 
-    $(this).toggleClass("off");
-    $(this).toggleClass("on");
+$('#list').click(function (event) {
+    event.preventDefault();
+    $('.item').addClass('list-group-item');
+});
+
+$('#grid').click(function (event) {
+    event.preventDefault();
+    $('.item').removeClass('list-group-item');
 });

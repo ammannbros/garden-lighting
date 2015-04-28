@@ -6,11 +6,12 @@
     "Max Ammann <maximilian.ammann@googlemail.com>"
   ],
   "dependencies": {
-      "jquery": "2.1.3",
-      "bootstrap": "3.3.4",
-      "fuelux": "3.6.3",
-      "fontawesome": "3.2.1",
-      "clockpicker": "*"
+    "jquery": "2.1.3",
+    "bootstrap": "3.3.4",
+    "fuelux": "3.6.3",
+    "fontawesome": "3.2.1",
+    "clockpicker": "*",
+    "bootstrap-switch": "~3.3.2"
   },
   "license": "MIT",
   "ignore": [

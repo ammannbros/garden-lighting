@@ -2,22 +2,68 @@
 
 
 {% block head %}
+    <script src="{{ url_for('bower.static', filename='bootstrap-switch/dist/js/bootstrap-switch.min.js') }}"></script>
+
     <script type="text/javascript">
         $(document).ready(function () {
             {% include "lights.js" %}
         });
     </script>
+
+    <link rel=stylesheet type=text/css
+          href="{{ url_for('bower.static', filename='bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.min.css') }}">
     <link rel=stylesheet type=text/css href="/static/sass/lights.css">
+
 {% endblock %}
 
 
 {% block body %}
-    <div style="display: inline">
-    {% for n in range(1,amount) %}
-    <div class="tile off">
-        <div class="name">Garten #{{ n }}</div>
-        <div class="status">Aus</div>
+    <div class="container">
+        <div class="well well-sm">
+            <strong>Lichter</strong>
+
+            <div class="pull-right">
+                <input id="toggle-on-off" class="switch"
+                       data-on-text="Alle An" data-off-text="Alle Aus"
+                       data-on-color="success" data-off-color="danger"
+                       type="checkbox" checked>
+            </div>
+
+        </div>
+        <div id="lights" class="row list-group">
+            {% for n in range(1,amount) %}
+                <div class="item list-group-item col-xs-4 col-lg-4">
+                    {#                        <img class="group list-group-image" src="https://placehold.it/400x250/000/fff" alt=""/>#}
+
+                    <div class="caption">
+                        <h4 class="group inner list-group-item-heading">
+                            Garten #{{ n }}</h4>
+
+                        {#                        <p class="group inner list-group-item-text">#}
+                        {#                            Product description... Lorem ipsum dolor sit amet, consectetuer adipiscing elit,#}
+                        {#                            sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat#}
+                        {#                            volutpat.</p>#}
+
+                        <div class="row">
+                            <div class="col-xs-12 col-md-6">
+
+                            </div>
+                            <div class="pull-right">
+                                <input class="switch"
+                                       data-on-text="An" data-off-text="Aus"
+                                       data-on-color="success" data-off-color="warning"
+                                       data-radio-all-off="toggle-on-off"
+                                       type="checkbox" checked>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
     </div>
-    {% endfor %}
-    </div>
+
+    <script type="text/javascript">
+        $(".switch").bootstrapSwitch();
+    </script>
 {% endblock %}

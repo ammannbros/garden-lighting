@@ -23,7 +23,7 @@
                 <li data-step="1" data-name="1" class="active"><span class="badge">1</span>Lichter<span
                         class="chevron"></span></li>
                 <li data-step="2" data-name="2"><span class="badge">2</span>Zeitspanne<span class="chevron"></span></li>
-                <li data-step="3" data-name="3"><span class="badge">3</span>3<span class="chevron"></span>
+                <li data-step="3" data-name="3"><span class="badge">3</span>Zusammenfassung<span class="chevron"></span>
                 </li>
             </ul>
 
@@ -33,14 +33,14 @@
                     <h4>Wähle ein Lichter</h4>
 
                     <div class="checkbox">
-                        {% for n in range(1,20) %}
-                            <div>
+                        {% for n in range(1,15) %}
+                            <div class="col-md-2" style="margin-right: 10px">
                                 <label class="checkbox-custom" data-initialize="checkbox">
                                     <input class="sr-only"
                                             {% if n == 1 %}
                                            checked="checked"
                                             {% endif %} name="radioEx1" type="checkbox" value="{{ n }}">
-                                    {{ n }}
+                                    Garten {{ n }}
                                 </label>
                             </div>
                         {% endfor %}
@@ -56,7 +56,9 @@
                     <p></p>
                 </div>
                 <div class="step-pane sample-pane" data-step="3">
-                    <h4>3</h4>
+                    <h4>Zusammenfassung</h4>
+                    Die Lichter 1, 2 und 3 werden von am Montag von Start bis Ende und am Dienstag von Start bis Ende,
+                    an sein.
 
                     <p></p>
                 </div>
@@ -65,4 +67,27 @@
         </div>
     </div>
 
+    <div class="well well-sm" style="margin-top: 30px">
+        <strong>Alle Regeln</strong>
+    </div>
+
+    <div id="rules" class="row list-group">
+        {% for n in range(1,15) %}
+            <div class="item list-group-item col-xs-4 col-lg-4">
+
+                <div class="caption">
+                    <h4 class="group inner list-group-item-heading">
+                        Regel #{{ n }}</h4>
+
+                    <p class="group inner list-group-item-text">
+                        Product description... Lorem ipsum dolor sit amet, consectetuer adipiscing elit,
+                        sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat
+                        volutpat.</p>
+
+
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    </div>
 {% endblock %}

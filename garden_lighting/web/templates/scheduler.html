@@ -12,14 +12,40 @@
     <label class="col-sm-3">Für:</label>
 
     <div id="duration" class="col-md-8">
-        <input id="hours" type="number" min="0" class="form-control pull-left" value="0"/>
+
+        <div id="hours" class="spinbox pull-left" data-initialize="spinbox">
+            <input type="text" class="form-control input-mini spinbox-input">
+
+            <div class="spinbox-buttons btn-group btn-group-vertical">
+                <button type="button" class="btn btn-default spinbox-up btn-xs">
+                    <span class="glyphicon glyphicon-chevron-up"></span><span class="sr-only">Increase</span>
+                </button>
+                <button type="button" class="btn btn-default spinbox-down btn-xs">
+                    <span class="glyphicon glyphicon-chevron-down"></span><span class="sr-only">Decrease</span>
+                </button>
+            </div>
+        </div>
 
         <div class="pull-left duration-text">Stunden</div>
-        <input id="minutes" type="number" min="0" class="form-control pull-left" value="0"/>
+
+        <div id="minutes" class="spinbox pull-left" data-initialize="spinbox">
+            <input type="text" class="form-control input-mini spinbox-input">
+
+            <div class="spinbox-buttons btn-group btn-group-vertical">
+                <button type="button" class="btn btn-default spinbox-up btn-xs">
+                    <span class="glyphicon glyphicon-chevron-up"></span><span class="sr-only">Increase</span>
+                </button>
+                <button type="button" class="btn btn-default spinbox-down btn-xs">
+                    <span class="glyphicon glyphicon-chevron-down"></span><span class="sr-only">Decrease</span>
+                </button>
+            </div>
+        </div>
+
 
         <div class="pull-left duration-text">Minuten</div>
     </div>
 </div>
+
 
 <div class="row" style="margin-top: 50px">
     <label class="col-sm-3">Start:</label>
