@@ -11,7 +11,7 @@
     "fuelux": "3.6.3",
     "fontawesome": "3.2.1",
     "clockpicker": "*",
-    "bootstrap-switch": "~3.3.2"
+    "toastr": "~2.1.1"
   },
   "license": "MIT",
   "ignore": [

@@ -10,6 +10,10 @@ $nav_bg_color: #293f54;
 * Content view
 */
 
+.spinbox {
+  width: 50px;
+}
+
 #content {
   padding-top: 50px;
   padding-bottom: 50px;
@@ -72,10 +76,6 @@ $nav_bg_color: #293f54;
   width: 100%;
   background-color: #fff;
   margin-bottom: -1px;
-
-  &:nth-of-type(odd):hover, &:hover {
-    background: #428bca;
-  }
 
   .list-group-image {
     margin-right: 10px;

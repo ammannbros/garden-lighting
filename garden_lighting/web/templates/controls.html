@@ -33,14 +33,14 @@
                     <h4>Wähle ein Lichter</h4>
 
                     <div class="checkbox">
-                        {% for n in range(1,15) %}
+                        {% for device in devices %}
                             <div class="col-md-2" style="margin-right: 10px">
                                 <label class="checkbox-custom" data-initialize="checkbox">
                                     <input class="sr-only"
                                             {% if n == 1 %}
                                            checked="checked"
-                                            {% endif %} name="radioEx1" type="checkbox" value="{{ n }}">
-                                    Garten {{ n }}
+                                            {% endif %} name="radioEx1" type="checkbox" value="{{ device.short_name }}">
+                                    {{ device.name }}
                                 </label>
                             </div>
                         {% endfor %}

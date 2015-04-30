@@ -7,6 +7,7 @@
     <script src="{{ url_for('bower.static', filename='jquery/dist/jquery.min.js') }}"></script>
     <script src="{{ url_for('bower.static', filename='bootstrap/dist/js/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('bower.static', filename='fuelux/dist/js/fuelux.min.js') }}"></script>
+    <script src="{{ url_for('bower.static', filename='toastr/toastr.min.js') }}"></script>
     {% block head %}{% endblock %}
 
 
@@ -15,6 +16,9 @@
     <link rel=stylesheet type=text/css href="{{ url_for('bower.static', filename='fuelux/dist/css/fuelux.min.css') }}">
     <link rel=stylesheet type=text/css
           href="{{ url_for('bower.static', filename='fontawesome/css/font-awesome.min.css') }}">
+    <link rel=stylesheet type=text/css
+          href="{{ url_for('bower.static', filename='toastr/toastr.min.css') }}">
+
 
     <link rel=stylesheet type=text/css href="/static/sass/layout.css">
 </head>

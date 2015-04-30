@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from enum import Enum
+import collections
 
 
 class Action(Enum):
@@ -9,6 +10,10 @@ class Action(Enum):
 
 
 class Device:
+    def __init__(self, name, short_name):
+        self.short_name = short_name
+        self.name = name
+
     @abstractmethod
     def is_on(self):
         pass
@@ -46,8 +51,9 @@ class Device:
 
 
 class DeviceGroup(Device):
-    def __init__(self):
-        self.devices = {}
+    def __init__(self, name, short_name):
+        super().__init__(name, short_name)
+        self.devices = collections.OrderedDict()
 
     def is_floating(self):
         return self.is_off() and self.is_on()
@@ -87,10 +93,32 @@ class DeviceGroup(Device):
                     success = False
         return success
 
+    def get_all_devices(self):
+        all_devices = []
+        for key in self.devices:
+            device = self.devices[key]
+            all_devices.append(device)
+
+        return all_devices
+
+    def get_all_devices_recursive(self):
+        all_devices = []
+        self._get_all_devices_recursive(all_devices)
+        return all_devices
+
+    def _get_all_devices_recursive(self, all_devices):
+        for key in self.devices:
+            device = self.devices[key]
+
+            all_devices.append(device)
+
+            if type(device) is DeviceGroup:
+                device._get_all_devices_recursive(all_devices)
+
 
 class DefaultDevice(Device):
-    def __init__(self, name, slot):
-        self.name = name
+    def __init__(self, slot, name, short_name):
+        super().__init__(name, short_name)
         self.slot = slot
 
     def is_off(self):
