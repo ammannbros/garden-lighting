@@ -43,9 +43,6 @@ class Device:
         else:
             raise ()
 
-    def is_overdue(self):
-        pass
-
     def run_action(self):
         pass
 
@@ -71,13 +68,25 @@ class DeviceGroup(Device):
         return True
 
     def register_device(self, device):
-        self.devices[device.name] = device
+        self.devices[device.short_name] = device
 
     def has_device(self, name):
         return name in self.devices
 
     def get_device(self, name):
-        return self.devices[name]
+        ret = None
+
+        try:
+            ret = self.devices[name]
+        except KeyError:
+            for key in self.devices:
+                device = self.devices[key]
+                if type(device) is DeviceGroup:
+                    found = device.get_device(name)
+                    if found is not None:
+                        return found
+
+        return ret
 
     def on(self):
         return set(Action.ON)
@@ -87,7 +96,8 @@ class DeviceGroup(Device):
 
     def set(self, action):
         success = True
-        for device in self.devices:
+        for key in self.devices:
+            device = self.devices[key]
             if not device.set(action):
                 if success:
                     success = False

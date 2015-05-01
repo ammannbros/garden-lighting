@@ -1,31 +1,31 @@
 {% macro weekdays(classes, type="checkbox") -%}
     <fieldset class="{{ classes }} btn-group" data-toggle="buttons">
         <label class="btn btn-default">
-            <input type="{{ type }}" data-value="SU">Sun
+            <input type="{{ type }}" data-value="0">Mo
         </label>
         <label class="btn btn-default">
-            <input type="{{ type }}" data-value="MO">Mon
+            <input type="{{ type }}" data-value="1">Di
         </label>
         <label class="btn btn-default">
-            <input type="{{ type }}" data-value="TU">Tue
+            <input type="{{ type }}" data-value="2">Mi
         </label>
         <label class="btn btn-default">
-            <input type="{{ type }}" data-value="WE"> Wed
+            <input type="{{ type }}" data-value="3">Do
         </label>
         <label class="btn btn-default">
-            <input type="{{ type }}" data-value="TH"> Thu
+            <input type="{{ type }}" data-value="4">Fr
         </label>
         <label class="btn btn-default">
-            <input type="{{ type }}" data-value="FR"> Fri
+            <input type="{{ type }}" data-value="5">Sa
         </label>
-        <label class="btn btn-default">
-            <input type="{{ type }}" data-value="SA"> Sat
+            <label class="btn btn-default">
+            <input type="{{ type }}" data-value="6">So
         </label>
     </fieldset>
 {%- endmacro %}
 
-{% macro time(classes) -%}
-    <div class="{{ classes }} input-group clockpicker">
+{% macro time(classes, id) -%}
+    <div id="{{ id }}" class="{{ classes }} input-group clockpicker">
         <input type="text" class="form-control" value="09:30">
         <span class="input-group-addon">
             <span class="glyphicon glyphicon-time"></span>

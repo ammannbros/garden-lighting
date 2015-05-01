@@ -1,7 +1,7 @@
 #!/usr/bin/python
-from garden_lighting.web.web import start_web
+from garden_lighting.web.web import start_web, scheduler
 
 
 if __name__ == '__main__':
-    # scheduler.start_scheduler_thread()
+    scheduler.start_scheduler_thread()
     start_web()

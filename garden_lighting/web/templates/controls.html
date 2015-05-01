@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 
 {% block head %}
+    <script src="{{ url_for('static', filename='js/controls.js') }}"></script>
     <script src="{{ url_for('bower.static', filename='clockpicker/dist/bootstrap-clockpicker.min.js') }}"></script>
     <link rel=stylesheet type=text/css
           href="{{ url_for('bower.static', filename='clockpicker/dist/bootstrap-clockpicker.min.css') }}">
@@ -34,9 +35,9 @@
 
                     <div class="checkbox">
                         {% for device in devices %}
-                            <div class="col-md-2" style="margin-right: 10px">
+                            <div class="col-md-2 device-checkbox">
                                 <label class="checkbox-custom" data-initialize="checkbox">
-                                    <input class="sr-only"
+                                    <input class="light-selection sr-only"
                                             {% if n == 1 %}
                                            checked="checked"
                                             {% endif %} name="radioEx1" type="checkbox" value="{{ device.short_name }}">
@@ -59,8 +60,9 @@
                     <h4>Zusammenfassung</h4>
                     Die Lichter 1, 2 und 3 werden von am Montag von Start bis Ende und am Dienstag von Start bis Ende,
                     an sein.
-
-                    <p></p>
+                    <div class="pull-right">
+                        <button id="add" class="btn btn-default">Regel hinzufügen</button>
+                    </div>
                 </div>
             </div>
 
@@ -72,17 +74,19 @@
     </div>
 
     <div id="rules" class="row list-group">
-        {% for n in range(1,15) %}
+        {% for rule in rules %}
             <div class="item list-group-item col-xs-4 col-lg-4">
 
                 <div class="caption">
                     <h4 class="group inner list-group-item-heading">
-                        Regel #{{ n }}</h4>
+                        Regel #{{ rule }}</h4>
+
 
                     <p class="group inner list-group-item-text">
-                        Product description... Lorem ipsum dolor sit amet, consectetuer adipiscing elit,
-                        sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat
-                        volutpat.</p>
+                        {{ rule.time }}
+                        {{ rule.weekday }}
+                        {{ rule.devices }}
+                    </p>
 
 
                 </div>

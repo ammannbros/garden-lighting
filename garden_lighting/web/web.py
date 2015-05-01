@@ -1,4 +1,5 @@
-from flask import Flask, render_template, jsonify
+from datetime import timedelta
+from flask import Flask, render_template, jsonify, request
 from flask.ext.libsass import Sass
 from flask.ext.bower import Bower
 
@@ -6,10 +7,12 @@ import pkg_resources
 
 from garden_lighting.web.devices import Action
 from garden_lighting.web.config import get_all_devices
-# from garden_lighting.web.scheduler import DeviceScheduler
+from garden_lighting.web.json import ComplexEncoder
+from garden_lighting.web.scheduler import DeviceScheduler, Rule
 
 
 app = Flask(__name__)
+app.json_encoder = ComplexEncoder
 Bower(app)
 
 Sass(
@@ -24,7 +27,8 @@ Sass(
 
 devices = get_all_devices()
 
-# scheduler = DeviceScheduler(devices, 0.5)
+scheduler = DeviceScheduler(0.5)
+
 
 @app.route('/')
 def lights():
@@ -43,7 +47,7 @@ def all_lights():
 
 @app.route('/controls/')
 def controls():
-    return render_template("controls.html", devices=devices.get_all_devices_recursive())
+    return render_template("controls.html", rules=scheduler.rules, devices=devices.get_all_devices_recursive())
 
 
 @app.route('/about/')
@@ -53,11 +57,13 @@ def about():
 
 @app.route('/api/<slot>/on/')
 def on(slot):
+    app.logger.info("Turning " + slot + " on!")
     return handle_state(slot, Action.ON)
 
 
 @app.route('/api/<slot>/off/')
 def off(slot):
+    app.logger.info("Turning " + slot + " off!")
     return handle_state(slot, Action.OFF)
 
 
@@ -66,14 +72,44 @@ def toggle(slot):
     return handle_state(slot, Action.TOGGLE)
 
 
+@app.route('/api/add_rules/', methods=['POST'])
+def add_rules():
+    json = request.get_json()
+
+    if json is None:
+        return jsonify(rules=scheduler.rules, success=False)
+
+    for json_rule in json:
+        rule_devices = []
+
+        for device in json_rule['devices']:
+            get_device = devices.get_device(device)
+            if get_device is None:
+                continue
+            rule_devices.append(get_device)
+
+        rule = Rule(json_rule['weekday'], rule_devices, timedelta(seconds=json_rule['time']), json_rule['action'])
+        scheduler.rules.append(rule)
+
+    return jsonify(rules=scheduler.rules, success=True)
+
+
 def handle_state(slot, action):
+    if action == "on":
+        action = Action.ON
+    elif action == "off":
+        action = Action.OFF
+    elif action == "toggle":
+        action = Action.TOGGLE
+
     if slot == "all":
         success = devices.set(action)
     else:
-        try:
-            device = devices.get_device(slot)
+
+        device = devices.get_device(slot)
+        if device is not None:
             success = device.set(action)
-        except KeyError:
+        else:
             success = False
 
     return jsonify(success=success)

@@ -4,16 +4,7 @@
 
 
 {% block head %}
-{#    <script src="{{ url_for('bower.static', filename='bootstrap-switch/dist/js/bootstrap-switch.min.js') }}"></script>#}
-
-    <script type="text/javascript">
-        $(document).ready(function () {
-            {% include "lights.js" %}
-        });
-    </script>
-
-{#    <link rel=stylesheet type=text/css#}
-{#          href="{{ url_for('bower.static', filename='bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.min.css') }}">#}
+    <script src="{{ url_for('static', filename='js/lights.js') }}"></script>
     <link rel=stylesheet type=text/css href="/static/sass/lights.css">
 
 {% endblock %}
@@ -25,8 +16,8 @@
             <strong>Lichter</strong>
 
             <div class="pull-right">
-                <button class="btn btn-success">Alle An</button>
-                <button class="btn btn-danger">Alle Aus</button>
+                <button id="all_on" class="btn btn-success">Alle An</button>
+                <button id="all_off" class="btn btn-danger">Alle Aus</button>
             </div>
 
         </div>
@@ -50,23 +41,25 @@
                             {#                            </div>#}
 
 
-                            <div class="pull-right" style="margin-top: -3px;margin-left: 10px">
-                                <button id="light-switch-{{ device.short_name }}" class="light-switch btn btn-danger" style="width: 120px">Anschalten</button>
+                            <div class="pull-right row-contents" style="margin-top: -3px">
+                                <button id="light-switch-{{ device.short_name }}" class="light-switch btn btn-danger"
+                                        style="width: 120px">Anschalten
+                                </button>
                             </div>
-                            <div class="pull-right" style="margin-left: 10px">Minuten</div>
+                            <div class="pull-right row-contents">Minuten</div>
 
 
-                            <div class="pull-right" style="margin-left: 10px">
-                                 {{ components.spinbox(classes="spinbox_"  + device.short_name) }}
-                            </div>
-
-                            <div class="pull-right" style="margin-left: 10px">Minuten, für</div>
-
-                            <div class="pull-right" style="margin-left: 10px">
-                                 {{ components.spinbox(classes="spinbox_" + device.short_name) }}
+                            <div class="pull-right row-contents">
+                                {{ components.spinbox(classes="spinbox_"  + device.short_name) }}
                             </div>
 
-                            <div class="pull-right" style="margin-left: 10px">In</div>
+                            <div class="pull-right row-contents">Minuten, für</div>
+
+                            <div class="pull-right row-contents">
+                                {{ components.spinbox(classes="spinbox_" + device.short_name) }}
+                            </div>
+
+                            <div class="pull-right row-contents">In</div>
 
                         </div>
 
@@ -76,9 +69,9 @@
         </div>
     </div>
 
-{#    <script type="text/javascript">#}
-{#        $(document).ready(function () {#}
-{#            $(".switch").bootstrapSwitch();#}
-{#        });#}
-{#    </script>#}
+    {#    <script type="text/javascript">#}
+    {#        $(document).ready(function () {#}
+    {#            $(".switch").bootstrapSwitch();#}
+    {#        });#}
+    {#    </script>#}
 {% endblock %}
