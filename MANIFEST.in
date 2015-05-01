@@ -1,0 +1,3 @@
+recursive-include garden_lighting/web/templates *
+recursive-include garden_lighting/web/static *
+recursive-include garden_lighting/web/bower_components *

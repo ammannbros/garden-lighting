@@ -12,4 +12,5 @@ setup(
     install_requires=['Flask', 'Flask-libsass', 'Flask-Bower',
                       'RPi.GPIO', 'smbus-cffi'],
     scripts=['scripts/garden-lighting'],
+    include_package_data=True,
 )

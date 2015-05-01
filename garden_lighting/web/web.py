@@ -37,12 +37,12 @@ def lights():
 
 @app.route('/overview/')
 def overview():
-    return render_template("lights.html", devices=devices.get_all_devices())
+    return render_template("lights.html", name="Lichter", devices=devices.get_all_devices())
 
 
 @app.route('/all_lights/')
 def all_lights():
-    return render_template("lights.html", devices=devices.get_all_devices_recursive())
+    return render_template("lights.html", name="Alle Lichter", devices=devices.get_all_devices_recursive())
 
 
 @app.route('/controls/')

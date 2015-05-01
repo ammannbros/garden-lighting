@@ -1,1 +1,2 @@
-sudo apt-get install python-smbus 
+sudo apt-get install libffi-dev
+sudo apt-get install python-smbus
