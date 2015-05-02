@@ -1,5 +1,7 @@
 {% extends "layout.html" %}
 
+{% import 'time_select.html' as time %}
+
 {% block head %}
     <script src="{{ url_for('static', filename='js/controls.js') }}"></script>
     <script src="{{ url_for('bower.static', filename='clockpicker/dist/bootstrap-clockpicker.min.js') }}"></script>
@@ -12,14 +14,7 @@
 {% block body %}
     <div class="fuelux">
 
-        <div class="wizard" data-initialize="wizard" id="myWizard" style="overflow:visible">
-            <div class="actions">
-                <button type="button" class="btn btn-default btn-prev"><span
-                        class="glyphicon glyphicon-arrow-left"></span>Zurück
-                </button>
-                <button type="button" class="btn btn-default btn-next" data-last="Abschließen">Weiter<span
-                        class="glyphicon glyphicon-arrow-right"></span></button>
-            </div>
+        <div class="wizard" data-initialize="wizard">
             <ul class="steps">
                 <li data-step="1" data-name="1" class="active"><span class="badge">1</span>Lichter<span
                         class="chevron"></span></li>
@@ -27,6 +22,13 @@
                 <li data-step="3" data-name="3"><span class="badge">3</span>Zusammenfassung<span class="chevron"></span>
                 </li>
             </ul>
+            <div class="actions">
+                <button type="button" class="btn btn-default btn-prev"><span
+                        class="glyphicon glyphicon-arrow-left"></span>Zurück
+                </button>
+                <button type="button" class="btn btn-default btn-next" data-last="Abschließen">Weiter<span
+                        class="glyphicon glyphicon-arrow-right"></span></button>
+            </div>
 
 
             <div class="step-content" style="overflow:visible">
@@ -61,7 +63,7 @@
                     Die Lichter 1, 2 und 3 werden von am Montag von Start bis Ende und am Dienstag von Start bis Ende,
                     an sein.
                     <div class="pull-right">
-                        <button id="add" class="btn btn-default">Regel hinzufügen</button>
+                        <button class="add btn btn-default">Abschließen</button>
                     </div>
                 </div>
             </div>
@@ -77,21 +79,36 @@
         {% for rule in rules %}
             <div class="item list-group-item col-xs-4 col-lg-4">
 
-                <div class="caption">
+                <div class="caption" style="word-wrap: break-word;">
                     <h4 class="group inner list-group-item-heading">
-                        Regel #{{ rule }}</h4>
+                        Regel {{ rule.action }}</h4>
 
 
-                    <p class="group inner list-group-item-text">
-                        {{ rule.time }}
-                        {{ rule.weekday }}
-                        {{ rule.devices }}
-                    </p>
+                    <div class="group inner list-group-item-text">
+
+
+                        <div class="pull-left">
+                            <div>
+                                {{ time.to_weekday(rule.weekday) }}
+                            </div>
+                            <div>
+                                {{ rule.time }}
+                            </div>
+                        </div>
+
+
+                        <div class="pull-right">
+                            {% for device in rule.devices %}
+                                <div>
+                                    {{ device.name }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
 
 
                 </div>
             </div>
         {% endfor %}
-    </div>
     </div>
 {% endblock %}

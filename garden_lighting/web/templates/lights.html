@@ -13,6 +13,7 @@
 {% block body %}
     <div class="container fuelux">
         <div class="well well-sm">
+
             <strong>{{ name }}</strong>
 
             <div class="pull-right">
@@ -20,8 +21,21 @@
                 <button id="all_off" class="btn btn-danger">Alle Aus</button>
             </div>
 
+            {#            <div class="pull-right" style="margin-right: 80px">#}
+            {#                <div class="pull-left row-contents">Einstellungen in</div>#}
+            {#                <div class="pull-left row-contents">#}
+            {#                    {{ components.spinbox(classes="spinbox_") }}#}
+            {#                    <div class="pull-left row-contents">Minuten, für</div>#}
+            {#                    <div class="pull-left row-contents">#}
+            {#                        {{ components.spinbox(classes="spinbox_") }}#}
+            {#                    </div>#}
+            {#                    <div class="pull-left row-contents">Minuten</div>#}
+            {##}
+            {#                </div>#}
+            {#            </div>#}
         </div>
-        <div id="lights" class="row list-group">
+
+        <div id="lights" class="list-group">
             {% for device in devices %}
                 <div class="item list-group-item col-xs-4 col-lg-4">
 
@@ -29,27 +43,14 @@
                         <h4 class="group inner list-group-item-heading">
                             {{ device.name }}</h4>
 
-                        <div class="row" id="row_{{ device.short_name }}" style="font-size: 20px">
+                        <div class="row" id="row_{{ device.short_name }}" style="font-size: smaller">
 
                             <div class="pull-right row-contents" style="margin-top: -3px">
                                 <button id="light-switch-{{ device.short_name }}" class="light-switch btn btn-danger"
                                         style="width: 120px">Anschalten
                                 </button>
                             </div>
-                            <div class="pull-right row-contents">Minuten</div>
 
-
-                            <div class="pull-right row-contents">
-                                {{ components.spinbox(classes="spinbox_"  + device.short_name) }}
-                            </div>
-
-                            <div class="pull-right row-contents">Minuten, für</div>
-
-                            <div class="pull-right row-contents">
-                                {{ components.spinbox(classes="spinbox_" + device.short_name) }}
-                            </div>
-
-                            <div class="pull-right row-contents">In</div>
 
                         </div>
 

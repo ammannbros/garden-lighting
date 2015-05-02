@@ -18,10 +18,28 @@
         <label class="btn btn-default">
             <input type="{{ type }}" data-value="5">Sa
         </label>
-            <label class="btn btn-default">
+        <label class="btn btn-default">
             <input type="{{ type }}" data-value="6">So
         </label>
     </fieldset>
+{%- endmacro %}
+
+{% macro to_weekday(day) -%}
+    {% if day == 0 %}
+        Montag
+    {% elif day == 1 %}
+        Dienstag
+    {% elif day == 2 %}
+        Mittwoch
+    {% elif day == 3 %}
+        Donnerstag
+    {% elif day == 4 %}
+        Freitag
+    {% elif day == 5 %}
+        Samstag
+    {% elif day == 6 %}
+        Sonntag
+    {% endif %}
 {%- endmacro %}
 
 {% macro time(classes, id) -%}

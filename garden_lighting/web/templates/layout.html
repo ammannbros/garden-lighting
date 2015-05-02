@@ -3,6 +3,9 @@
 <head lang="de">
     <meta charset="UTF-8">
     <title>Garden Lighting</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <link rel="icon"
           type="image/png"
           href="{{ url_for('static', filename='favicon.ico') }}">
@@ -26,15 +29,24 @@
     <link rel=stylesheet type=text/css href="/static/sass/layout.css">
 </head>
 <body>
-<header class="navbar navbar-fixed-top garden-docs-nav" role="banner">
+<header class="navbar navbar-default navbar-fixed-top garden-docs-nav" role="banner">
     <div class="container">
         <div class="navbar-header">
+
+            <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".garden-navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
 
             <a href="/" class="navbar-brand">Garden Lighting</a>
         </div>
 
-        <nav class="collapse navbar-collapse" role="navigation">
-            <ul class="nav navbar-nav">
+
+        <nav role="navigation">
+
+            <ul class="nav navbar-nav collapse navbar-collapse garden-navbar-collapse">
                 <li {% if request.path == "/overview/" %}
                     class="active"
                 {% endif %}>
@@ -50,13 +62,21 @@
                 {% endif %}>
                     <a href="/about/">Über</a>
                 </li>
-            </ul>
-
-            <ul class="nav navbar-nav navbar-right">
-                <li>
-                    <a id="cogs" class="fa icon-cogs" href="/controls/"></a>
+                <li class="{% if request.path == "/controls/" %}
+                    active
+                {% endif %} hidden-sm hidden-md hidden-lg">
+                    <a href="/controls/">Einstellungen</a>
                 </li>
             </ul>
+
+
+            <div class="nav navbar-nav navbar-right hidden-xs">
+                <li{% if request.path == "/controls/" %}
+                    class="active"
+                {% endif %}>
+                    <a id="cogs" class="fa icon-cogs" href="/controls/"></a>
+                </li>
+            </div>
 
         </nav>
 

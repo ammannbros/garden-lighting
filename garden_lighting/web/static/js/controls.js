@@ -1,5 +1,28 @@
+function getUrlVars() {
+    var vars = [], hash;
+    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+    for (var i = 0; i < hashes.length; i++) {
+        hash = hashes[i].split('=');
+        vars.push(hash[0]);
+        vars[hash[0]] = hash[1];
+    }
+    return vars;
+}
+
 $(document).ready(function () {
-    $("#add").click(function () {
+    toastr.options = {
+        "newestOnTop": true,
+        "positionClass": "toast-bottom-full-width",
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "2000"
+    };
+
+    if (getUrlVars()["completed"] == "true") {
+        toastr.success('Regeln erfolgreich hinzugefügt');
+    }
+
+    var add = function () {
         var devices = [];
 
         $(".light-selection").each(function () {
@@ -43,5 +66,10 @@ $(document).ready(function () {
                 console.log(e);
             }
         });
-    });
+
+        window.location.href = "http://" + location.host + "/controls/?completed=true";
+    };
+
+    $(".add").click(add);
+    $('.wizard').on('finished.fu.wizard', add);
 });
