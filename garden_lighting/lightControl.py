@@ -1,6 +1,6 @@
 __author__ = 'holzi'
 
-from MCP23017.MCP23017 import MCP23017
+from garden_lighting.MCP23017.MCP23017 import MCP23017
 
 #Global constants
 TRUE = 1

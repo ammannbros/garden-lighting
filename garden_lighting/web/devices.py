@@ -1,6 +1,7 @@
 from abc import abstractmethod
 from enum import Enum
 import collections
+from garden_lighting.lightControl import LightControl
 
 
 class Action(Enum):
@@ -138,7 +139,11 @@ class DefaultDevice(Device):
         return False
 
     def on(self):
+        # control = LightControl()
+        # control.set_all(1)
         return True
 
     def off(self):
+        # control = LightControl()
+        # control.set_all(0)
         return True

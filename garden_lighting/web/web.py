@@ -35,9 +35,9 @@ def lights():
     return overview()
 
 
-@app.route('/overview/')
+@app.route('/areas/')
 def overview():
-    return render_template("lights.html", name="Lichter", devices=devices.get_all_devices())
+    return render_template("lights.html", name="Bereiche", devices=devices.get_all_devices())
 
 
 @app.route('/all_lights/')

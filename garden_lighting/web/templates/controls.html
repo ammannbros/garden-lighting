@@ -23,10 +23,10 @@
                 </li>
             </ul>
             <div class="actions">
-                <button type="button" class="btn btn-default btn-prev"><span
+                <button id="previous" type="button" class="btn btn-default btn-prev"><span
                         class="glyphicon glyphicon-arrow-left"></span>Zurück
                 </button>
-                <button type="button" class="btn btn-default btn-next" data-last="Abschließen">Weiter<span
+                <button id="next" type="button" class="btn btn-default btn-next disabled" data-last="Abschließen">Weiter<span
                         class="glyphicon glyphicon-arrow-right"></span></button>
             </div>
 
@@ -62,9 +62,6 @@
                     <h4>Zusammenfassung</h4>
                     Die Lichter 1, 2 und 3 werden von am Montag von Start bis Ende und am Dienstag von Start bis Ende,
                     an sein.
-                    <div class="pull-right">
-                        <button class="add btn btn-default">Abschließen</button>
-                    </div>
                 </div>
             </div>
 
@@ -80,12 +77,15 @@
             <div class="item list-group-item col-xs-4 col-lg-4">
 
                 <div class="caption" style="word-wrap: break-word;">
-                    <h4 class="group inner list-group-item-heading">
-                        Regel {{ rule.action }}</h4>
 
+                    <div style="margin-bottom: 15px">
+                        <h4 class="group inner list-group-item-heading">
+                            Regel {{ rule.action }}
+                            <button class="btn btn-default pull-right glyphicon glyphicon-remove"></button>
+                        </h4>
+                    </div>
 
                     <div class="group inner list-group-item-text">
-
 
                         <div class="pull-left">
                             <div>
@@ -95,7 +95,6 @@
                                 {{ rule.time }}
                             </div>
                         </div>
-
 
                         <div class="pull-right">
                             {% for device in rule.devices %}

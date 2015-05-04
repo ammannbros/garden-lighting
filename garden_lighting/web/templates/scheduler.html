@@ -3,6 +3,10 @@
 
 
 <div class="row">
+
+    {#    Avoid selection of element#}
+    <input class="hidden">
+
     <label class="col-sm-3">Start:</label>
     {{ week.weekdays("col-md-4 start") }}
 
@@ -25,16 +29,16 @@
 </div>
 
 
-<div class="row" style="margin-top: 50px">
-    <label class="col-sm-3">Start:</label>
-    {{ week.weekdays("col-md-4", "radio") }}
-    {{ week.time("col-md-3") }}
-</div>
-<div class="row">
-    <label class="col-sm-3">Ende:</label>
-    {{ week.weekdays("col-md-4", "radio") }}
-    {{ week.time("col-md-3") }}
-</div>
+{#<div class="row" style="margin-top: 50px">#}
+{#    <label class="col-sm-3">Start:</label>#}
+{#    {{ week.weekdays("col-md-4", "radio") }}#}
+{#    {{ week.time("col-md-3") }}#}
+{#</div>#}
+{#<div class="row">#}
+{#    <label class="col-sm-3">Ende:</label>#}
+{#    {{ week.weekdays("col-md-4", "radio") }}#}
+{#    {{ week.time("col-md-3") }}#}
+{#</div>#}
 
 
 <script type="text/javascript">

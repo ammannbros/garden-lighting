@@ -12,7 +12,7 @@
 
 {% block body %}
     <div class="container fuelux">
-        <div class="well well-sm">
+        <div class="row well well-sm">
 
             <strong>{{ name }}</strong>
 
@@ -21,21 +21,24 @@
                 <button id="all_off" class="btn btn-danger">Alle Aus</button>
             </div>
 
-            {#            <div class="pull-right" style="margin-right: 80px">#}
-            {#                <div class="pull-left row-contents">Einstellungen in</div>#}
-            {#                <div class="pull-left row-contents">#}
-            {#                    {{ components.spinbox(classes="spinbox_") }}#}
-            {#                    <div class="pull-left row-contents">Minuten, für</div>#}
-            {#                    <div class="pull-left row-contents">#}
-            {#                        {{ components.spinbox(classes="spinbox_") }}#}
-            {#                    </div>#}
-            {#                    <div class="pull-left row-contents">Minuten</div>#}
-            {##}
-            {#                </div>#}
-            {#            </div>#}
+
         </div>
 
-        <div id="lights" class="list-group">
+        <div class="row well clearfix well-sm">
+            <form class="form-inline pull-right">
+                <div class="form-group">
+                    Für
+                </div>
+                <div class="form-group">
+                    {{ components.spinbox() }}
+                </div>
+                <div class="form-group">
+                    Minuten übernehmen
+                </div>
+            </form>
+        </div>
+
+        <div id="lights" class="row list-group">
             {% for device in devices %}
                 <div class="item list-group-item col-xs-4 col-lg-4">
 
@@ -50,10 +53,7 @@
                                         style="width: 120px">Anschalten
                                 </button>
                             </div>
-
-
                         </div>
-
                     </div>
                 </div>
             {% endfor %}

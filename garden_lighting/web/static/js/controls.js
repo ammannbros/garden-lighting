@@ -9,7 +9,69 @@ function getUrlVars() {
     return vars;
 }
 
+function updateNext(actives) {
+    if (actives == 0) {
+        $('#next').addClass("disabled");
+    } else {
+        $('#next').removeClass("disabled");
+    }
+}
+
+function addSelectedRules() {
+    var devices = [];
+
+    //Devices
+    $(".light-selection").each(function () {
+        if ($(this).is(':checked')) {
+            devices.push($(this).val());
+        }
+    });
+
+    //Duration
+    var duration = $("#hours").spinbox('value') * 60 * 60 + $("#minutes").spinbox('value') * 60;
+
+    //Start Time
+    var start_time = $($("#start-time").find("input")[0]).val().split(":");
+
+    var rules = [];
+
+    //Create on and off rule for each selected weekday
+    $('.start').children(".active").children("input").each(function () {
+        var rule = {
+            weekday: $(this).data("value"),
+            devices: devices,
+            time: start_time[0] * 60 * 60 + start_time[1] * 60,
+            action: "on"
+        };
+
+        rules.push(rule);
+
+        rules.push({
+            weekday: rule.weekday,
+            devices: rule.devices,
+            time: rule.time + duration,
+            action: "off"
+        });
+    });
+
+
+    $.ajax({
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(rules),
+        dataType: 'json',
+        url: "http://" + window.location.host + "/api/add_rules/",
+        success: function (e) {
+            console.log(e);
+            window.location.href = "http://" + window.location.host + "/controls/?completed=true";
+        }
+    });
+}
+
 $(document).ready(function () {
+    var wizard = $('.wizard');
+
+    //Show toast
     toastr.options = {
         "newestOnTop": true,
         "positionClass": "toast-bottom-full-width",
@@ -22,54 +84,31 @@ $(document).ready(function () {
         toastr.success('Regeln erfolgreich hinzugefügt');
     }
 
-    var add = function () {
-        var devices = [];
+    //Next/Previous updates
+    wizard.on('actionclicked.fu.wizard', function (evt, data) {
+        if (data.step == 2) {
+            return;
+        }
 
-        $(".light-selection").each(function () {
-            if ($(this).is(':checked')) {
-                devices.push($(this).val());
-            }
-        });
+        if (data.direction == "next") {
+            $('#next').addClass("disabled");
+        } else {
+            $('#next').removeClass("disabled");
+        }
+    });
 
-        var duration = $("#hours").spinbox('value') * 60 * 60 + $("#minutes").spinbox('value') * 60;
+    $('.checkbox-custom').click(function () {
+        var active = $('.light-selection').filter(":checked").size();
 
-        var start_time = $($("#start-time").find("input")[0]).val().split(":");
+        updateNext(active);
+    });
 
-        var rules = [];
+    $('.start').find(".btn").click(function () {
+        var active = $('.start').children(".active").children("input").size() + ($(this).hasClass("active") ? -1 : 1);
 
-        $('.start').children(".active").children("input").each(function () {
-            var rule = {
-                weekday: $(this).data("value"),
-                devices: devices,
-                time: start_time[0] * 60 * 60 + start_time[1] * 60,
-                action: "on"
-            };
+        updateNext(active);
+    });
 
-            rules.push(rule);
-
-            rules.push({
-                weekday: rule.weekday,
-                devices: rule.devices,
-                time: rule.time + duration,
-                action: "off"
-            });
-        });
-
-
-        $.ajax({
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(rules),
-            dataType: 'json',
-            url: "http://" + window.location.host + "/api/add_rules/",
-            success: function (e) {
-                console.log(e);
-            }
-        });
-
-        window.location.href = "http://" + location.host + "/controls/?completed=true";
-    };
-
-    $(".add").click(add);
-    $('.wizard').on('finished.fu.wizard', add);
+    $(".add").click(addSelectedRules);
+    wizard.on('finished.fu.wizard', addSelectedRules);
 });
