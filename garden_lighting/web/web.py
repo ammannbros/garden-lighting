@@ -55,7 +55,7 @@ def all_lights():
     batch = []
     devices.collect_batch(batch)
 
-    # lights_pattern = 0xFFFF
+    lights_pattern = 0xFFFF
     lights_pattern = control.read_multiple_lights(0) | control.read_multiple_lights(1) << 8
 
     ons = []
