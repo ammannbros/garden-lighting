@@ -1,13 +1,12 @@
 from abc import abstractmethod
 from enum import Enum
 import collections
-from garden_lighting.lightControl import LightControl
+from garden_lighting.web.web import control
 
 
 class Action(Enum):
     OFF = 0,
     ON = 1,
-    TOGGLE = 3
 
 
 class Device:
@@ -20,35 +19,33 @@ class Device:
         pass
 
     @abstractmethod
-    def on(self):
-        pass
-
-    @abstractmethod
     def is_off(self):
         pass
 
     @abstractmethod
-    def off(self):
+    def is_group(self):
         pass
 
-    def toggle(self):
-        self.set(Action.TOGGLE)
-
     def set(self, action):
+        batch = []
+        self.collect_batch(batch)
+
         if action == Action.ON:
-            return self.on()
+            return control.set_multiple_lights(True, batch) == 0
         elif action == Action.OFF:
-            return self.off()
-        elif action == Action.TOGGLE:
-            return self.on() if self.is_on() else self.off()
+            return control.set_multiple_lights(False, batch) == 0
         else:
             raise ()
 
-    def run_action(self):
+    @abstractmethod
+    def collect_batch(self, batch):
         pass
 
 
 class DeviceGroup(Device):
+    def is_group(self):
+        return True
+
     def __init__(self, name, short_name):
         super().__init__(name, short_name)
         self.devices = collections.OrderedDict()
@@ -89,20 +86,10 @@ class DeviceGroup(Device):
 
         return ret
 
-    def on(self):
-        return set(Action.ON)
-
-    def off(self):
-        return set(Action.OFF)
-
-    def set(self, action):
-        success = True
+    def collect_batch(self, batch):
         for key in self.devices:
             device = self.devices[key]
-            if not device.set(action):
-                if success:
-                    success = False
-        return success
+            device.collect_batch(batch)
 
     def get_all_devices(self):
         all_devices = []
@@ -128,22 +115,18 @@ class DeviceGroup(Device):
 
 
 class DefaultDevice(Device):
+    def is_group(self):
+        return False
+
     def __init__(self, slot, name, short_name):
         super().__init__(name, short_name)
         self.slot = slot
 
     def is_off(self):
-        return True
+        return not self.is_on()
 
     def is_on(self):
-        return False
+        return control.read_light(self.slot)
 
-    def on(self):
-        # control = LightControl()
-        # control.set_all(1)
-        return True
-
-    def off(self):
-        # control = LightControl()
-        # control.set_all(0)
-        return True
+    def collect_batch(self, batch):
+        batch.append(self.slot)

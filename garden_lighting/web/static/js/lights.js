@@ -20,6 +20,10 @@ function off(name) {
     });
 }
 
+function resetSchedule() {
+    $(".spinbox").spinbox('value', 0)
+}
+
 $(document).ready(function () {
     var light_toggles = $('.light-switch');
 
@@ -31,17 +35,19 @@ $(document).ready(function () {
         "timeOut": "2000"
     };
 
-    $('#all_on').click(function () {
-        on("all");
+    $('.on').click(function () {
+        on($(this).data("target"));
 
+        //todo switch only specific ones
         light_toggles.removeClass('btn-danger');
         light_toggles.addClass('btn-success');
         light_toggles.text("Auschalten");
     });
 
-    $('#all_off').click(function () {
-        off("all");
+    $('.off').click(function () {
+        off($(this).data("target"));
 
+        //todo switch only specific ones
         light_toggles.removeClass('btn-success');
         light_toggles.addClass('btn-danger');
         light_toggles.text("Anschalten");
@@ -56,17 +62,16 @@ $(document).ready(function () {
         if ($(this).hasClass('btn-success')) {
             $(this).text("Anschalten");
 
-            on(id);
+            off(id);
         } else if ($(this).hasClass('btn-danger')) {
             $(this).text("Ausschalten");
 
-            off(id);
+            on(id);
         }
 
         $(this).toggleClass('btn-success');
         $(this).toggleClass('btn-danger');
 
-        //Reset spinbox
-        $(".spinbox").spinbox('value', 0)
+        resetSchedule()
     });
 });

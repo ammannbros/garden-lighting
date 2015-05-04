@@ -33,7 +33,7 @@
 
             <div class="step-content" style="overflow:visible">
                 <div class="step-pane active sample-pane" data-step="1">
-                    <h4>Wähle ein Lichter</h4>
+                    <h4>Wähle Lichter or Bereiche</h4>
 
                     <div class="checkbox">
                         {% for device in devices %}
@@ -60,8 +60,8 @@
                 </div>
                 <div class="step-pane sample-pane" data-step="3">
                     <h4>Zusammenfassung</h4>
-                    Die Lichter 1, 2 und 3 werden von am Montag von Start bis Ende und am Dienstag von Start bis Ende,
-                    an sein.
+                    <p id="summary">
+                    </p>
                 </div>
             </div>
 
@@ -74,14 +74,14 @@
 
     <div id="rules" class="row list-group">
         {% for rule in rules %}
-            <div class="item list-group-item col-xs-4 col-lg-4">
+            <div id="{{ rule.uuid }}"class="item list-group-item col-xs-4 col-lg-4">
 
                 <div class="caption" style="word-wrap: break-word;">
 
                     <div style="margin-bottom: 15px">
                         <h4 class="group inner list-group-item-heading">
                             Regel {{ rule.action }}
-                            <button class="btn btn-default pull-right glyphicon glyphicon-remove"></button>
+                            <button class="remove btn btn-default pull-right glyphicon glyphicon-remove"></button>
                         </h4>
                     </div>
 

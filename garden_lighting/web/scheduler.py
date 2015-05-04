@@ -3,6 +3,7 @@ from threading import Thread
 from enum import Enum, unique
 from datetime import datetime
 
+
 @unique
 class Weekday(Enum):
     MONDAY = 0
@@ -15,7 +16,8 @@ class Weekday(Enum):
 
 
 class Rule:
-    def __init__(self, weekday, devices, time, action):
+    def __init__(self, uuid, weekday, devices, time, action):
+        self.uuid = uuid
         self.action = action
         self.weekday = weekday
         self.devices = devices
@@ -41,6 +43,11 @@ class DeviceScheduler:
             self.rules = []
         else:
             self.rules = rules
+
+    def remove_rule(self, uuid):
+        previous = len(self.rules)
+        self.rules = [rule for rule in self.rules if rule.uuid != uuid]
+        return previous != len(self.rules)
 
     def run(self):
         for rule in self.rules:

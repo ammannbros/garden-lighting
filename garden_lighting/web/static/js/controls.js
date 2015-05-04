@@ -1,3 +1,5 @@
+target = "http://" + window.location.host;
+
 function getUrlVars() {
     var vars = [], hash;
     var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
@@ -17,28 +19,114 @@ function updateNext(actives) {
     }
 }
 
-function addSelectedRules() {
-    var devices = [];
+function getDuration() {
+    return $("#hours").spinbox('value') * 60 * 60 + $("#minutes").spinbox('value') * 60;
+}
 
-    //Devices
+function getStartTimeText() {
+    return $($("#start-time").find("input")[0]).val();
+}
+
+function getStartTime() {
+    return getStartTimeText().split(":");
+}
+
+function getDevices() {
+    var devices = [];
     $(".light-selection").each(function () {
         if ($(this).is(':checked')) {
             devices.push($(this).val());
         }
     });
+    return devices
+}
+
+function getDeviceNames() {
+    var devices = [];
+    $(".light-selection").each(function () {
+        if ($(this).is(':checked')) {
+            devices.push($(this).parent("label").text());
+        }
+    });
+    return devices
+}
+
+function getWeekdays() {
+    var weekdays = [];
+    $('.start').children(".active").children("input").each(function () {
+        weekdays.push($(this).data("value"));
+    });
+
+    return weekdays;
+}
+
+function getLocalizedWeekdays() {
+    var str = "";
+
+    var weekdays = getWeekdays();
+    weekdays.forEach(function (weekday, i) {
+        switch (weekday) {
+            case 0:
+                str += "Montag";
+                break;
+            case 1:
+                str += "Dienstag";
+                break;
+            case 2:
+                str += "Mittwoch";
+                break;
+            case 3:
+                str += "Donnerstag";
+                break;
+            case 4:
+                str += "Freitag";
+                break;
+            case 5:
+                str += "Samstag";
+                break;
+            case 6:
+                str += "Sonntag";
+                break;
+        }
+
+        if (i == weekdays.length - 2) {
+            str += " und "
+        } else if (i < weekdays.length - 2) {
+            str += ", "
+        }
+
+    });
+
+    return str;
+}
+
+function deleteRule(rule, item) {
+    return $.getJSON(target + "/api/delete_rule/" + rule, function (data) {
+        if (data["success"]) {
+            toastr.success('Erfolgreich gelöscht');
+            item.remove()
+        } else {
+            toastr.error('Löschen fehlgeschlagen')
+        }
+    });
+}
+
+function addSelectedRules() {
+    //Devices
+    var devices = getDevices();
 
     //Duration
-    var duration = $("#hours").spinbox('value') * 60 * 60 + $("#minutes").spinbox('value') * 60;
+    var duration = getDuration();
 
     //Start Time
-    var start_time = $($("#start-time").find("input")[0]).val().split(":");
-
+    var start_time = getStartTime();
     var rules = [];
 
+
     //Create on and off rule for each selected weekday
-    $('.start').children(".active").children("input").each(function () {
+    getWeekdays().forEach(function (weekday) {
         var rule = {
-            weekday: $(this).data("value"),
+            weekday: weekday,
             devices: devices,
             time: start_time[0] * 60 * 60 + start_time[1] * 60,
             action: "on"
@@ -97,6 +185,12 @@ $(document).ready(function () {
         }
     });
 
+    wizard.on('actionclicked.fu.wizard', function (evt, data) {
+        if (data.step == 2) {
+            $("#summary").text("Die Lichter " + getDeviceNames() + " werden von am " + getLocalizedWeekdays() + " von " + getStartTimeText() + " für " + getDuration() + " Sekunden an sein.")
+        }
+    });
+
     $('.checkbox-custom').click(function () {
         var active = $('.light-selection').filter(":checked").size();
 
@@ -111,4 +205,9 @@ $(document).ready(function () {
 
     $(".add").click(addSelectedRules);
     wizard.on('finished.fu.wizard', addSelectedRules);
+
+    $(".remove").click(function () {
+        var item = $(this).parents(".item");
+        deleteRule(item.attr("id"), item);
+    })
 });

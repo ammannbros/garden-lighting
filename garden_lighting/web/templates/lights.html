@@ -17,8 +17,8 @@
             <strong>{{ name }}</strong>
 
             <div class="pull-right">
-                <button id="all_on" class="btn btn-success">Alle An</button>
-                <button id="all_off" class="btn btn-danger">Alle Aus</button>
+                <button data-target="all" class="on btn btn-success">Alle An</button>
+                <button data-target="all" class="off btn btn-danger">Alle Aus</button>
             </div>
 
 
@@ -40,22 +40,37 @@
 
         <div id="lights" class="row list-group">
             {% for device in devices %}
-                <div class="item list-group-item col-xs-4 col-lg-4">
+                {% if areas or not device.is_group() %}
+                    <div class="item list-group-item col-xs-4 col-lg-4">
 
-                    <div class="caption">
-                        <h4 class="group inner list-group-item-heading">
-                            {{ device.name }}</h4>
+                        <div class="caption">
+                            <h4 class="group inner list-group-item-heading">
+                                {{ device.name }}</h4>
 
-                        <div class="row" id="row_{{ device.short_name }}" style="font-size: smaller">
+                            <div class="row" id="row_{{ device.short_name }}" style="font-size: smaller">
 
-                            <div class="pull-right row-contents" style="margin-top: -3px">
-                                <button id="light-switch-{{ device.short_name }}" class="light-switch btn btn-danger"
-                                        style="width: 120px">Anschalten
-                                </button>
+                                {% if device.is_group() %}
+                                    <div class="pull-right">
+                                        <button data-target="{{ device.short_name }}" class="on btn btn-success">An
+                                        </button>
+                                        <button data-target="{{ device.short_name }}" class="off btn btn-danger">Aus
+                                        </button>
+                                    </div>
+                                {% else %}
+                                    <div class="pull-right row-contents">
+                                        <button id="light-switch-{{ device.short_name }}"
+                                                class="light-switch btn {% if device.slot in ons %}btn-success{% else %}btn-danger{% endif %}"
+                                                style="width: 120px">{% if device.slot in ons %}Ausschalten{% else %}
+                                            Anschalten{% endif %}
+                                        </button>
+                                    </div>
+                                {% endif %}
+
+
                             </div>
                         </div>
                     </div>
-                </div>
+                {% endif %}
             {% endfor %}
         </div>
     </div>

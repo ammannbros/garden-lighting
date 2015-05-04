@@ -4,15 +4,11 @@ from flask.ext.libsass import Sass
 from flask.ext.bower import Bower
 
 import pkg_resources
-
-from garden_lighting.web.devices import Action
-from garden_lighting.web.config import get_all_devices
-from garden_lighting.web.json import ComplexEncoder
-from garden_lighting.web.scheduler import DeviceScheduler, Rule
-
+from garden_lighting.lightControl import LightControl
+import uuid
 
 app = Flask(__name__)
-app.json_encoder = ComplexEncoder
+
 Bower(app)
 
 Sass(
@@ -25,9 +21,21 @@ Sass(
     ]
 )
 
-devices = get_all_devices()
+app.logger.info("Initialising hardware interface!")
+control = None
+control = LightControl()
+control.init()
 
+from garden_lighting.web.devices import Action
+from garden_lighting.web.config import get_all_devices
+from garden_lighting.web.scheduler import DeviceScheduler, Rule
+
+devices = get_all_devices()
 scheduler = DeviceScheduler(0.5)
+
+from garden_lighting.web.json import ComplexEncoder
+
+app.json_encoder = ComplexEncoder
 
 
 @app.route('/')
@@ -37,22 +45,35 @@ def lights():
 
 @app.route('/areas/')
 def overview():
-    return render_template("lights.html", name="Bereiche", devices=devices.get_all_devices())
+    all_devices = devices.get_all_devices()
+    return render_template("lights.html", name="Bereiche", areas=True, devices=all_devices)
 
 
 @app.route('/all_lights/')
 def all_lights():
-    return render_template("lights.html", name="Alle Lichter", devices=devices.get_all_devices_recursive())
+    all_devices = devices.get_all_devices_recursive()
+    batch = []
+    devices.collect_batch(batch)
+
+    # lights_pattern = 0xFFFF
+    lights_pattern = control.read_multiple_lights(0) | control.read_multiple_lights(1) << 8
+
+    ons = []
+
+    for i in range(0, 16):
+        is_on = ((lights_pattern & (1 << i)) != 0)
+        if is_on:
+            ons.append(i)
+
+    return render_template("lights.html", name="Alle Lichter",
+                           areas=False,
+                           ons=ons,
+                           devices=all_devices)
 
 
 @app.route('/controls/')
 def controls():
     return render_template("controls.html", rules=scheduler.rules, devices=devices.get_all_devices_recursive())
-
-
-@app.route('/about/')
-def about():
-    return render_template("about.html")
 
 
 @app.route('/api/<slot>/on/')
@@ -65,11 +86,6 @@ def on(slot):
 def off(slot):
     app.logger.info("Turning " + slot + " off!")
     return handle_state(slot, Action.OFF)
-
-
-@app.route('/api/<slot>/toggle/')
-def toggle(slot):
-    return handle_state(slot, Action.TOGGLE)
 
 
 @app.route('/api/add_rules/', methods=['POST'])
@@ -88,10 +104,19 @@ def add_rules():
                 continue
             rule_devices.append(get_device)
 
-        rule = Rule(json_rule['weekday'], rule_devices, timedelta(seconds=json_rule['time']), json_rule['action'])
+        rule = Rule(uuid.uuid1(), json_rule['weekday'], rule_devices, timedelta(seconds=json_rule['time']),
+            json_rule['action'])
         scheduler.rules.append(rule)
 
     return jsonify(rules=scheduler.rules, success=True)
+
+
+@app.route('/api/delete_rule/<rule>', methods=['GET'])
+def delete_rule(rule):
+    if scheduler.remove_rule(uuid.UUID("{" + rule + "}")):
+        return jsonify(rules=scheduler.rules, success=True)
+    else:
+        return jsonify(rules=scheduler.rules, success=False)
 
 
 def handle_state(slot, action):
@@ -99,8 +124,6 @@ def handle_state(slot, action):
         action = Action.ON
     elif action == "off":
         action = Action.OFF
-    elif action == "toggle":
-        action = Action.TOGGLE
 
     if slot == "all":
         success = devices.set(action)
