@@ -58,6 +58,7 @@ class DeviceScheduler:
                     device.set(rule.action)
                 self.finished.append(rule)
 
+        # Reset after a day
         current = datetime.today()
 
         if self.lastTime.hour == 23 and current.hour == 0:
