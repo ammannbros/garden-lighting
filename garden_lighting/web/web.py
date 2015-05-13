@@ -8,7 +8,7 @@ from flask.ext.bower import Bower
 from flask.ext.script import Manager
 import pkg_resources
 
-from garden_lighting.lightControl import LightControlDummy
+from garden_lighting.web.light_control_dummy import LightControl
 
 from garden_lighting.web.devices import DeviceGroup, DefaultDevice
 from garden_lighting.web.scheduler import DeviceScheduler
@@ -33,7 +33,7 @@ Sass(
 )
 
 app.logger.info("Initialising hardware interface!")
-control = LightControlDummy()
+control = LightControl()
 control.init()
 
 scheduler = DeviceScheduler(0.5)

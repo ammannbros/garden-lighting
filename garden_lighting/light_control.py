@@ -298,23 +298,3 @@ class LightControl:
         else:
             assert 0, "You entered an invalid mode. '0' for Pins 0-7; '1' for pins 8-15"
             return -1
-
-
-class LightControlDummy:
-    def init(self):
-        pass
-
-    def set_light(self, mode, light_number):
-        return 0
-
-    def set_multiple_lights(self, mode, lights):
-        return 0
-
-    def set_all(self, mode):
-        return 0
-
-    def read_light(self, light_number):
-        return 0
-
-    def read_multiple_lights(self, part):
-        return 0

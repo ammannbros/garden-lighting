@@ -21,7 +21,7 @@ def auth():
 
 
 def fucked_auth():
-    return jsonify(result="Fuck off!")
+    return 'Uhm, nope?', 403
 
 
 def handle_state(slot, action):
