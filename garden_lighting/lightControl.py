@@ -2,12 +2,12 @@ __author__ = 'holzi'
 
 from garden_lighting.MCP23017.MCP23017 import MCP23017
 
-#Global constants
+# Global constants
 TRUE = 1
 FALSE = 0
 
-class LightControl:
 
+class LightControl:
     '''
     Implements access to all fuctions of the LightController
     (Combines 2 RelaisArray modules)
@@ -26,22 +26,22 @@ class LightControl:
     ControlUnitB = 0x00
 
     pin_number_mapping = {
-      0  : 0b00000001,
-      1  : 0b00000010,
-      2  : 0b00000100,
-      3  : 0b00001000,
-      4  : 0b00010000,
-      5  : 0b00100000,
-      6  : 0b01000000,
-      7  : 0b10000000,
-      8  : 0b00000001,
-      9  : 0b00000010,
-      10 : 0b00000100,
-      11 : 0b00001000,
-      12 : 0b00010000,
-      13 : 0b00100000,
-      14 : 0b01000000,
-      15 : 0b10000000,
+        0: 0b00000001,
+        1: 0b00000010,
+        2: 0b00000100,
+        3: 0b00001000,
+        4: 0b00010000,
+        5: 0b00100000,
+        6: 0b01000000,
+        7: 0b10000000,
+        8: 0b00000001,
+        9: 0b00000010,
+        10: 0b00000100,
+        11: 0b00001000,
+        12: 0b00010000,
+        13: 0b00100000,
+        14: 0b01000000,
+        15: 0b10000000,
     }
 
     def __init__(self):
@@ -53,7 +53,7 @@ class LightControl:
         This function initializes the light controller.
         Configures it for interrupts, sets io-directions etc.
         '''
-        #First do a reset to init the devices
+        # First do a reset to init the devices
         self.ControlUnitA.initDevice()
         self.ControlUnitB.initDevice()
 
@@ -137,13 +137,13 @@ class LightControl:
         :param light_number: Determines the light number (0 to 15) to switch
         :return: Represents success: ['-1' if Pin number invalid]
         '''
-        if (light_number <= 7) and (light_number >= 0):         #between 0 and 7
+        if (light_number <= 7) and (light_number >= 0):  # between 0 and 7
             #Use unit A
             current_bit_pattern = self.ControlUnitA.read_byte_port_a()
             current_bit_pattern = self.calculate_bit_pattern(mode, light_number, current_bit_pattern)
             self.ControlUnitA.write_byte_port_a(current_bit_pattern)
 
-        elif (light_number >= 8) and (light_number <= 15):      #between 8 and 15
+        elif (light_number >= 8) and (light_number <= 15):  # between 8 and 15
             #Use Unit B
             current_bit_pattern = self.ControlUnitB.read_byte_port_a()
             current_bit_pattern = self.calculate_bit_pattern(mode, light_number, current_bit_pattern)
@@ -166,13 +166,13 @@ class LightControl:
         current_bit_patternA = self.ControlUnitA.read_byte_port_a()
         current_bit_patternB = self.ControlUnitB.read_byte_port_a()
 
-        #calculate bit pattern for every light number
+        # calculate bit pattern for every light number
         for i in lights:
-            if (i <= 7) and (i >= 0):         #between 0 and 7
+            if (i <= 7) and (i >= 0):  #between 0 and 7
                 #Use unit A
                 current_bit_patternA = self.calculate_bit_pattern(mode, i, current_bit_patternA)
 
-            elif (i >= 8) and (i <= 15):      #between 8 and 15
+            elif (i >= 8) and (i <= 15):  #between 8 and 15
                 #Use unit B
                 current_bit_patternB = self.calculate_bit_pattern(mode, i, current_bit_patternB)
             else:
@@ -214,7 +214,7 @@ class LightControl:
         :return: The value of the desired light number ( '1' for 'ON', '0' for 'OFF)
                  ['-1' if Pin number invalid]
         '''
-        if (light_number <= 7) and (light_number >= 0):         #between 0 and 7
+        if (light_number <= 7) and (light_number >= 0):  # between 0 and 7
             #Use unit A
             current_bit_pattern = self.ControlUnitA.read_byte_port_a()
             result = current_bit_pattern & self.pin_number_mapping[light_number]
@@ -223,9 +223,9 @@ class LightControl:
             else:
                 return 1
 
-        elif (light_number >= 8) and (light_number <= 15):      #between 8 and 15
+        elif (light_number >= 8) and (light_number <= 15):  # between 8 and 15
             current_bit_pattern = self.ControlUnitB.read_byte_port_a()
-            result =  current_bit_pattern & self.pin_number_mapping[light_number]
+            result = current_bit_pattern & self.pin_number_mapping[light_number]
             if result == 0:
                 return 0
             else:
@@ -247,7 +247,7 @@ class LightControl:
         :param part: ['0' for lights 0-7], ['1' for lights 8-15]
         :return: An 8 Bit value representing part1 or part0
         '''
-        #Lights 0-7
+        # Lights 0-7
         if part == 0:
             return self.ControlUnitA.read_byte_port_a()
         #Lights 8-15
@@ -266,7 +266,7 @@ class LightControl:
 
         :return: 16Bit input bit_pattern
         '''
-        #TODO NOT TESTED!
+        # TODO NOT TESTED!
 
         bit_patternA = self.ControlUnitA.read_interrupt_capture_reg_port_b()
         bit_patternB = self.ControlUnitB.read_interrupt_capture_reg_port_b()
@@ -288,7 +288,7 @@ class LightControl:
         :param part: ['0' for inputs 0-7], ['1' for inputs 8-15]
         :return: An 8 Bit value representing part1 or part0
         '''
-        #TODO NOT TESTED!
+        # TODO NOT TESTED!
         #Inputs 0-7
         if part == 0:
             return self.ControlUnitA.read_interrupt_flag_reg_port_b()
@@ -298,3 +298,23 @@ class LightControl:
         else:
             assert 0, "You entered an invalid mode. '0' for Pins 0-7; '1' for pins 8-15"
             return -1
+
+
+class LightControlDummy:
+    def init(self):
+        pass
+
+    def set_light(self, mode, light_number):
+        return 0
+
+    def set_multiple_lights(self, mode, lights):
+        return 0
+
+    def set_all(self, mode):
+        return 0
+
+    def read_light(self, light_number):
+        return 0
+
+    def read_multiple_lights(self, part):
+        return 0

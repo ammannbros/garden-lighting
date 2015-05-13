@@ -1,7 +1,6 @@
 from abc import abstractmethod
 from enum import Enum
 import collections
-from garden_lighting.web.web import control
 
 
 class Action(Enum):
@@ -10,7 +9,8 @@ class Action(Enum):
 
 
 class Device:
-    def __init__(self, name, short_name):
+    def __init__(self, name, short_name, light_control):
+        self.light_control = light_control
         self.short_name = short_name
         self.name = name
 
@@ -31,9 +31,9 @@ class Device:
         self.collect_batch(batch)
 
         if action == Action.ON:
-            return control.set_multiple_lights(True, batch) == 0
+            return self.light_control.set_multiple_lights(True, batch) == 0
         elif action == Action.OFF:
-            return control.set_multiple_lights(False, batch) == 0
+            return self.light_control.set_multiple_lights(False, batch) == 0
         else:
             raise ()
 
@@ -46,8 +46,9 @@ class DeviceGroup(Device):
     def is_group(self):
         return True
 
-    def __init__(self, name, short_name):
-        super().__init__(name, short_name)
+    def __init__(self, name, short_name, light_control):
+        super().__init__(name, short_name, light_control)
+        self.light_control = light_control
         self.devices = collections.OrderedDict()
 
     def is_floating(self):
@@ -118,15 +119,15 @@ class DefaultDevice(Device):
     def is_group(self):
         return False
 
-    def __init__(self, slot, name, short_name):
-        super().__init__(name, short_name)
+    def __init__(self, slot, name, short_name, light_control):
+        super().__init__(name, short_name, light_control)
         self.slot = slot
 
     def is_off(self):
         return not self.is_on()
 
     def is_on(self):
-        return control.read_light(self.slot)
+        return self.light_control.read_light(self.slot)
 
     def collect_batch(self, batch):
         batch.append(self.slot)

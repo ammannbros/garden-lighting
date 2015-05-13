@@ -1,7 +1,9 @@
 from time import sleep
 from threading import Thread
 from enum import Enum, unique
-from datetime import datetime
+from datetime import datetime, timedelta
+from flask import json
+from uuid import UUID
 
 
 @unique
@@ -75,5 +77,47 @@ class DeviceScheduler:
         self.running = True
         thread = Thread(target=self.start_scheduler)
         thread.start()
+
+    def add_rule(self, rule):
+        self.rules.append(rule)
+
+    def write(self):
+        try:
+            rules_file = open("rules.json", "w")
+            rules_file.write(json.dumps(self.rules))
+            rules_file.close()
+            return True
+        except EnvironmentError:
+            return False
+
+    def read(self, devices):
+        try:
+            rules_file = open("rules.json", "r")
+            rules = json.load(rules_file)
+
+            for json_rule in rules:
+                rule_devices = []
+
+                for device in json_rule['devices']:
+                    device = devices.get_device(device['short_name'])
+                    if device is None:
+                        continue
+
+                    rule_devices.append(device)
+
+                rule = Rule(
+                    UUID('{' + json_rule['uuid'] + '}'),
+                    json_rule['weekday'],
+                    rule_devices,
+                    timedelta(seconds=json_rule['time']),
+                    json_rule['action']
+                )
+                self.rules.append(rule)
+                pass
+
+            rules_file.close()
+            return True
+        except ValueError:
+            return False
 
 

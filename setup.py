@@ -10,7 +10,7 @@ setup(
     author_email='',
     description='',
     install_requires=['Flask', 'Flask-libsass', 'Flask-Bower',
-                      'RPi.GPIO', 'smbus-cffi'],
+                      'RPi.GPIO', 'smbus-cffi', 'Flask-Script'],
     scripts=['scripts/garden-lighting'],
     include_package_data=True,
 )

@@ -1,4 +1,4 @@
-from json import JSONEncoder
+from json import JSONEncoder, JSONDecoder
 from garden_lighting.web.devices import Device
 from garden_lighting.web.scheduler import Rule
 
@@ -8,7 +8,8 @@ class ComplexEncoder(JSONEncoder):
         if isinstance(obj, Rule):
             rule = {'weekday': obj.weekday,
                     'time': obj.time.total_seconds(),
-                    'action': obj.action}
+                    'action': obj.action,
+                    'uuid': str(obj.uuid)}
 
             devices = []
 
