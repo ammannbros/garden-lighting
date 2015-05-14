@@ -1,5 +1,5 @@
 from flask import render_template, Blueprint
-from garden_lighting.web.web import auth
+from garden_lighting.web.web import auth, scheduler
 
 from garden_lighting.web.web import control, devices
 
@@ -40,5 +40,6 @@ def all_lights():
 
     return render_template("lights.html", name="Alle Lichter",
                            areas=False,
+                           scheduler=scheduler,
                            ons=ons,
                            devices=all_devices)

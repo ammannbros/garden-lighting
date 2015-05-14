@@ -65,7 +65,9 @@
 
                         <div class="caption">
                             <h4 class="group inner list-group-item-heading">
-                                {{ device.name }}</h4>
+                                {{ device.name }}
+                            </h4>
+
 
                             <div class="row" id="row_{{ device.short_name }}" style="font-size: smaller">
 
@@ -78,12 +80,18 @@
                                     </div>
                                 {% else %}
                                     <div class="pull-right row-contents">
+
+                                        {% if scheduler.is_controlled_manually(device) %}
+                                            <button class="btn btn-default">Disable Manual</button>
+                                        {% endif %}
+
                                         <button id="light-switch-{{ device.short_name }}"
                                                 class="light-switch btn {% if device.slot in ons %}btn-success{% else %}btn-danger{% endif %}"
                                                 style="width: 120px">{% if device.slot in ons %}Ausschalten{% else %}
                                             Anschalten{% endif %}
                                         </button>
                                     </div>
+
                                 {% endif %}
 
 

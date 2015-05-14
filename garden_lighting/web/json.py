@@ -6,7 +6,7 @@ from garden_lighting.web.scheduler import Rule
 class ComplexEncoder(JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Rule):
-            rule = {'weekday': obj.weekday,
+            rule = {'weekday': obj.weekday.value,
                     'time': obj.time.total_seconds(),
                     'action': obj.action,
                     'uuid': str(obj.uuid)}

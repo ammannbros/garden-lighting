@@ -2,7 +2,7 @@ from datetime import timedelta
 from flask import Blueprint, jsonify, request
 import uuid
 from garden_lighting.web.devices import Action
-from garden_lighting.web.scheduler import Rule
+from garden_lighting.web.scheduler import Rule, Weekday
 
 from garden_lighting.web.web import app, devices, scheduler, auth
 
@@ -21,7 +21,10 @@ def handle_state(slot, action):
 
         device = devices.get_device(slot)
         if device is not None:
-            success = device.set(action)
+            controlled = device.set(action)
+            success = len(controlled) > 0
+            for slot in controlled:
+                scheduler.control_manually(action, slot)
         else:
             success = False
 
@@ -67,13 +70,13 @@ def add_rules():
 
         rule = Rule(
             uuid.uuid1(),
-            json_rule['weekday'],
+            Weekday(json_rule['weekday']),
             rule_devices,
             timedelta(seconds=json_rule['time']),
             json_rule['action']
-
         )
-        scheduler.rules.append(rule)
+
+        scheduler.add_rule(rule)
 
     success = scheduler.write()
 

@@ -9,7 +9,8 @@ class Action(Enum):
 
 
 class Device:
-    def __init__(self, name, short_name, light_control):
+    def __init__(self, name, short_name, light_control, scheduler):
+        self.scheduler = scheduler
         self.light_control = light_control
         self.short_name = short_name
         self.name = name
@@ -31,9 +32,11 @@ class Device:
         self.collect_batch(batch)
 
         if action == Action.ON:
-            return self.light_control.set_multiple_lights(True, batch) == 0
+            self.light_control.set_multiple_lights(True, batch)
+            return batch
         elif action == Action.OFF:
-            return self.light_control.set_multiple_lights(False, batch) == 0
+            self.light_control.set_multiple_lights(False, batch)
+            return batch
         else:
             raise ()
 
@@ -46,8 +49,8 @@ class DeviceGroup(Device):
     def is_group(self):
         return True
 
-    def __init__(self, name, short_name, light_control):
-        super().__init__(name, short_name, light_control)
+    def __init__(self, name, short_name, light_control, scheduler):
+        super().__init__(name, short_name, light_control, scheduler)
         self.light_control = light_control
         self.devices = collections.OrderedDict()
 
@@ -119,8 +122,8 @@ class DefaultDevice(Device):
     def is_group(self):
         return False
 
-    def __init__(self, slot, name, short_name, light_control):
-        super().__init__(name, short_name, light_control)
+    def __init__(self, slot, name, short_name, light_control, scheduler):
+        super().__init__(name, short_name, light_control, scheduler)
         self.slot = slot
 
     def is_off(self):

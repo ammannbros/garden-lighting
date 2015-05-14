@@ -4,6 +4,7 @@ from enum import Enum, unique
 from datetime import datetime, timedelta
 from flask import json
 from uuid import UUID
+from garden_lighting.web.devices import Action
 
 
 @unique
@@ -26,18 +27,17 @@ class Rule:
         self.time = time
 
     def is_overdue(self):
-        current = datetime.utcnow()
+        current = datetime.now()
 
         if Weekday(current.weekday()) is not self.weekday:
             return False
 
         second_of_day = current.hour * 60 * 60 + current.minute * 60 + current.second
-        return self.time.total_seconds() > second_of_day
+        return self.time.total_seconds() < second_of_day
 
 
 class DeviceScheduler:
     def __init__(self, delay, rules=None):
-        self.finished = []
         self.lastTime = datetime.today()
         self.running = False
         self.delay = delay
@@ -45,26 +45,44 @@ class DeviceScheduler:
             self.rules = []
         else:
             self.rules = rules
-
-    def remove_rule(self, uuid):
-        previous = len(self.rules)
-        self.rules = [rule for rule in self.rules if rule.uuid != uuid]
-        return previous != len(self.rules)
+        self.super_rules = []
+        self.manual_devices = []
 
     def run(self):
+        actions = {}
+
         for rule in self.rules:
-            if rule not in self.finished and rule.is_overdue():
+
+            if rule.is_overdue():
+
                 for device in rule.devices:
-                    device.set(rule.action)
-                self.finished.append(rule)
 
-        # Reset after a day
-        current = datetime.today()
+                    if not self.is_controlled_manually(device):  # Don't control while it's controlled by a super
+                        actions[device.slot] = rule.action  # rule or is in manual mode
 
-        if self.lastTime.hour == 23 and current.hour == 0:
-            self.finished.clear()
+        # Super rules
+        for rule in self.super_rules[:]:
 
-        self.lastTime = current
+            if rule.is_overdue():
+
+                for device in rule.devices:
+                    self.control_manually(rule.action, device.slot)
+
+                    actions[device.slot] = rule.action
+                self.super_rules.remove(rule)
+
+        # Print current settings
+        if len(actions) > 0:
+            print(actions)
+
+    def is_controlled_manually(self, device):
+        return device.slot in self.manual_devices
+
+    def control_manually(self, action, slot):
+        if action == Action.ON and slot not in self.manual_devices:
+            self.manual_devices.append(slot)  # Disable
+        elif action == Action.OFF and slot in self.manual_devices:
+            self.manual_devices.remove(slot)  # Enable
 
     def start_scheduler(self):
         while self.running:
@@ -79,8 +97,23 @@ class DeviceScheduler:
         thread = Thread(target=self.start_scheduler)
         thread.start()
 
+    def remove_super_rule(self, uuid):
+        previous = len(self.super_rules)
+        self.super_rules = [rule for rule in self.super_rules if rule.uuid != uuid]
+        return previous != len(self.super_rules)
+
+    def add_super_rule(self, rule):
+        self.super_rules.append(rule)
+        self.super_rules.sort(key=lambda r: r.time)
+
+    def remove_rule(self, uuid):
+        previous = len(self.rules)
+        self.rules = [rule for rule in self.rules if rule.uuid != uuid]
+        return previous != len(self.rules)
+
     def add_rule(self, rule):
         self.rules.append(rule)
+        self.rules.sort(key=lambda r: r.time)
 
     def write(self):
         try:
@@ -108,12 +141,12 @@ class DeviceScheduler:
 
                 rule = Rule(
                     UUID('{' + json_rule['uuid'] + '}'),
-                    json_rule['weekday'],
+                    Weekday(json_rule['weekday']),
                     rule_devices,
                     timedelta(seconds=json_rule['time']),
                     json_rule['action']
                 )
-                self.rules.append(rule)
+                self.add_rule(rule)
                 pass
 
             rules_file.close()

@@ -34,8 +34,17 @@ app.logger.info("Initialising hardware interface!")
 control = LightControl()
 control.init()
 
-scheduler = DeviceScheduler(0.5)
-devices = DeviceGroup("root", "root", control)
+
+def new_group(display_name, short_name):
+    return DeviceGroup(display_name, short_name, control, scheduler)
+
+
+def new_device(slot, display_name, short_name):
+    return DefaultDevice(slot, display_name, short_name, control, scheduler)
+
+
+scheduler = DeviceScheduler(2)
+devices = new_group("root", "root")
 
 auth = None
 
@@ -67,20 +76,15 @@ def runserver(port, config, token, secret):
     app.secret_key = secret
 
     from garden_lighting.web.api import api
+
     app.register_blueprint(api)
 
     from garden_lighting.web.control import control
+
     app.register_blueprint(control)
 
     from garden_lighting.web.lights import lights
+
     app.register_blueprint(lights)
 
     app.run(host='0.0.0.0', port=int(port), debug=True)
-
-
-def new_group(display_name, short_name):
-    return DeviceGroup(display_name, short_name, control)
-
-
-def new_device(slot, display_name, short_name):
-    return DefaultDevice(slot, display_name, short_name, control)
