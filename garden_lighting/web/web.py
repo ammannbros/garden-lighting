@@ -1,19 +1,17 @@
 import os
 
 from flask import Flask
-
 from flask.ext.libsass import Sass
-
 from flask.ext.bower import Bower
 from flask.ext.script import Manager
 import pkg_resources
 
-from garden_lighting.web.light_control_dummy import LightControl
-
+from garden_lighting.light_control_dummy import LightControl
+from garden_lighting.web.auth import Auth
 from garden_lighting.web.devices import DeviceGroup, DefaultDevice
 from garden_lighting.web.scheduler import DeviceScheduler
-
 from garden_lighting.web.json import ComplexEncoder
+
 
 app = Flask(__name__)
 app.json_encoder = ComplexEncoder
@@ -25,7 +23,7 @@ Bower(app)
 Sass(
     {'layout': 'static/sass/layout.scss',
      'lights': 'static/sass/lights.scss',
-     'controls': 'static/sass/controls.scss'}, app,
+     'control': 'static/sass/control.scss'}, app,
     url_path='/static/sass/',
     include_paths=[
         pkg_resources.resource_filename('garden_lighting.web', 'static/sass'),
@@ -39,30 +37,43 @@ control.init()
 scheduler = DeviceScheduler(0.5)
 devices = DeviceGroup("root", "root", control)
 
-token = ""
+auth = None
 
 
 @manager.option('-p', '--port', help='The port', default=80)
 @manager.option('-c', '--config', help='The config', default="config.py")
-@manager.option('-t', '--token', dest="token_", help='The token', default="")
+@manager.option('-t', '--token', help='The token', default="")
 @manager.option('-s', '--secret', help='The secret key', default="")
-def runserver(port, config, token_, secret):
+def runserver(port, config, token, secret):
+    # Loading config
     if os.path.isfile(config):
         with open(config) as f:
             code = compile(f.read(), config, 'exec')
-            exec(code)
 
-    global token
-    token = token_
+            lcl = {}
 
-    # Init routes
-    # noinspection PyUnresolvedReferences
-    from garden_lighting.web import routes
+            exec(code, globals(), lcl)
+
+            port = lcl['port']
+            token = lcl['token']
+            secret = lcl['secret']
+
+    global auth
+    auth = Auth(token)
 
     if not scheduler.read(devices):
         app.logger.warn("Failed to load rules!")
 
     app.secret_key = secret
+
+    from garden_lighting.web.api import api
+    app.register_blueprint(api)
+
+    from garden_lighting.web.control import control
+    app.register_blueprint(control)
+
+    from garden_lighting.web.lights import lights
+    app.register_blueprint(lights)
 
     app.run(host='0.0.0.0', port=int(port), debug=True)
 

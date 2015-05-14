@@ -3,12 +3,14 @@
 {% import 'time_select.html' as time %}
 
 {% block head %}
-    <script src="{{ url_for('static', filename='js/controls.js') }}"></script>
+
     <script src="{{ url_for('bower.static', filename='clockpicker/dist/bootstrap-clockpicker.min.js') }}"></script>
     <link rel=stylesheet type=text/css
           href="{{ url_for('bower.static', filename='clockpicker/dist/bootstrap-clockpicker.min.css') }}">
-    <link rel=stylesheet type=text/css href="/static/sass/controls.css">
-{% endblock %}
+
+    <script src="{{ url_for("static",filename='js/controls.js') }}"></script>
+    <link rel=stylesheet type=text/css href="{{ url_for("static", filename='sass/control.css') }}">
+{% endblock %}W
 
 
 {% block body %}
@@ -60,6 +62,7 @@
                 </div>
                 <div class="step-pane sample-pane" data-step="3">
                     <h4>Zusammenfassung</h4>
+
                     <p id="summary">
                     </p>
                 </div>
@@ -74,7 +77,7 @@
 
     <div id="rules" class="list-group">
         {% for rule in rules %}
-            <div id="{{ rule.uuid }}"class="item list-group-item col-xs-4 col-lg-4">
+            <div id="{{ rule.uuid }}" class="item list-group-item col-xs-4 col-lg-4">
 
                 <div class="caption" style="word-wrap: break-word;">
 

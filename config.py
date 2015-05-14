@@ -1,5 +1,8 @@
 from garden_lighting.web.web import new_group, new_device, devices
 
+port = 5000
+token = ""
+secret = ""
 
 south = new_group("Süden", "south")
 west = new_group("Westen", "west")

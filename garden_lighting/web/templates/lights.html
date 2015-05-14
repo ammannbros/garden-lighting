@@ -21,9 +21,8 @@
 {%- endmacro %}
 
 {% block head %}
-    <script src="{{ url_for('static', filename='js/lights.js') }}"></script>
-    <link rel=stylesheet type=text/css href="/static/sass/lights.css">
-
+    <script src="{{ url_for("static", filename='js/lights.js') }}"></script>
+    <link rel=stylesheet type=text/css href="{{ url_for("static", filename='sass/lights.css') }}">
 {% endblock %}
 
 

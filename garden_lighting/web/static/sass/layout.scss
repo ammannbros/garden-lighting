@@ -3,7 +3,7 @@ $nav_bg_color_active: #1f2f3f;
 $nav_bg_color: #293f54;
 
 ::-webkit-scrollbar {
-    display: none;
+  display: none;
 }
 
 /*
@@ -21,7 +21,7 @@ $nav_bg_color: #293f54;
   text-align: left;
 
   font-size: 24px;
-//  font-family: FontAwesome, Verdana, Arial, sans-serifial, serif;
+  //  font-family: FontAwesome, Verdana, Arial, sans-serifial, serif;
 }
 
 /*
@@ -68,7 +68,6 @@ $nav_bg_color: #293f54;
   font-size: 30px;
   color: #ffffff;
 }
-
 
 .item.list-group-item {
   float: none;
