@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from flask import json
 from uuid import UUID
 import uuid
-from garden_lighting.web.devices import Action
+from garden_lighting.web.devices import Action, action_from_string
 from garden_lighting.web.web import app
 
 
@@ -80,16 +80,33 @@ class DeviceScheduler:
         # Super rules
         for device in self.devices.get_real_devices_recursive():
 
-            if device.super_rule_start is not None and device.super_rule_start.is_overdue():
-                process_super_rule(device.super_rule_start, device, actions)
-                device.super_rule_start = None
-            if device.super_rule_stop is not None and device.super_rule_stop.is_overdue():
-                process_super_rule(device.super_rule_stop, device, actions)
-                device.super_rule_stop = None
+            start = device.get_super_start()
+            stop = device.get_super_stop()
+            if start is not None and start.is_overdue():
+                process_super_rule(start, device, actions)
+                device.clear_super_start()
+
+            if stop is not None and stop.is_overdue():
+                process_super_rule(stop, device, actions)
+                device.clear_super_stop()
 
         # Print current settings
         if len(actions) > 0:
             app.logger.info(actions)
+
+    def get_next_action_date(self, device):
+        rules = [rule for rule in self.rules if device in rule.devices]
+
+        rule = device.get_super_stop()
+        if rule is not None:
+
+            if rules:
+                if rule.weekday.value < rules[0].weekday.value or rule.weekday.value == rules[0].weekday.value and rule.time < rules[0].time:
+                    return rule.time, rule.action
+            else:
+                return rule.time, rule.action
+
+        return None if not rules else (rules[0].time, rules[0].action)
 
     def start_scheduler(self):
         while self.running:
@@ -119,7 +136,7 @@ class DeviceScheduler:
     # def get_super_rules_for_device(self, device):
     # devices = [device] if type(device) == DefaultDevice else device.devices.values()
     #
-    #     return [rule for rule in self.super_rules if devices == set(rule.devices)]
+    # return [rule for rule in self.super_rules if devices == set(rule.devices)]
 
     # def add_super_rule(self, rule):
     #     self.super_rules.append(rule)
@@ -163,7 +180,7 @@ class DeviceScheduler:
                     Weekday(json_rule['weekday']),
                     rule_devices,
                     timedelta(seconds=json_rule['time']),
-                    json_rule['action']
+                    action_from_string(json_rule['action'])
                 )
                 self.add_rule(rule)
                 pass

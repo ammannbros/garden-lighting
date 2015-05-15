@@ -1,7 +1,7 @@
 from datetime import timedelta
 from flask import Blueprint, jsonify, request
 import uuid
-from garden_lighting.web.devices import Action
+from garden_lighting.web.devices import Action, action_from_string
 from garden_lighting.web.scheduler import Rule, Weekday, now_rule
 
 from garden_lighting.web.web import app, devices, scheduler, auth
@@ -19,11 +19,6 @@ def get_device(slot):
 def handle_state(slot, action, duration):
     success = True
 
-    if action == "on":
-        action = Action.ON
-    elif action == "off":
-        action = Action.OFF
-
     device = get_device(slot)
 
     if device is not None:
@@ -32,6 +27,10 @@ def handle_state(slot, action, duration):
             success = len(controlled) > 0
             for device in controlled:
                 device.control_manually()
+
+                # Forget about the super rule, we're real manual now!
+                device.clear_super_rule()
+
         else:
             device_list = device.get_real_devices_recursive()
 
@@ -110,14 +109,14 @@ def add_rules():
             get_device = devices.get_device(device)
             if get_device is None:
                 continue
-            rule_devices.add(get_device)
+            rule_devices.append(get_device)
 
         rule = Rule(
             uuid.uuid1(),
             Weekday(json_rule['weekday']),
             rule_devices,
             timedelta(seconds=json_rule['time']),
-            json_rule['action']
+            action_from_string(json_rule['action'])
         )
 
         scheduler.add_rule(rule)

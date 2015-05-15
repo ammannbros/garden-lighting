@@ -11,6 +11,10 @@ class Action(Enum):
         return Action.OFF if self == Action.ON else Action.ON
 
 
+def action_from_string(name):
+    return Action.ON if name == "on" else Action.OFF if name == "off" else None
+
+
 class Device:
     def __init__(self, display_name, short_name, light_control, scheduler):
         self.scheduler = scheduler
@@ -238,6 +242,16 @@ class DefaultDevice(Device):
 
     def get_super_start(self):
         return self.super_rule_start
+
+    def clear_super_rule(self):
+        self.super_rule_start = None
+        self.super_rule_stop = None
+
+    def clear_super_start(self):
+        self.super_rule_start = None
+
+    def clear_super_stop(self):
+        self.super_rule_stop = None
 
     def get_super_stop(self):
         return self.super_rule_stop
