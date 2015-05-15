@@ -57,7 +57,7 @@ class DeviceScheduler:
 
                 for device in rule.devices:
 
-                    if not self.is_controlled_manually(device):  # Don't control while it's controlled by a super
+                    if device.is_control_automatically():  # Don't control while it's controlled by a super
                         actions[device.slot] = rule.action  # rule or is in manual mode
 
         # Super rules
@@ -66,7 +66,10 @@ class DeviceScheduler:
             if rule.is_overdue():
 
                 for device in rule.devices:
-                    self.control_manually(rule.action, device.slot)
+                    if rule.action == Action.ON:
+                        device.control_manually()
+                    elif rule.action == Action.OFF:
+                        device.control_automatically()
 
                     actions[device.slot] = rule.action
                 self.super_rules.remove(rule)
@@ -74,15 +77,6 @@ class DeviceScheduler:
         # Print current settings
         if len(actions) > 0:
             print(actions)
-
-    def is_controlled_manually(self, device):
-        return device.slot in self.manual_devices
-
-    def control_manually(self, action, slot):
-        if action == Action.ON and slot not in self.manual_devices:
-            self.manual_devices.append(slot)  # Disable
-        elif action == Action.OFF and slot in self.manual_devices:
-            self.manual_devices.remove(slot)  # Enable
 
     def start_scheduler(self):
         while self.running:

@@ -1,27 +1,25 @@
 target = "http://" + window.location.host;
 
 function on(name) {
-    return $.getJSON(target + "/api/" + name + "/on/", function (data) {
-        if (data["success"]) {
-            toastr.success('Erfolgreich angeschalten')
-        } else {
-            toastr.error('Anschalten fehlgeschlagen')
-        }
-    });
+    return apiRequest("/api/" + name + "/on/", 'Erfolgreich angeschalten', 'Anschalten fehlgeschlagen');
 }
 
 function off(name) {
-    return $.getJSON(target + "/api/" + name + "/off/", function (data) {
-        if (data["success"]) {
-            toastr.success('Erfolgreich ausgeschalten')
-        } else {
-            toastr.error('Auschalten fehlgeschlagen')
-        }
-    });
+    return apiRequest("/api/" + name + "/off/", 'Erfolgreich ausgeschalten', 'Auschalten fehlgeschlagen');
 }
 
-function resetSchedule() {
-    $(".spinbox").spinbox('value', 0)
+function automatic(name) {
+    return apiRequest("/api/" + name + "/automatic/", 'Erfolgreich auf Autamatisch geschalten', 'Fehlgeschlagen auf Autamatisch zu schalten');
+}
+
+function apiRequest(path, sucess_msg, error_msg) {
+    return $.getJSON(target + path, function (data) {
+        if (data["success"]) {
+            toastr.success(sucess_msg)
+        } else {
+            toastr.error(error_msg)
+        }
+    });
 }
 
 $(document).ready(function () {
@@ -37,27 +35,19 @@ $(document).ready(function () {
 
     $('.on').click(function () {
         on($(this).data("target"));
-
-        //todo switch only specific ones
-        light_toggles.removeClass('btn-danger');
-        light_toggles.addClass('btn-success');
-        light_toggles.text("Auschalten");
     });
 
     $('.off').click(function () {
         off($(this).data("target"));
+    });
 
-        //todo switch only specific ones
-        light_toggles.removeClass('btn-success');
-        light_toggles.addClass('btn-danger');
-        light_toggles.text("Anschalten");
+    $('.mode').click(function () {
+        var id = $(this).data("value");
+        automatic(id);
     });
 
     light_toggles.click(function () {
-        var switch_id = $(this).attr('id');
-
-        //Find id
-        var id = switch_id.substring("light-switch_".length, switch_id.length);
+        var id = $(this).data("value");
 
         if ($(this).hasClass('btn-success')) {
             $(this).text("Anschalten");
@@ -71,7 +61,5 @@ $(document).ready(function () {
 
         $(this).toggleClass('btn-success');
         $(this).toggleClass('btn-danger');
-
-        resetSchedule()
     });
 });

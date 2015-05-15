@@ -72,6 +72,7 @@ def runserver(port, config, token, secret):
 
     if not scheduler.read(devices):
         app.logger.warn("Failed to load rules!")
+        return
 
     app.secret_key = secret
 

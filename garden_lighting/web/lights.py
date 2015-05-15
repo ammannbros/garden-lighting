@@ -26,8 +26,8 @@ def all_lights():
     if not auth.auth():
         return auth.fucked_auth()
     all_devices = devices.get_all_devices_recursive()
-    batch = []
-    devices.collect_batch(batch)
+    # batch = []
+    # devices.collect_batch(batch)
 
     lights_pattern = control.read_multiple_lights(0) | control.read_multiple_lights(1) << 8
 

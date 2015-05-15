@@ -9,24 +9,29 @@ from garden_lighting.web.web import app, devices, scheduler, auth
 api = Blueprint('api', __name__)
 
 
+def get_device(slot):
+    if slot == "all":
+        return devices
+    else:
+        return devices.get_device(slot)
+
+
 def handle_state(slot, action):
     if action == "on":
         action = Action.ON
     elif action == "off":
         action = Action.OFF
 
-    if slot == "all":
-        success = devices.set(action)
-    else:
+    device = get_device(slot)
 
-        device = devices.get_device(slot)
-        if device is not None:
-            controlled = device.set(action)
-            success = len(controlled) > 0
-            for slot in controlled:
-                scheduler.control_manually(action, slot)
-        else:
-            success = False
+    if device is not None:
+        controlled = device.set(action)
+        success = len(controlled) > 0
+        for device in controlled:
+            device.control_manually()
+
+    else:
+        success = False
 
     return jsonify(success=success)
 
@@ -38,6 +43,28 @@ def on(slot):
 
     app.logger.info("Turning " + slot + " on!")
     return handle_state(slot, Action.ON)
+
+
+@api.route('/api/<slot>/manual/')
+def control_manually(slot):
+    if not auth.auth():
+        return auth.fucked_auth()
+
+    device = get_device(slot)
+    device.control_manually()
+
+    return jsonify(success=True)
+
+
+@api.route('/api/<slot>/automatic/')
+def control_automatically(slot):
+    if not auth.auth():
+        return auth.fucked_auth()
+
+    device = get_device(slot)
+    device.control_automatically()
+
+    return jsonify(success=True)
 
 
 @api.route('/api/<slot>/off/')

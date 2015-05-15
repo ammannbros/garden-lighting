@@ -31,11 +31,13 @@ class Device:
         batch = []
         self.collect_batch(batch)
 
+        slots = [device.slot for device in batch]
+
         if action == Action.ON:
-            self.light_control.set_multiple_lights(True, batch)
+            self.light_control.set_multiple_lights(True, slots)
             return batch
         elif action == Action.OFF:
-            self.light_control.set_multiple_lights(False, batch)
+            self.light_control.set_multiple_lights(False, slots)
             return batch
         else:
             raise ()
@@ -125,6 +127,7 @@ class DefaultDevice(Device):
     def __init__(self, slot, name, short_name, light_control, scheduler):
         super().__init__(name, short_name, light_control, scheduler)
         self.slot = slot
+        self.manually = False
 
     def is_off(self):
         return not self.is_on()
@@ -133,4 +136,16 @@ class DefaultDevice(Device):
         return self.light_control.read_light(self.slot)
 
     def collect_batch(self, batch):
-        batch.append(self.slot)
+        batch.append(self)
+
+    def is_controlled_manually(self):
+        return self.manually
+
+    def is_controlled_automatically(self):
+        return not self.manually
+
+    def control_manually(self):
+        self.manually = True
+
+    def control_automatically(self):
+        self.manually = False

@@ -187,7 +187,16 @@ $(document).ready(function () {
 
     wizard.on('actionclicked.fu.wizard', function (evt, data) {
         if (data.step == 2) {
-            $("#summary").text("Die Lichter " + getDeviceNames() + " werden von am " + getLocalizedWeekdays() + " von " + getStartTimeText() + " für " + getDuration() + " Sekunden an sein.")
+            $("#summary").text(
+                "Die Lichter " +
+                getDeviceNames() +
+                " werden von am " +
+                getLocalizedWeekdays() +
+                " von " +
+                getStartTimeText() +
+                " für " + getDuration() +
+                " Sekunden an sein."
+            )
         }
     });
 

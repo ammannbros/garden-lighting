@@ -81,14 +81,18 @@
                                 {% else %}
                                     <div class="pull-right row-contents">
 
-                                        {% if scheduler.is_controlled_manually(device) %}
-                                            <button class="btn btn-default">Disable Manual</button>
+                                        {% if device.is_controlled_manually() %}
+                                            <button class="mode btn btn-default" data-value="{{ device.short_name }}">Disable Manual</button>
                                         {% endif %}
 
-                                        <button id="light-switch-{{ device.short_name }}"
+                                        <button data-value="{{ device.short_name }}"
                                                 class="light-switch btn {% if device.slot in ons %}btn-success{% else %}btn-danger{% endif %}"
-                                                style="width: 120px">{% if device.slot in ons %}Ausschalten{% else %}
-                                            Anschalten{% endif %}
+                                                style="width: 120px">
+                                            {% if device.slot in ons %}
+                                                Ausschalten
+                                            {% else %}
+                                                Anschalten
+                                            {% endif %}
                                         </button>
                                     </div>
 
