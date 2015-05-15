@@ -17,17 +17,18 @@ def start():
 def overview():
     if not auth.auth():
         return auth.fucked_auth()
-    all_devices = devices.get_all_devices()
-    return render_template("lights.html", name="Bereiche", areas=True, devices=all_devices)
+    all_devices = devices.get_devices()
+    return render_template("lights.html", name="Bereiche",
+                           areas=True,
+                           scheduler=scheduler,
+                           devices=all_devices)
 
 
 @lights.route('/all_lights/')
 def all_lights():
     if not auth.auth():
         return auth.fucked_auth()
-    all_devices = devices.get_all_devices_recursive()
-    # batch = []
-    # devices.collect_batch(batch)
+    all_devices = devices.get_real_devices_recursive()
 
     lights_pattern = control.read_multiple_lights(0) | control.read_multiple_lights(1) << 8
 

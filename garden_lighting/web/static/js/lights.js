@@ -1,11 +1,11 @@
 target = "http://" + window.location.host;
 
-function on(name) {
-    return apiRequest("/api/" + name + "/on/", 'Erfolgreich angeschalten', 'Anschalten fehlgeschlagen');
+function on(name, duration) {
+    return apiRequest("/api/" + name + "/on/" + duration, 'Erfolgreich angeschalten', 'Anschalten fehlgeschlagen');
 }
 
-function off(name) {
-    return apiRequest("/api/" + name + "/off/", 'Erfolgreich ausgeschalten', 'Auschalten fehlgeschlagen');
+function off(name, duration) {
+    return apiRequest("/api/" + name + "/off/" + duration, 'Erfolgreich ausgeschalten', 'Auschalten fehlgeschlagen');
 }
 
 function automatic(name) {
@@ -22,6 +22,20 @@ function apiRequest(path, sucess_msg, error_msg) {
     });
 }
 
+function getDuration() {
+    var duration = $('input[name=duration]:checked', '.duration-selector').data("value");
+
+    if (duration == undefined) {
+        duration = 0
+    }
+
+    return duration;
+}
+
+function addManualModeButton(id) {
+    $('.mode[data-value=' + id + ']').removeClass("hidden");
+}
+
 $(document).ready(function () {
     var light_toggles = $('.light-switch');
 
@@ -34,32 +48,49 @@ $(document).ready(function () {
     };
 
     $('.on').click(function () {
-        on($(this).data("target"));
+        var duration = getDuration();
+        var id = $(this).data("target");
+        on(id, duration);
+        addManualModeButton(id);
     });
 
     $('.off').click(function () {
-        off($(this).data("target"));
+        var duration = getDuration();
+        var id = $(this).data("target");
+        off(id, duration);
+        addManualModeButton(id);
     });
 
     $('.mode').click(function () {
         var id = $(this).data("value");
         automatic(id);
+        //$(this).remove();
+        location.reload(); // We would need to get all information about all devices from server else
     });
 
     light_toggles.click(function () {
+        var duration = getDuration();
+
         var id = $(this).data("value");
 
         if ($(this).hasClass('btn-success')) {
-            $(this).text("Anschalten");
+            if (duration == 0)  $(this).text("Anschalten");
 
-            off(id);
+            off(id, duration);
+
         } else if ($(this).hasClass('btn-danger')) {
-            $(this).text("Ausschalten");
+            if (duration == 0)  $(this).text("Ausschalten");
 
-            on(id);
+
+            on(id, duration);
         }
 
-        $(this).toggleClass('btn-success');
-        $(this).toggleClass('btn-danger');
+        if (duration == 0) {
+            $(this).toggleClass('btn-success');
+            $(this).toggleClass('btn-danger');
+        }
+
+
+        addManualModeButton(id);
     });
 });

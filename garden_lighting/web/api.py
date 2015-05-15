@@ -2,7 +2,7 @@ from datetime import timedelta
 from flask import Blueprint, jsonify, request
 import uuid
 from garden_lighting.web.devices import Action
-from garden_lighting.web.scheduler import Rule, Weekday
+from garden_lighting.web.scheduler import Rule, Weekday, now_rule
 
 from garden_lighting.web.web import app, devices, scheduler, auth
 
@@ -16,7 +16,9 @@ def get_device(slot):
         return devices.get_device(slot)
 
 
-def handle_state(slot, action):
+def handle_state(slot, action, duration):
+    success = True
+
     if action == "on":
         action = Action.ON
     elif action == "off":
@@ -25,24 +27,43 @@ def handle_state(slot, action):
     device = get_device(slot)
 
     if device is not None:
-        controlled = device.set(action)
-        success = len(controlled) > 0
-        for device in controlled:
-            device.control_manually()
+        if duration == 0:
+            controlled = device.set(action)
+            success = len(controlled) > 0
+            for device in controlled:
+                device.control_manually()
+        else:
+            device_list = device.get_real_devices_recursive()
 
+            unique_uid = uuid.uuid1()
+
+            for device in device_list:
+                device.super_rule_start = now_rule(unique_uid, device_list, action)
+                device.super_rule_stop = now_rule(unique_uid, device_list, action.opposite(), time_delta=duration)
     else:
         success = False
 
     return jsonify(success=success)
 
 
-@api.route('/api/<slot>/on/')
-def on(slot):
+@api.route('/api/<slot>/on/', defaults={'duration': 0})
+@api.route('/api/<slot>/on/<int:duration>')
+def on(slot, duration):
     if not auth.auth():
         return auth.fucked_auth()
 
     app.logger.info("Turning " + slot + " on!")
-    return handle_state(slot, Action.ON)
+    return handle_state(slot, Action.ON, duration)
+
+
+@api.route('/api/<slot>/off/', defaults={'duration': 0})
+@api.route('/api/<slot>/off/<int:duration>')
+def off(slot, duration):
+    if not auth.auth():
+        return auth.fucked_auth()
+
+    app.logger.info("Turning " + slot + " off!")
+    return handle_state(slot, Action.OFF, duration)
 
 
 @api.route('/api/<slot>/manual/')
@@ -51,7 +72,8 @@ def control_manually(slot):
         return auth.fucked_auth()
 
     device = get_device(slot)
-    device.control_manually()
+    for dev in device.get_real_devices_recursive():
+        dev.control_manually()
 
     return jsonify(success=True)
 
@@ -62,18 +84,13 @@ def control_automatically(slot):
         return auth.fucked_auth()
 
     device = get_device(slot)
-    device.control_automatically()
+    for dev in device.get_real_devices_recursive():
+        dev.control_automatically()
+        # Automatic devices do not have super rules!
+        dev.super_rule_start = None
+        dev.super_rule_stop = None
 
     return jsonify(success=True)
-
-
-@api.route('/api/<slot>/off/')
-def off(slot):
-    if not auth.auth():
-        return auth.fucked_auth()
-
-    app.logger.info("Turning " + slot + " off!")
-    return handle_state(slot, Action.OFF)
 
 
 @api.route('/api/add_rules/', methods=['POST'])
@@ -93,7 +110,7 @@ def add_rules():
             get_device = devices.get_device(device)
             if get_device is None:
                 continue
-            rule_devices.append(get_device)
+            rule_devices.add(get_device)
 
         rule = Rule(
             uuid.uuid1(),

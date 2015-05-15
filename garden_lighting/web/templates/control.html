@@ -45,7 +45,7 @@
                                             {% if n == 1 %}
                                            checked="checked"
                                             {% endif %} name="radioEx1" type="checkbox" value="{{ device.short_name }}">
-                                    {{ device.name }}
+                                    {{ device.display_name }}
                                 </label>
                             </div>
                         {% endfor %}
@@ -102,7 +102,7 @@
                         <div class="pull-right">
                             {% for device in rule.devices %}
                                 <div>
-                                    {{ device.name }}
+                                    {{ device.display_name }}
                                 </div>
                             {% endfor %}
                         </div>

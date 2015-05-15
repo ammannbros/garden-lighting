@@ -1,5 +1,7 @@
 from garden_lighting.web.web import new_group, new_device, devices
 
+devices.display_name = "Alle"
+
 port = 5000
 token = ""
 secret = ""

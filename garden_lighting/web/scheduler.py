@@ -4,7 +4,9 @@ from enum import Enum, unique
 from datetime import datetime, timedelta
 from flask import json
 from uuid import UUID
+import uuid
 from garden_lighting.web.devices import Action
+from garden_lighting.web.web import app
 
 
 @unique
@@ -18,9 +20,18 @@ class Weekday(Enum):
     SUNDAY = 6
 
 
+def now_rule(unique_uid, devices, action, time_delta=0):
+    current = datetime.now() + timedelta(seconds=time_delta)
+    return Rule(unique_uid, Weekday(current.weekday()), devices, to_timedelta(current), action)
+
+
+def to_timedelta(time):
+    return timedelta(seconds=time.hour * 60 * 60 + time.minute * 60 + time.second)
+
+
 class Rule:
-    def __init__(self, uuid, weekday, devices, time, action):
-        self.uuid = uuid
+    def __init__(self, unique_uid, weekday, devices, time, action):
+        self.uuid = unique_uid
         self.action = action
         self.weekday = weekday
         self.devices = devices
@@ -32,19 +43,25 @@ class Rule:
         if Weekday(current.weekday()) is not self.weekday:
             return False
 
-        second_of_day = current.hour * 60 * 60 + current.minute * 60 + current.second
-        return self.time.total_seconds() < second_of_day
+        return self.time.total_seconds() < to_timedelta(current).total_seconds()
+
+
+def process_super_rule(rule, device, actions):
+    if rule.action == Action.ON:
+        device.control_manually()
+    elif rule.action == Action.OFF:
+        device.control_automatically()
+
+    actions[device.slot] = rule.action
 
 
 class DeviceScheduler:
-    def __init__(self, delay, rules=None):
+    def __init__(self, delay, devices):
+        self.devices = devices
         self.lastTime = datetime.today()
         self.running = False
         self.delay = delay
-        if rules is None:
-            self.rules = []
-        else:
-            self.rules = rules
+        self.rules = []
         self.super_rules = []
         self.manual_devices = []
 
@@ -61,22 +78,18 @@ class DeviceScheduler:
                         actions[device.slot] = rule.action  # rule or is in manual mode
 
         # Super rules
-        for rule in self.super_rules[:]:
+        for device in self.devices.get_real_devices_recursive():
 
-            if rule.is_overdue():
-
-                for device in rule.devices:
-                    if rule.action == Action.ON:
-                        device.control_manually()
-                    elif rule.action == Action.OFF:
-                        device.control_automatically()
-
-                    actions[device.slot] = rule.action
-                self.super_rules.remove(rule)
+            if device.super_rule_start is not None and device.super_rule_start.is_overdue():
+                process_super_rule(device.super_rule_start, device, actions)
+                device.super_rule_start = None
+            if device.super_rule_stop is not None and device.super_rule_stop.is_overdue():
+                process_super_rule(device.super_rule_stop, device, actions)
+                device.super_rule_stop = None
 
         # Print current settings
         if len(actions) > 0:
-            print(actions)
+            app.logger.info(actions)
 
     def start_scheduler(self):
         while self.running:
@@ -91,19 +104,31 @@ class DeviceScheduler:
         thread = Thread(target=self.start_scheduler)
         thread.start()
 
-    def remove_super_rule(self, uuid):
-        previous = len(self.super_rules)
-        self.super_rules = [rule for rule in self.super_rules if rule.uuid != uuid]
-        return previous != len(self.super_rules)
+    # def remove_super_rule_for_device(self, device):
+    # # Find rules
+    # for_device = self.get_super_rules_for_device(device)
+    # for rule in for_device:
+    # for dev in rule.devices:
+    # dev.control_automatically()
+    #
+    # # Remove rules
+    # previous = len(self.super_rules)
+    # self.super_rules = [rule for rule in self.super_rules if rule not in for_device]
+    # return previous != len(self.super_rules)
 
-    def add_super_rule(self, rule):
-        self.super_rules.append(rule)
-        self.super_rules.sort(key=lambda r: r.time)
+    # def get_super_rules_for_device(self, device):
+    # devices = [device] if type(device) == DefaultDevice else device.devices.values()
+    #
+    #     return [rule for rule in self.super_rules if devices == set(rule.devices)]
 
-    def remove_rule(self, uuid):
-        previous = len(self.rules)
-        self.rules = [rule for rule in self.rules if rule.uuid != uuid]
-        return previous != len(self.rules)
+    # def add_super_rule(self, rule):
+    #     self.super_rules.append(rule)
+    #     self.super_rules.sort(key=lambda r: r.time)
+    #
+    # def remove_rule(self, unique_uid):
+    #     previous = len(self.rules)
+    #     self.rules = [rule for rule in self.rules if rule.uuid != unique_uid]
+    #     return previous != len(self.rules)
 
     def add_rule(self, rule):
         self.rules.append(rule)

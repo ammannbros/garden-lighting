@@ -9,12 +9,10 @@ import pkg_resources
 from garden_lighting.light_control_dummy import LightControl
 from garden_lighting.web.auth import Auth
 from garden_lighting.web.devices import DeviceGroup, DefaultDevice
-from garden_lighting.web.scheduler import DeviceScheduler
-from garden_lighting.web.json import ComplexEncoder
+
 
 
 app = Flask(__name__)
-app.json_encoder = ComplexEncoder
 
 manager = Manager(app)
 
@@ -42,11 +40,15 @@ def new_group(display_name, short_name):
 def new_device(slot, display_name, short_name):
     return DefaultDevice(slot, display_name, short_name, control, scheduler)
 
-
-scheduler = DeviceScheduler(2)
+from garden_lighting.web.json import ComplexEncoder
+from garden_lighting.web.scheduler import DeviceScheduler
+scheduler = DeviceScheduler(0.5, None)
 devices = new_group("root", "root")
+scheduler.devices = devices
 
 auth = None
+
+app.json_encoder = ComplexEncoder
 
 
 @manager.option('-p', '--port', help='The port', default=80)

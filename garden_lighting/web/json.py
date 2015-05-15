@@ -1,4 +1,4 @@
-from json import JSONEncoder, JSONDecoder
+from json import JSONEncoder
 from garden_lighting.web.devices import Device
 from garden_lighting.web.scheduler import Rule
 
@@ -20,6 +20,6 @@ class ComplexEncoder(JSONEncoder):
 
             return rule
         elif isinstance(obj, Device):
-            return {"name": obj.name, "short_name": obj.short_name};
+            return {"name": obj.display_name, "short_name": obj.short_name};
 
         return JSONEncoder.default(self, obj)

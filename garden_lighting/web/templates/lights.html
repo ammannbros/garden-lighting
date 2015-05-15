@@ -3,7 +3,7 @@
 {% import 'components.html' as components %}
 {% macro duration(duration, unit, multiplier) -%}
     <label class="btn btn-default">
-        <input type="radio" data-value="{{ duration * multiplier }}">
+        <input type="radio" name="duration" data-value="{{ duration * multiplier }}">
         <span class="glyphicon glyphicon-time"></span> Für {{ duration }} {{ unit }}
     </label>
 {%- endmacro %}
@@ -41,7 +41,12 @@
         </div>
 
         <div class="row well clearfix well-sm text-center" data-toggle="buttons">
-            <fieldset class="btn-group hidden-xs">
+            <fieldset class="duration-selector btn-group hidden-xs">
+                <label class="btn btn-default active">
+                    <input type="radio" name="duration" data-value="0" checked>
+                    <span class="glyphicon glyphicon-time"></span> Gleich
+                </label>
+                {{ minutes(1) }}
                 {{ minutes(5) }}
                 {{ minutes(10) }}
                 {{ minutes(30) }}
@@ -49,7 +54,12 @@
                 {{ hours(2) }}
             </fieldset>
 
-            <fieldset class="btn-group-vertical hidden-sm hidden-md hidden-lg" data-toggle="buttons">
+            <fieldset class="duration-selector btn-group-vertical hidden-sm hidden-md hidden-lg" data-toggle="buttons">
+                <label class="btn btn-default active">
+                    <input type="radio" name="duration" data-value="0" checked>
+                    <span class="glyphicon glyphicon-time"></span> Gleich
+                </label>
+                {{ minutes(1) }}
                 {{ minutes(5) }}
                 {{ minutes(10) }}
                 {{ minutes(30) }}
@@ -65,25 +75,32 @@
 
                         <div class="caption">
                             <h4 class="group inner list-group-item-heading">
-                                {{ device.name }}
+                                {{ device.display_name }}
+
+                                {{ device.get_super_start().time }}
+                                {{ device.get_super_stop().time }}
                             </h4>
 
 
                             <div class="row" id="row_{{ device.short_name }}" style="font-size: smaller">
+                                <div class="pull-right row-contents">
 
-                                {% if device.is_group() %}
-                                    <div class="pull-right">
+                                    <button data-value="{{ device.short_name }}" class="mode btn btn-warning
+                                    {% if not device.is_controlled_manually() %}
+                                        hidden
+                                    {% endif %}">
+                                        Setzte wieder Automatisch
+                                    </button>
+
+
+                                    {% if device.is_group() %}
+
                                         <button data-target="{{ device.short_name }}" class="on btn btn-success">An
                                         </button>
                                         <button data-target="{{ device.short_name }}" class="off btn btn-danger">Aus
                                         </button>
-                                    </div>
-                                {% else %}
-                                    <div class="pull-right row-contents">
 
-                                        {% if device.is_controlled_manually() %}
-                                            <button class="mode btn btn-default" data-value="{{ device.short_name }}">Disable Manual</button>
-                                        {% endif %}
+                                    {% else %}
 
                                         <button data-value="{{ device.short_name }}"
                                                 class="light-switch btn {% if device.slot in ons %}btn-success{% else %}btn-danger{% endif %}"
@@ -94,10 +111,10 @@
                                                 Anschalten
                                             {% endif %}
                                         </button>
-                                    </div>
 
-                                {% endif %}
 
+                                    {% endif %}
+                                </div>
 
                             </div>
                         </div>
