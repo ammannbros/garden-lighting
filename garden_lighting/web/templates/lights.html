@@ -74,14 +74,14 @@
                     <div class="item list-group-item col-xs-4 col-lg-4">
 
                         <div class="caption">
+
                             <h4 class="group inner list-group-item-heading">
                                 {{ device.display_name }}
-
-                                {{ device.get_super_start().time }}
-                                {{ device.get_super_stop().time }}
-                                {{ scheduler.get_next_action_date(device) }}
+                                <div class="pull-right">
+                                    {{ scheduler.get_next_action_date(device)[0] }}
+                                    {{ scheduler.get_next_action_date(device)[1]|string }}
+                                </div>
                             </h4>
-
 
                             <div class="row" id="row_{{ device.short_name }}" style="font-size: smaller">
                                 <div class="pull-right row-contents">

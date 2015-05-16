@@ -8,7 +8,7 @@ class ComplexEncoder(JSONEncoder):
         if isinstance(obj, Rule):
             rule = {'weekday': obj.weekday.value,
                     'time': obj.time.total_seconds(),
-                    'action': obj.action,
+                    'action': str(obj.action),
                     'uuid': str(obj.uuid)}
 
             devices = []

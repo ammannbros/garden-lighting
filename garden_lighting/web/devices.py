@@ -7,6 +7,9 @@ class Action(Enum):
     OFF = 0,
     ON = 1,
 
+    def __str__(self):
+        return "on" if self == Action.ON else "off" if self == Action.OFF else None
+
     def opposite(self):
         return Action.OFF if self == Action.ON else Action.ON
 
@@ -21,14 +24,6 @@ class Device:
         self.light_control = light_control
         self.short_name = short_name
         self.display_name = display_name
-
-    @abstractmethod
-    def is_on(self):
-        pass
-
-    @abstractmethod
-    def is_off(self):
-        pass
 
     @abstractmethod
     def is_group(self):
@@ -91,21 +86,6 @@ class DeviceGroup(Device):
         super().__init__(display_name, short_name, light_control, scheduler)
         self.light_control = light_control
         self.devices = collections.OrderedDict()
-
-    def is_floating(self):
-        return self.is_off() and self.is_on()
-
-    def is_off(self):
-        for device in self.devices:
-            if device.is_on():
-                return False
-        return True
-
-    def is_on(self):
-        for device in self.devices:
-            if device.is_off():
-                return False
-        return True
 
     def register_device(self, device):
         self.devices[device.short_name] = device
@@ -209,12 +189,6 @@ class DefaultDevice(Device):
         self.manually = False
         self.super_rule_start = None
         self.super_rule_stop = None
-
-    def is_off(self):
-        return not self.is_on()
-
-    def is_on(self):
-        return self.light_control.read_light(self.slot)
 
     def collect_real(self, batch):
         batch.append(self)

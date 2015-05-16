@@ -4,10 +4,7 @@ from enum import Enum, unique
 from datetime import datetime, timedelta
 from flask import json
 from uuid import UUID
-import uuid
 from garden_lighting.web.devices import Action, action_from_string
-from garden_lighting.web.web import app
-
 
 @unique
 class Weekday(Enum):
@@ -45,6 +42,12 @@ class Rule:
 
         return self.time.total_seconds() < to_timedelta(current).total_seconds()
 
+    def __lt__(self, other):
+        return not self.__gt__(other)
+
+    def __gt__(self, other):
+        return self.weekday.value < other.weekday.value or self.weekday.value == other.weekday.value and self.time < other.time
+
 
 def process_super_rule(rule, device, actions):
     if rule.action == Action.ON:
@@ -56,7 +59,8 @@ def process_super_rule(rule, device, actions):
 
 
 class DeviceScheduler:
-    def __init__(self, delay, devices):
+    def __init__(self, delay, devices, control):
+        self.control = control
         self.devices = devices
         self.lastTime = datetime.today()
         self.running = False
@@ -74,7 +78,7 @@ class DeviceScheduler:
 
                 for device in rule.devices:
 
-                    if device.is_control_automatically():  # Don't control while it's controlled by a super
+                    if device.is_controlled_automatically():  # Don't control while it's controlled by a super
                         actions[device.slot] = rule.action  # rule or is in manual mode
 
         # Super rules
@@ -90,9 +94,15 @@ class DeviceScheduler:
                 process_super_rule(stop, device, actions)
                 device.clear_super_stop()
 
+        on = [light for light, value in actions.items() if value == Action.ON]
+        off = [light for light, value in actions.items() if value == Action.OFF]
+
+        self.control.set_multiple_lights(1, on)
+        self.control.set_multiple_lights(0, off)
+
         # Print current settings
-        if len(actions) > 0:
-            app.logger.info(actions)
+        # if len(actions) > 0:
+        #     app.logger.info(actions)
 
     def get_next_action_date(self, device):
         rules = [rule for rule in self.rules if device in rule.devices]
@@ -101,7 +111,7 @@ class DeviceScheduler:
         if rule is not None:
 
             if rules:
-                if rule.weekday.value < rules[0].weekday.value or rule.weekday.value == rules[0].weekday.value and rule.time < rules[0].time:
+                if rule < rules[0]:
                     return rule.time, rule.action
             else:
                 return rule.time, rule.action
@@ -121,35 +131,14 @@ class DeviceScheduler:
         thread = Thread(target=self.start_scheduler)
         thread.start()
 
-    # def remove_super_rule_for_device(self, device):
-    # # Find rules
-    # for_device = self.get_super_rules_for_device(device)
-    # for rule in for_device:
-    # for dev in rule.devices:
-    # dev.control_automatically()
-    #
-    # # Remove rules
-    # previous = len(self.super_rules)
-    # self.super_rules = [rule for rule in self.super_rules if rule not in for_device]
-    # return previous != len(self.super_rules)
-
-    # def get_super_rules_for_device(self, device):
-    # devices = [device] if type(device) == DefaultDevice else device.devices.values()
-    #
-    # return [rule for rule in self.super_rules if devices == set(rule.devices)]
-
-    # def add_super_rule(self, rule):
-    #     self.super_rules.append(rule)
-    #     self.super_rules.sort(key=lambda r: r.time)
-    #
-    # def remove_rule(self, unique_uid):
-    #     previous = len(self.rules)
-    #     self.rules = [rule for rule in self.rules if rule.uuid != unique_uid]
-    #     return previous != len(self.rules)
-
     def add_rule(self, rule):
         self.rules.append(rule)
         self.rules.sort(key=lambda r: r.time)
+
+    def remove_rule(self, uuid):
+        previous = len(self.rules)
+        self.rules = [rule for rule in self.rules if rule.uuid != uuid]
+        return previous != len(self.rules)
 
     def write(self):
         try:

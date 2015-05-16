@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 
 from flask import Flask
 from flask.ext.libsass import Sass
@@ -6,10 +7,10 @@ from flask.ext.bower import Bower
 from flask.ext.script import Manager
 import pkg_resources
 
-from garden_lighting.light_control_dummy import LightControl
+from garden_lighting.light_control import LightControl
+from garden_lighting.light_scheduler import LightScheduler
 from garden_lighting.web.auth import Auth
 from garden_lighting.web.devices import DeviceGroup, DefaultDevice
-
 
 
 app = Flask(__name__)
@@ -28,9 +29,14 @@ Sass(
     ]
 )
 
+light_scheduler = LightScheduler(timedelta(seconds=3), 1)
+
 app.logger.info("Initialising hardware interface!")
-control = LightControl()
+control = LightControl(light_scheduler)
 control.init()
+
+light_scheduler.control = control
+light_scheduler.start_scheduler_thread()
 
 
 def new_group(display_name, short_name):
@@ -42,7 +48,7 @@ def new_device(slot, display_name, short_name):
 
 from garden_lighting.web.json import ComplexEncoder
 from garden_lighting.web.scheduler import DeviceScheduler
-scheduler = DeviceScheduler(0.5, None)
+scheduler = DeviceScheduler(0.5, None, control)
 devices = new_group("root", "root")
 scheduler.devices = devices
 

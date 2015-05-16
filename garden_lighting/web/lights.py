@@ -30,17 +30,8 @@ def all_lights():
         return auth.fucked_auth()
     all_devices = devices.get_real_devices_recursive()
 
-    lights_pattern = control.read_multiple_lights(0) | control.read_multiple_lights(1) << 8
-
-    ons = []
-
-    for i in range(0, 16):
-        is_on = ((lights_pattern & (1 << i)) != 0)
-        if is_on:
-            ons.append(i)
-
     return render_template("lights.html", name="Alle Lichter",
                            areas=False,
                            scheduler=scheduler,
-                           ons=ons,
+                           ons=control.get_lights(True),
                            devices=all_devices)
