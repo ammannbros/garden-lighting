@@ -18,7 +18,13 @@ def action_from_string(name):
     return Action.ON if name == "on" else Action.OFF if name == "off" else None
 
 
-class Device:
+class Device(object):
+
+    def __getstate__(self):
+        state = dict(self.__dict__)
+        result = {'display_name': state['display_name'], 'short_name': state['short_name']}
+        return result
+
     def __init__(self, display_name, short_name, light_control, scheduler):
         self.scheduler = scheduler
         self.light_control = light_control
@@ -36,10 +42,10 @@ class Device:
         slots = [device.slot for device in batch]
 
         if action == Action.ON:
-            self.light_control.set_multiple_lights(True, slots)
+            self.light_control.set_lights(True, slots)
             return batch
         elif action == Action.OFF:
-            self.light_control.set_multiple_lights(False, slots)
+            self.light_control.set_lights(False, slots)
             return batch
         else:
             raise ()

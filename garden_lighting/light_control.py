@@ -1,5 +1,6 @@
-__author__ = 'holzi'
-
+from datetime import datetime
+from time import sleep
+from threading import Thread
 from garden_lighting.MCP23017.raspberry import RaspberryMCP23017
 
 pin_number_mapping = {
@@ -58,10 +59,15 @@ class LightControl:
     ControlUnitA = 0x00
     ControlUnitB = 0x00
 
-    def __init__(self, light_scheduler):
-        self.light_scheduler = light_scheduler
+    def __init__(self, max_switch, delay, logger):
+        self.logger = logger
         self.ControlUnitA = RaspberryMCP23017(0x20, 7)
         self.ControlUnitB = RaspberryMCP23017(0x21, 11)
+
+        self.delay = delay
+        self.last_switched = {}
+        self.max_switch = max_switch
+        self.schedules = {}
 
     def init(self):
         """
@@ -126,45 +132,14 @@ class LightControl:
         self.ControlUnitA.set_interrupt_control_port_b(0xFF)
         self.ControlUnitB.set_interrupt_control_port_b(0xFF)
 
-    def set_multiple_lights(self, mode, lights):
-        """
-        This function sets or clears a list of light numbers of the controller
-        Note: 2 reads, 2 writes are done via I2C
-              (one write and read for each device)
-
-        :param mode: choose [mode = '1' for 'ON'] and [mode = '0' for 'OFF']
-        :param lights:  A 'list' element containing the desired light_numbers to switch
-        :return: Represents success: ['-1' if Pin number invalid]
-        """
-        current_bit_patternA = self.ControlUnitA.read_byte_port_a()
-        current_bit_patternB = self.ControlUnitB.read_byte_port_a()
-
-        # calculate bit pattern for every light number
+    def set_lights(self, state, lights):
         for light in lights:
-
-            if not self.light_scheduler.can_switch(light):
-                self.light_scheduler.schedule_switch(light, mode)
-                print("Switching scheduled")
-                continue
-
-            self.light_scheduler.update_switched(light)
-            print("Switching direct")
-
-            if (light <= 7) and (light >= 0):  # between 0 and 7
-                # Use unit A
-                current_bit_patternA = calculate_bit_pattern(mode, light, current_bit_patternA)
-
-            elif (light >= 8) and (light <= 15):  # between 8 and 15
-                # Use unit B
-                current_bit_patternB = calculate_bit_pattern(mode, light, current_bit_patternB)
+            if not self.can_switch(light):
+                self.schedule_switch(light, state, datetime.now() + self.max_switch)
+                self.logger.info("Switching scheduled")
             else:
-                assert 0, "You entered an invalid Pin Number!"
-                return False
-
-        # Do only one Bus access or each device to avoid spamming the bus
-        self.ControlUnitA.write_byte_port_a(current_bit_patternA)
-        self.ControlUnitB.write_byte_port_a(current_bit_patternB)
-        return True
+                self.schedule_switch(light, state, datetime.now())
+                self.logger.info("Switching (almost) direct")
 
     def get_lights(self, state):
         """
@@ -183,6 +158,45 @@ class LightControl:
                 lights.append(i)
 
         return lights
+
+    def run(self):
+        now = datetime.now()
+
+        a = self.ControlUnitA.read_byte_port_a()
+        b = self.ControlUnitB.read_byte_port_a()
+        original_a = a
+        original_b = b
+
+        for light, value in self.schedules.items():
+
+            time = value[0]
+            mode = value[1]
+            if time < now:
+                self.logger.info("Switching light %s" % light)
+
+                if (light <= 7) and (light >= 0):  # between 0 and 7
+                    a = calculate_bit_pattern(mode, light, a)
+                elif (light >= 8) and (light <= 15):  # between 8 and 15
+                    b = calculate_bit_pattern(mode, light, b)
+
+        if a != original_a:
+            self.ControlUnitA.write_byte_port_a(a)
+        if b != original_b:
+            self.ControlUnitB.write_byte_port_a(b)
+
+        self.schedules = {light: value for light, value in self.schedules.items() if value[0] > now}
+
+    def can_switch(self, light):
+        if light not in self.last_switched:
+            return True
+        return self.last_switched[light] < datetime.now() - self.max_switch
+
+    def update_switched(self, light):
+        self.last_switched[light] = datetime.now()
+        pass
+
+    def schedule_switch(self, light, mode, time):
+        self.schedules[light] = (time, mode)
 
     def read_interrupt_capture(self):
         """

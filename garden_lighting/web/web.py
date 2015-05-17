@@ -1,14 +1,16 @@
 import os
 from datetime import timedelta
+from time import sleep
 
 from flask import Flask
 from flask.ext.libsass import Sass
 from flask.ext.bower import Bower
 from flask.ext.script import Manager
 import pkg_resources
+from threading import Thread
+import sys
 
-from garden_lighting.light_control import LightControl
-from garden_lighting.light_scheduler import LightScheduler
+from garden_lighting.light_control_dummy import LightControl
 from garden_lighting.web.auth import Auth
 from garden_lighting.web.devices import DeviceGroup, DefaultDevice
 
@@ -29,14 +31,9 @@ Sass(
     ]
 )
 
-light_scheduler = LightScheduler(timedelta(seconds=3), 1)
-
 app.logger.info("Initialising hardware interface!")
-control = LightControl(light_scheduler)
+control = LightControl(timedelta(seconds=3), 1, app.logger)
 control.init()
-
-light_scheduler.control = control
-light_scheduler.start_scheduler_thread()
 
 
 def new_group(display_name, short_name):
@@ -46,15 +43,39 @@ def new_group(display_name, short_name):
 def new_device(slot, display_name, short_name):
     return DefaultDevice(slot, display_name, short_name, control, scheduler)
 
-from garden_lighting.web.json import ComplexEncoder
+
 from garden_lighting.web.scheduler import DeviceScheduler
-scheduler = DeviceScheduler(0.5, None, control)
+
+scheduler = DeviceScheduler(0.5, None, control, app.logger)
 devices = new_group("root", "root")
 scheduler.devices = devices
 
 auth = None
 
-app.json_encoder = ComplexEncoder
+
+running = True
+
+
+def run():
+    while running:
+        try:
+            scheduler.run()
+            control.run()
+        except Exception as e:
+            app.logger.exception(e)
+        sleep(1)
+
+
+thread = Thread(target=run)
+thread.start()
+
+
+def shutdown():
+    print('Shutting down!')
+    global running
+    running = False
+    thread.join()
+    sys.exit(0)
 
 
 @manager.option('-p', '--port', help='The port', default=80)
@@ -78,9 +99,7 @@ def runserver(port, config, token, secret):
     global auth
     auth = Auth(token)
 
-    if not scheduler.read(devices):
-        app.logger.warn("Failed to load rules!")
-        return
+    scheduler.read(devices)
 
     app.secret_key = secret
 
@@ -97,3 +116,4 @@ def runserver(port, config, token, secret):
     app.register_blueprint(lights)
 
     app.run(host='0.0.0.0', port=int(port), debug=True)
+    shutdown()

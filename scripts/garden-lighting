@@ -1,7 +1,6 @@
 #!/usr/bin/python
-from garden_lighting.web.web import scheduler, manager
+from garden_lighting.web.web import manager
 
 
 if __name__ == '__main__':
-    scheduler.start_scheduler_thread()
     manager.run()

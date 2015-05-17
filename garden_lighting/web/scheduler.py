@@ -1,10 +1,10 @@
-from time import sleep
-from threading import Thread
 from enum import Enum, unique
 from datetime import datetime, timedelta
-from flask import json
 from uuid import UUID
-from garden_lighting.web.devices import Action, action_from_string
+import pickle
+
+from garden_lighting.web.devices import Action
+
 
 @unique
 class Weekday(Enum):
@@ -26,7 +26,24 @@ def to_timedelta(time):
     return timedelta(seconds=time.hour * 60 * 60 + time.minute * 60 + time.second)
 
 
-class Rule:
+class Rule(object):
+    def __getstate__(self):
+        state = dict(self.__dict__)
+        state['uuid'] = str(state['uuid'])
+        return state
+
+    def __getjsonifystate__(rule):
+        state = rule.__getstate__()
+        state['action'] = str(state['action'])
+        state['time'] = state['time'].total_seconds()
+        state['weekday'] = state['weekday'].value
+        state['devices'] = [device.__getstate__() for device in state['devices']]
+        return state
+
+    def __setstate__(self, dict):
+        dict['uuid'] = UUID('{' + dict['uuid'] + '}')
+        self.__dict__.update(dict)
+
     def __init__(self, unique_uid, weekday, devices, time, action):
         self.uuid = unique_uid
         self.action = action
@@ -59,7 +76,8 @@ def process_super_rule(rule, device, actions):
 
 
 class DeviceScheduler:
-    def __init__(self, delay, devices, control):
+    def __init__(self, delay, devices, control, logger):
+        self.logger = logger
         self.control = control
         self.devices = devices
         self.lastTime = datetime.today()
@@ -97,12 +115,8 @@ class DeviceScheduler:
         on = [light for light, value in actions.items() if value == Action.ON]
         off = [light for light, value in actions.items() if value == Action.OFF]
 
-        self.control.set_multiple_lights(1, on)
-        self.control.set_multiple_lights(0, off)
-
-        # Print current settings
-        # if len(actions) > 0:
-        #     app.logger.info(actions)
+        self.control.set_lights(1, on)
+        self.control.set_lights(0, off)
 
     def get_next_action_date(self, device):
         rules = [rule for rule in self.rules if device in rule.devices]
@@ -118,19 +132,6 @@ class DeviceScheduler:
 
         return None if not rules else (rules[0].time, rules[0].action)
 
-    def start_scheduler(self):
-        while self.running:
-            self.run()
-            sleep(self.delay)
-
-    def stop_scheduler(self):
-        self.running = False
-
-    def start_scheduler_thread(self):
-        self.running = True
-        thread = Thread(target=self.start_scheduler)
-        thread.start()
-
     def add_rule(self, rule):
         self.rules.append(rule)
         self.rules.sort(key=lambda r: r.time)
@@ -142,8 +143,9 @@ class DeviceScheduler:
 
     def write(self):
         try:
-            rules_file = open("rules.json", "w")
-            rules_file.write(json.dumps(self.rules))
+            rules_file = open("rules.json", "wb")
+            pickle.dump(self.rules, rules_file)
+            rules_file.flush()
             rules_file.close()
             return True
         except EnvironmentError:
@@ -151,32 +153,26 @@ class DeviceScheduler:
 
     def read(self, devices):
         try:
-            rules_file = open("rules.json", "r")
-            rules = json.load(rules_file)
+            with open("rules.json", "rb") as rules_file:
+                try:
+                    rules = pickle.load(rules_file)
+                except ValueError as e:
+                    self.logger.warning("Invalid rules file")
+                    self.logger.exception(e)
+                    return
 
-            for json_rule in rules:
-                rule_devices = []
+                for rule in rules:
+                    rule_devices = rule.devices[:]
+                    rule.devices = []
+                    for device in rule_devices:
+                        rule.devices.append(devices.get_device(device.short_name))
 
-                for device in json_rule['devices']:
-                    device = devices.get_device(device['short_name'])
-                    if device is None:
-                        continue
+                rules_file.close()
+                return True
+        except FileNotFoundError:
+            pass
+        except IOError as e:
+            self.logger.exception(e)
 
-                    rule_devices.append(device)
-
-                rule = Rule(
-                    UUID('{' + json_rule['uuid'] + '}'),
-                    Weekday(json_rule['weekday']),
-                    rule_devices,
-                    timedelta(seconds=json_rule['time']),
-                    action_from_string(json_rule['action'])
-                )
-                self.add_rule(rule)
-                pass
-
-            rules_file.close()
-            return True
-        except ValueError:
-            return False
 
 

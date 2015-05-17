@@ -1,18 +1,24 @@
 class LightControl:
+    def __init__(self, max_switch, delay, logger):
+        pass
+
+    def run(self):
+        pass
+
     def init(self):
         pass
 
-    def set_light(self, mode, light_number):
-        return 0
+    def can_switch(self, light):
+        pass
 
-    def set_multiple_lights(self, mode, lights):
-        return 0
+    def update_switched(self, light):
+        pass
 
-    def set_all(self, mode):
-        return 0
+    def schedule_switch(self, light, mode, time):
+        pass
 
-    def read_light(self, light_number):
-        return 0
+    def get_lights(self, state):
+        return []
 
-    def read_multiple_lights(self, part):
-        return 0
+    def set_lights(self, state, lights):
+        pass
