@@ -1,6 +1,6 @@
 __author__ = 'holzi'
 
-from garden_lighting.MCP23017.MCP23017 import MCP23017
+from garden_lighting.MCP23017.raspberry import RaspberryMCP23017
 
 pin_number_mapping = {
     0: 0b00000001,
@@ -60,8 +60,8 @@ class LightControl:
 
     def __init__(self, light_scheduler):
         self.light_scheduler = light_scheduler
-        self.ControlUnitA = MCP23017(0x20, 7)
-        self.ControlUnitB = MCP23017(0x21, 11)
+        self.ControlUnitA = RaspberryMCP23017(0x20, 7)
+        self.ControlUnitB = RaspberryMCP23017(0x21, 11)
 
     def init(self):
         """

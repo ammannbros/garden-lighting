@@ -2,11 +2,6 @@
 __author__ = 'holzi'
 
 import smbus
-import time
-try:
-    import RPi.GPIO as GPIO
-except RuntimeError:
-    print("Error importing RPi.GPIO! Maybe you are not root?")
 
 # global constans
 OUT = 0
@@ -15,6 +10,7 @@ LOW = 0
 HIGH = 1
 TRUE = 1
 FALSE = 0
+
 
 class MCP23017:
     '''
@@ -61,7 +57,7 @@ class MCP23017:
     DEFVALB = 0x07
     INTCONA = 0x08
     INTCONB = 0x09
-    IOCON = 0x0A     # 0x0B points to the same register
+    IOCON = 0x0A  # 0x0B points to the same register
     GPPUA = 0x0C
     GPPUB = 0x0D
     INTFA = 0x0E
@@ -73,14 +69,13 @@ class MCP23017:
     OLATA = 0x14
     OLATB = 0x15
 
-
-    I2CPort = 0x00                  # 0 = /dev/i2c-0 (port I2C0), 1 = /dev/i2c-1 (port I2C1)
-    bus = 0x00                      # SMBUS-Object
+    I2CPort = 0x00  # 0 = /dev/i2c-0 (port I2C0), 1 = /dev/i2c-1 (port I2C1)
+    bus = 0x00  # SMBUS-Object
     devAddr = 0x00
     devRegMode = 0x00
     RstPin = 0xFF
 
-    def __init__(self, dev_addr, rst_pin = 0xFF,  i2cport = 1):
+    def __init__(self, dev_addr, rst_pin=0xFF, i2cport=1):
         '''
         Initialises the Class. You have to specify the I2C-address of your device
         and the I2C-port your raspberry uses
@@ -100,29 +95,8 @@ class MCP23017:
         self.I2CPort = i2cport
         self.bus = smbus.SMBus(self.I2CPort)
         self.devAddr = dev_addr
-        self.devRegMode = 0x00      # Only Byte mode supported so far
+        self.devRegMode = 0x00  # Only Byte mode supported so far
         self.RstPin = rst_pin
-
-
-    def __del__(self):
-        #needed to clear the RPi.GPIO channel
-        GPIO.cleanup(self.RstPin)
-
-    def initDevice(self):
-        '''
-        Does a reset to put all registers in initial state
-        '''
-        #Set pin numbering mode
-        GPIO.setmode(GPIO.BOARD)
-
-        #Define the reset pin as output
-        GPIO.setup(self.RstPin, GPIO.OUT)
-        #Create a reset impulse
-        GPIO.output(self.RstPin, GPIO.LOW)
-        #wait for 50 ms
-        time.sleep(.050)
-        GPIO.output(self.RstPin, GPIO.HIGH)
-
 
     @staticmethod
     def check_uint8(bit_pattern):
@@ -155,10 +129,10 @@ class MCP23017:
         '''
 
         if self.check_uint8(bit_pattern):
-            #Write to bus
-            return self.bus.write_byte_data(self.devAddr, self.IODIRA, bit_pattern)
+            # Write to bus
+            self.bus.write_byte_data(self.devAddr, self.IODIRA, bit_pattern)
         else:
-            return -1
+            raise IOError()
 
     def set_io_direction_port_b(self, bit_pattern):
         '''
@@ -177,10 +151,10 @@ class MCP23017:
         '''
 
         if self.check_uint8(bit_pattern):
-            #Write to bus
-            return self.bus.write_byte_data(self.devAddr, self.IODIRB, bit_pattern)
+            # Write to bus
+            self.bus.write_byte_data(self.devAddr, self.IODIRB, bit_pattern)
         else:
-            return -1
+            raise IOError()
 
     def set_input_polarity_port_a(self, bit_pattern):
         '''
@@ -198,10 +172,10 @@ class MCP23017:
         :return: Represents success: ['-1' if Input invalid]
         '''
         if self.check_uint8(bit_pattern):
-            #Write to bus
-            return self.bus.write_byte_data(self.devAddr, self.IPOLA, bit_pattern)
+            # Write to bus
+            self.bus.write_byte_data(self.devAddr, self.IPOLA, bit_pattern)
         else:
-            return -1
+            raise IOError()
 
     def set_input_polarity_port_b(self, bit_pattern):
         '''
@@ -219,10 +193,10 @@ class MCP23017:
         :return: Represents success: ['-1' if Input invalid]
         '''
         if self.check_uint8(bit_pattern):
-            #Write to bus
-            return self.bus.write_byte_data(self.devAddr, self.IPOLB, bit_pattern)
+            # Write to bus
+            self.bus.write_byte_data(self.devAddr, self.IPOLB, bit_pattern)
         else:
-            return -1
+            raise IOError()
 
     def set_interrupt_on_change_port_a(self, bit_pattern):
         '''
@@ -242,10 +216,10 @@ class MCP23017:
         :return: Represents success: ['-1' if Input invalid]
         '''
         if self.check_uint8(bit_pattern):
-            #Write to bus
-            return self.bus.write_byte_data(self.devAddr, self.GPINTENA, bit_pattern)
+            # Write to bus
+            self.bus.write_byte_data(self.devAddr, self.GPINTENA, bit_pattern)
         else:
-            return -1
+            raise IOError()
 
 
     def set_interrupt_on_change_port_b(self, bit_pattern):
@@ -266,11 +240,10 @@ class MCP23017:
         :return: Represents success: ['-1' if Input invalid]
         '''
         if self.check_uint8(bit_pattern):
-            #Write to bus
-            return self.bus.write_byte_data(self.devAddr, self.GPINTENB, bit_pattern)
+            # Write to bus
+            self.bus.write_byte_data(self.devAddr, self.GPINTENB, bit_pattern)
         else:
-            return -1
-
+            raise IOError()
 
     def set_default_compare_port_a(self, bit_pattern):
         '''
@@ -286,10 +259,10 @@ class MCP23017:
         :return: Represents success: ['-1' if Input invalid]
         '''
         if self.check_uint8(bit_pattern):
-            #Write to bus
-            return self.bus.write_byte_data(self.devAddr, self.DEFVALA, bit_pattern)
+            # Write to bus
+            self.bus.write_byte_data(self.devAddr, self.DEFVALA, bit_pattern)
         else:
-            return -1
+            raise IOError()
 
     def set_default_compare_port_b(self, bit_pattern):
         '''
@@ -305,10 +278,10 @@ class MCP23017:
         :return: Represents success: ['-1' if Input invalid]
         '''
         if self.check_uint8(bit_pattern):
-            #Write to bus
-            return self.bus.write_byte_data(self.devAddr, self.DEFVALB, bit_pattern)
+            # Write to bus
+            self.bus.write_byte_data(self.devAddr, self.DEFVALB, bit_pattern)
         else:
-            return -1
+            raise IOError()
 
     def set_interrupt_control_port_a(self, bit_pattern):
         '''
@@ -328,10 +301,10 @@ class MCP23017:
         :return: Represents success: ['-1' if Input invalid]
         '''
         if self.check_uint8(bit_pattern):
-            #Write to bus
-            return self.bus.write_byte_data(self.devAddr, self.INTCONA, bit_pattern)
+            # Write to bus
+            self.bus.write_byte_data(self.devAddr, self.INTCONA, bit_pattern)
         else:
-            return -1
+            raise IOError()
 
     def set_interrupt_control_port_b(self, bit_pattern):
         '''
@@ -351,10 +324,10 @@ class MCP23017:
         :return: Represents success: ['-1' if Input invalid]
         '''
         if self.check_uint8(bit_pattern):
-            #Write to bus
-            return self.bus.write_byte_data(self.devAddr, self.INTCONB, bit_pattern)
+            # Write to bus
+            self.bus.write_byte_data(self.devAddr, self.INTCONB, bit_pattern)
         else:
-            return -1
+            raise IOError()
 
     def set_pull_up_resistor_port_a(self, bit_pattern):
         '''
@@ -373,10 +346,10 @@ class MCP23017:
         :return: Represents success: ['-1' if Input invalid]
         '''
         if self.check_uint8(bit_pattern):
-            #Write to bus
-            return self.bus.write_byte_data(self.devAddr, self.GPPUA, bit_pattern)
+            # Write to bus
+            self.bus.write_byte_data(self.devAddr, self.GPPUA, bit_pattern)
         else:
-            return -1
+            raise IOError()
 
     def set_pull_up_resistor_port_b(self, bit_pattern):
         '''
@@ -395,10 +368,10 @@ class MCP23017:
         :return: Represents success: ['-1' if Input invalid]
         '''
         if self.check_uint8(bit_pattern):
-            #Write to bus
-            return self.bus.write_byte_data(self.devAddr, self.GPPUB, bit_pattern)
+            # Write to bus
+            self.bus.write_byte_data(self.devAddr, self.GPPUB, bit_pattern)
         else:
-            return -1
+            raise IOError()
 
     def read_interrupt_flag_reg_port_a(self):
         '''
@@ -515,10 +488,10 @@ class MCP23017:
         :return: Represents success: ['-1' if Input invalid]
         '''
         if self.check_uint8(bit_pattern):
-            #Write to bus
-            return self.bus.write_byte_data(self.devAddr, self.OLATA, bit_pattern)
+            # Write to bus
+            self.bus.write_byte_data(self.devAddr, self.OLATA, bit_pattern)
         else:
-            return -1
+            raise IOError()
 
     def write_byte_port_b(self, bit_pattern):
         '''
@@ -537,10 +510,10 @@ class MCP23017:
         :return: Represents success: ['-1' if Input invalid]
         '''
         if self.check_uint8(bit_pattern):
-            #Write to bus
-            return self.bus.write_byte_data(self.devAddr, self.OLATB, bit_pattern)
+            # Write to bus
+            self.bus.write_byte_data(self.devAddr, self.OLATB, bit_pattern)
         else:
-            return -1
+            raise IOError()
 
     def set_configuration_reg(self, bit_pattern):
         '''
@@ -624,10 +597,10 @@ class MCP23017:
         :return: Represents success: ['-1' if Input invalid]
         '''
         if self.check_uint8(bit_pattern):
-            #Write to bus
-            return self.bus.write_byte_data(self.devAddr, self.IOCON, bit_pattern)
+            # Write to bus
+            self.bus.write_byte_data(self.devAddr, self.IOCON, bit_pattern)
         else:
-            return -1
+            raise IOError()
 
     def read_byte_gen_register(self, reg_addr):
         '''
@@ -643,4 +616,4 @@ class MCP23017:
         if self.check_uint8(reg_addr):
             return self.bus.read_byte_data(self.devAddr, reg_addr)
         else:
-            return -1
+            raise IOError()
