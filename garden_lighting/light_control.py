@@ -1,6 +1,5 @@
 from datetime import datetime
-from time import sleep
-from threading import Thread
+from threading import Lock
 from garden_lighting.MCP23017.raspberry import RaspberryMCP23017
 
 pin_number_mapping = {
@@ -69,6 +68,11 @@ class LightControl:
         self.max_switch = max_switch
         self.schedules = {}
 
+        self.last_a = 0
+        self.last_b = 0
+
+        self.lock = Lock()
+
     def init(self):
         """
         This function initializes the light controller.
@@ -133,20 +137,22 @@ class LightControl:
         self.ControlUnitB.set_interrupt_control_port_b(0xFF)
 
     def set_lights(self, state, lights):
+        if not lights:
+            return
+
         for light in lights:
+
             if not self.can_switch(light):
                 self.schedule_switch(light, state, datetime.now() + self.max_switch)
-                self.logger.info("Switching scheduled")
             else:
                 self.schedule_switch(light, state, datetime.now())
-                self.logger.info("Switching (almost) direct")
 
-    def get_lights(self, state):
+    def _get_lights(self, state, a, b):
         """
             :param state False for off, True for on
             :return: The lights which have the specified state
         """
-        lights_pattern = self.ControlUnitA.read_byte_port_a() | self.ControlUnitB.read_byte_port_a() << 8
+        lights_pattern = a | b << 8
 
         lights = []
 
@@ -159,32 +165,45 @@ class LightControl:
 
         return lights
 
+    def get_lights(self, state):
+        """
+            :param state False for off, True for on
+            :return: The lights which have the specified state
+        """
+
+        return self._get_lights(state, self.ControlUnitA.read_byte_port_a(), self.ControlUnitB.read_byte_port_a())
+
     def run(self):
-        now = datetime.now()
+        self.lock.acquire()
+        try:
+            now = datetime.now()
 
-        a = self.ControlUnitA.read_byte_port_a()
-        b = self.ControlUnitB.read_byte_port_a()
-        original_a = a
-        original_b = b
+            self.last_a = a = self.ControlUnitA.read_byte_port_a()
+            self.last_b = b = self.ControlUnitB.read_byte_port_a()
 
-        for light, value in self.schedules.items():
+            for light, value in self.schedules.items():
 
-            time = value[0]
-            mode = value[1]
-            if time < now:
-                self.logger.info("Switching light %s" % light)
+                time = value[0]
+                mode = value[1]
+                if time < now:
+                    self.logger.info("Switching light %s %s" % (light, mode))
 
-                if (light <= 7) and (light >= 0):  # between 0 and 7
-                    a = calculate_bit_pattern(mode, light, a)
-                elif (light >= 8) and (light <= 15):  # between 8 and 15
-                    b = calculate_bit_pattern(mode, light, b)
+                    if (light <= 7) and (light >= 0):  # between 0 and 7
+                        a = calculate_bit_pattern(mode, light, a)
+                    elif (light >= 8) and (light <= 15):  # between 8 and 15
+                        b = calculate_bit_pattern(mode, light, b)
 
-        if a != original_a:
-            self.ControlUnitA.write_byte_port_a(a)
-        if b != original_b:
-            self.ControlUnitB.write_byte_port_a(b)
+            if a != self.last_a:
+                self.ControlUnitA.write_byte_port_a(a)
+            if b != self.last_b:
+                self.ControlUnitB.write_byte_port_a(b)
 
-        self.schedules = {light: value for light, value in self.schedules.items() if value[0] > now}
+            self.last_a = a
+            self.last_b = b
+
+            self.schedules = {light: value for light, value in self.schedules.items() if value[0] > now}
+        finally:
+            self.lock.release()
 
     def can_switch(self, light):
         if light not in self.last_switched:
@@ -196,7 +215,23 @@ class LightControl:
         pass
 
     def schedule_switch(self, light, mode, time):
-        self.schedules[light] = (time, mode)
+        self.lock.acquire()
+        try:
+            is_on = self._get_lights(True, self.last_a, self.last_b)
+
+            if light in is_on and mode:
+                return
+            if light not in is_on and not mode:
+                return
+
+            if light in self.schedules:
+                self.schedules[light] = (self.schedules[light][0], mode)
+                self.logger.info("Updated %s %s" % (light, mode))
+            else:
+                self.schedules[light] = (time, mode)
+                self.logger.info("Set scheduler for %s %s" % (light, mode))
+        finally:
+            self.lock.release()
 
     def read_interrupt_capture(self):
         """

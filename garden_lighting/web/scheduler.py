@@ -67,6 +67,8 @@ class Rule(object):
 
 
 def process_super_rule(rule, device, actions):
+    # todo: only modify actions if the action differs from the current situation
+
     if rule.action == Action.ON:
         device.control_manually()
     elif rule.action == Action.OFF:
@@ -115,8 +117,8 @@ class DeviceScheduler:
         on = [light for light, value in actions.items() if value == Action.ON]
         off = [light for light, value in actions.items() if value == Action.OFF]
 
-        self.control.set_lights(1, on)
-        self.control.set_lights(0, off)
+        self.control.set_lights(True, on)
+        self.control.set_lights(False, off)
 
     def get_next_action_date(self, device):
         rules = [rule for rule in self.rules if device in rule.devices]
@@ -134,16 +136,16 @@ class DeviceScheduler:
 
     def add_rule(self, rule):
         self.rules.append(rule)
-        self.rules.sort(key=lambda r: r.time)
+        self.rules.sort(key=lambda r: (r.action.value, r.time))
 
     def remove_rule(self, uuid):
         previous = len(self.rules)
         self.rules = [rule for rule in self.rules if rule.uuid != uuid]
         return previous != len(self.rules)
 
-    def write(self):
+    def write(self, path):
         try:
-            rules_file = open("rules.json", "wb")
+            rules_file = open(path, "wb")
             pickle.dump(self.rules, rules_file)
             rules_file.flush()
             rules_file.close()
@@ -151,9 +153,9 @@ class DeviceScheduler:
         except EnvironmentError:
             return False
 
-    def read(self, devices):
+    def read(self, path, devices):
         try:
-            with open("rules.json", "rb") as rules_file:
+            with open(path, "rb") as rules_file:
                 try:
                     rules = pickle.load(rules_file)
                 except ValueError as e:
@@ -166,6 +168,9 @@ class DeviceScheduler:
                     rule.devices = []
                     for device in rule_devices:
                         rule.devices.append(devices.get_device(device.short_name))
+
+                for rule in rules:
+                    self.add_rule(rule)
 
                 rules_file.close()
                 return True

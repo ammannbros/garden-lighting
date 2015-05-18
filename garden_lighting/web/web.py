@@ -6,14 +6,16 @@ from flask import Flask
 from flask.ext.libsass import Sass
 from flask.ext.bower import Bower
 from flask.ext.script import Manager
+import io
 import pkg_resources
 from threading import Thread
 import sys
+import logging
+from logging.handlers import RotatingFileHandler
 
-from garden_lighting.light_control_dummy import LightControl
-from garden_lighting.web.auth import Auth
+from garden_lighting.light_control import LightControl
+from garden_lighting.web.auth import Auth, fucked_auth
 from garden_lighting.web.devices import DeviceGroup, DefaultDevice
-
 
 app = Flask(__name__)
 
@@ -31,47 +33,41 @@ Sass(
     ]
 )
 
-app.logger.info("Initialising hardware interface!")
-control = LightControl(timedelta(seconds=3), 1, app.logger)
-control.init()
-
-
-def new_group(display_name, short_name):
-    return DeviceGroup(display_name, short_name, control, scheduler)
-
-
-def new_device(slot, display_name, short_name):
-    return DefaultDevice(slot, display_name, short_name, control, scheduler)
-
-
-from garden_lighting.web.scheduler import DeviceScheduler
-
-scheduler = DeviceScheduler(0.5, None, control, app.logger)
-devices = new_group("root", "root")
-scheduler.devices = devices
-
 auth = None
-
+rules_path = None
+log = None
 
 running = True
+control = None
+scheduler = None
+devices = None
+
+def setup_logging(logger, level):
+    logger.setLevel(level)
+
+    console = logging.StreamHandler(sys.stderr)
+    console.setLevel(level)
+    logger.addHandler(console)
+
+    file_handler = RotatingFileHandler("lighting.log")
+    file_handler.setLevel(level)
+    logger.addHandler(file_handler)
+
+    global log
+    log = io.StringIO()
+    handler = logging.StreamHandler(log)
+    handler.setLevel(level)
+    logger.addHandler(handler)
 
 
-def run():
-    while running:
-        try:
-            scheduler.run()
-            control.run()
-        except Exception as e:
-            app.logger.exception(e)
-        sleep(1)
+@app.before_request
+def before_request():
+    if not auth.auth():
+        return fucked_auth()
 
 
-thread = Thread(target=run)
-thread.start()
-
-
-def shutdown():
-    print('Shutting down!')
+def shutdown(thread):
+    app.logger.info('Shutting down!')
     global running
     running = False
     thread.join()
@@ -82,7 +78,30 @@ def shutdown():
 @manager.option('-c', '--config', help='The config', default="config.py")
 @manager.option('-t', '--token', help='The token', default="")
 @manager.option('-s', '--secret', help='The secret key', default="")
-def runserver(port, config, token, secret):
+@manager.option('-r', '--rules', help='The rules save file', default="rules.bin")
+def runserver(port, config, token, secret, rules):
+    setup_logging(app.logger, logging.INFO)
+
+    app.logger.info("Initialising hardware interface")
+    global control
+    control = LightControl(timedelta(seconds=3), 1, app.logger)
+    control.init()
+
+    app.logger.warn("Initialising scheduling thread")
+    global scheduler
+    from garden_lighting.web.scheduler import DeviceScheduler
+    scheduler = DeviceScheduler(0.5, None, control, app.logger)
+
+    global devices
+    devices = new_group("root", "root")
+    scheduler.devices = devices
+
+    app.logger.info("Configuration %s" % {'port': port,
+                                          'config': config,
+                                          'token': token,
+                                          'secret': secret,
+                                          'rules': rules})
+
     # Loading config
     if os.path.isfile(config):
         with open(config) as f:
@@ -97,9 +116,12 @@ def runserver(port, config, token, secret):
             secret = lcl['secret']
 
     global auth
-    auth = Auth(token)
+    auth = Auth(token, app.logger)
 
-    scheduler.read(devices)
+    global rules_path
+    rules_path = rules
+
+    scheduler.read(rules, devices)
 
     app.secret_key = secret
 
@@ -107,13 +129,35 @@ def runserver(port, config, token, secret):
 
     app.register_blueprint(api)
 
-    from garden_lighting.web.control import control
+    from garden_lighting.web.control import control as controls
 
-    app.register_blueprint(control)
+    app.register_blueprint(controls)
 
     from garden_lighting.web.lights import lights
 
     app.register_blueprint(lights)
 
-    app.run(host='0.0.0.0', port=int(port), debug=True)
-    shutdown()
+    app.logger.warn("Starting scheduling thread")
+    thread = Thread(target=run)
+    thread.start()
+
+    app.run(host='0.0.0.0', port=int(port), debug=False, use_reloader=False)
+    shutdown(thread)
+
+
+def new_group(display_name, short_name):
+    return DeviceGroup(display_name, short_name, control, scheduler)
+
+
+def new_device(slot, display_name, short_name):
+    return DefaultDevice(slot, display_name, short_name, control, scheduler)
+
+
+def run():
+    while running:
+        try:
+            scheduler.run()
+            control.run()
+        except Exception as e:
+            app.logger.exception(e)
+        sleep(2)

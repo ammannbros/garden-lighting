@@ -57,7 +57,12 @@
                 {% endif %}>
                     <a href="/all_lights/">Alle Lichter</a>
                 </li>
-                <li class="{% if request.path == "/controls/" %}
+                <li {% if request.path == "/control/log/" %}
+                    class="active"
+                {% endif %}>
+                    <a href="/control/log/">Log</a>
+                </li>
+                <li class="{% if request.path == "/control/" %}
                     active
                 {% endif %} hidden-sm hidden-md hidden-lg">
                     <a href="/control/">Einstellungen</a>
@@ -66,7 +71,7 @@
 
 
             <div class="nav navbar-nav navbar-right hidden-xs">
-                <li{% if request.path == "/controls/" %}
+                <li{% if request.path == "/control/" %}
                     class="active"
                 {% endif %}>
                     <a id="cogs" class="fa icon-cogs" href="/control/"></a>

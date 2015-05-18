@@ -4,7 +4,7 @@ import uuid
 from garden_lighting.web.devices import Action, action_from_string, DefaultDevice
 from garden_lighting.web.scheduler import Rule, Weekday, now_rule
 
-from garden_lighting.web.web import app, devices, scheduler, auth, control
+from garden_lighting.web.web import app, devices, scheduler, auth, control, rules_path
 
 api = Blueprint('api', __name__, url_prefix="/api")
 
@@ -48,9 +48,6 @@ def handle_state(slot, action, duration):
 @api.route('/<slot>/on/', defaults={'duration': 0})
 @api.route('/<slot>/on/<int:duration>')
 def on(slot, duration):
-    if not auth.auth():
-        return auth.fucked_auth()
-
     app.logger.info("Turning " + slot + " on!")
     return handle_state(slot, Action.ON, duration)
 
@@ -73,9 +70,6 @@ def collect_device_info(device, ons):
 
 @api.route('/devices')
 def get_devices():
-    if not auth.auth():
-        return auth.fucked_auth()
-
     ons = control.get_lights(True)
 
     result = [collect_device_info(device, ons) for device in devices.get_all_devices_recursive()]
@@ -85,9 +79,6 @@ def get_devices():
 
 @api.route('/rules')
 def get_rules():
-    if not auth.auth():
-        return auth.fucked_auth()
-
     result = [rule.__getjsonifystate__() for rule in scheduler.rules]
 
     return jsonify(rules=result)
@@ -96,18 +87,12 @@ def get_rules():
 @api.route('/<slot>/off/', defaults={'duration': 0})
 @api.route('/<slot>/off/<int:duration>')
 def off(slot, duration):
-    if not auth.auth():
-        return auth.fucked_auth()
-
     app.logger.info("Turning " + slot + " off!")
     return handle_state(slot, Action.OFF, duration)
 
 
 @api.route('/<slot>/manual/')
 def control_manually(slot):
-    if not auth.auth():
-        return auth.fucked_auth()
-
     device = get_device(slot)
     for dev in device.get_real_devices_recursive():
         dev.control_manually()
@@ -117,9 +102,6 @@ def control_manually(slot):
 
 @api.route('/<slot>/automatic/')
 def control_automatically(slot):
-    if not auth.auth():
-        return auth.fucked_auth()
-
     device = get_device(slot)
     for dev in device.get_real_devices_recursive():
         dev.control_automatically()
@@ -132,9 +114,6 @@ def control_automatically(slot):
 
 @api.route('/add_rules/', methods=['POST'])
 def add_rules():
-    if not auth.auth():
-        return auth.fucked_auth()
-
     json_text = request.get_json()
 
     if json_text is None:
@@ -143,11 +122,11 @@ def add_rules():
     for json_rule in json_text:
         rule_devices = []
 
-        for device in json_rule['devices']:
-            get_device = devices.get_device(device)
-            if get_device is None:
+        for json_device in json_rule['devices']:
+            device = devices.get_device(json_device)
+            if device is None:
                 continue
-            rule_devices.append(get_device)
+            rule_devices.append(device)
 
         rule = Rule(
             uuid.uuid1(),
@@ -159,18 +138,15 @@ def add_rules():
 
         scheduler.add_rule(rule)
 
-    success = scheduler.write()
+    success = scheduler.write(rules_path)
 
     return jsonify(success=success)
 
 
 @api.route('/delete_rule/<rule>', methods=['GET'])
 def delete_rule(rule):
-    if not auth.auth():
-        return auth.fucked_auth()
-
     if scheduler.remove_rule(uuid.UUID("{" + rule + "}")):
-        success = scheduler.write()
+        success = scheduler.write(rules_path)
         return jsonify(success=success)
     else:
         return jsonify(success=False)
