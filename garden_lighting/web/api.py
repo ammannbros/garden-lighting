@@ -4,7 +4,7 @@ import uuid
 from garden_lighting.web.devices import Action, action_from_string, DefaultDevice
 from garden_lighting.web.scheduler import Rule, Weekday, now_rule
 
-from garden_lighting.web.web import app, devices, scheduler, auth, control, rules_path
+from garden_lighting.web.web import app, devices, scheduler, control, rules_path
 
 api = Blueprint('api', __name__, url_prefix="/api")
 
@@ -37,6 +37,8 @@ def handle_state(slot, action, duration):
             unique_uid = uuid.uuid1()
 
             for device in device_list:
+                device.control_manually()
+
                 device.super_rule_start = now_rule(unique_uid, device_list, action)
                 device.super_rule_stop = now_rule(unique_uid, device_list, action.opposite(), time_delta=duration)
     else:

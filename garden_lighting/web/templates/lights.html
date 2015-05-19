@@ -27,7 +27,7 @@
 
 
 {% block body %}
-    <div class="container fuelux">
+    <div id="light-root" class="container fuelux">
         <div class="row well well-sm">
 
             <strong>{{ name }}</strong>
@@ -36,8 +36,6 @@
                 <button data-target="all" class="on btn btn-success">Alle An</button>
                 <button data-target="all" class="off btn btn-danger">Alle Aus</button>
             </div>
-
-
         </div>
 
         <div class="row well clearfix well-sm text-center" data-toggle="buttons">
@@ -71,16 +69,12 @@
         <div id="lights" class="row list-group">
             {% for device in devices %}
                 {% if areas or not device.is_group() %}
-                    <div class="item list-group-item col-xs-4 col-lg-4">
+                    <div id="{{ device.short_name }}" class="item list-group-item col-xs-4 col-lg-4">
 
                         <div class="caption">
 
                             <h4 class="group inner list-group-item-heading">
                                 {{ device.display_name }}
-                                <div class="pull-right">
-                                    {{ scheduler.get_next_action_date(device)[0] }}
-                                    {{ scheduler.get_next_action_date(device)[1]|string }}
-                                </div>
                             </h4>
 
                             <div class="row" id="row_{{ device.short_name }}" style="font-size: smaller">

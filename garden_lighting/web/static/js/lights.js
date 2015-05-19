@@ -13,16 +13,52 @@ function automatic(name) {
 }
 
 function apiRequest(path, sucess_msg, error_msg) {
+
     return $.getJSON(target + path, function (data) {
         if (data["success"]) {
             toastr.success(sucess_msg)
         } else {
             toastr.error(error_msg)
         }
+
+        reload();
+    });
+}
+
+function reload() {
+    //$("#lights").fadeOut(100);
+    return $.getJSON(target + "/api/devices", function (data) {
+        data['devices'].map( function(device) {
+            html = $("#" + device['short_name']);
+            if (html.length == 1) {
+                var button = html.find(".light-switch");
+
+                if (device['state']) {
+                    button.text("Ausschalten");
+                    button.addClass("btn-success");
+                    button.removeClass("btn-danger");
+                } else {
+                    button.text("Anschalten");
+                    button.addClass("btn-danger");
+                    button.removeClass("btn-success");
+                }
+
+                var mode_button = html.find(".mode");
+                console.log(mode_button);
+                if (device['manual']) {
+                    mode_button.removeClass("hidden")
+                } else {
+                    mode_button.addClass("hidden")
+                }
+            }
+        });
+
+         //$("#lights").fadeIn(100);
     });
 }
 
 function getDuration() {
+
     var duration = $('input[name=duration]:checked', '.duration-selector').data("value");
 
     if (duration == undefined) {
@@ -37,6 +73,8 @@ function addManualModeButton(id) {
 }
 
 $(document).ready(function () {
+    setInterval(reload, 4000);
+
     var light_toggles = $('.light-switch');
 
     toastr.options = {
@@ -51,21 +89,17 @@ $(document).ready(function () {
         var duration = getDuration();
         var id = $(this).data("target");
         on(id, duration);
-        addManualModeButton(id);
     });
 
     $('.off').click(function () {
         var duration = getDuration();
         var id = $(this).data("target");
         off(id, duration);
-        addManualModeButton(id);
     });
 
     $('.mode').click(function () {
         var id = $(this).data("value");
         automatic(id);
-        //$(this).remove();
-        location.reload(); // We would need to get all information about all devices from server else
     });
 
     light_toggles.click(function () {
@@ -74,23 +108,9 @@ $(document).ready(function () {
         var id = $(this).data("value");
 
         if ($(this).hasClass('btn-success')) {
-            if (duration == 0)  $(this).text("Anschalten");
-
             off(id, duration);
-
         } else if ($(this).hasClass('btn-danger')) {
-            if (duration == 0)  $(this).text("Ausschalten");
-
-
             on(id, duration);
         }
-
-        if (duration == 0) {
-            $(this).toggleClass('btn-success');
-            $(this).toggleClass('btn-danger');
-        }
-
-
-        addManualModeButton(id);
     });
 });

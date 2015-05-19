@@ -151,7 +151,7 @@ function addSelectedRules() {
         url: "http://" + window.location.host + "/api/add_rules/",
         success: function (e) {
             console.log(e);
-            window.location.href = "http://" + window.location.host + "/control/?completed=true";
+            window.location.href = target + "/control/?completed=true";
         }
     });
 }
