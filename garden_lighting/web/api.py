@@ -30,7 +30,6 @@ def handle_state(slot, action, duration):
 
                 # Forget about the super rule, we're real manual now!
                 device.clear_super_rule()
-
         else:
             device_list = device.get_real_devices_recursive()
 
@@ -41,6 +40,7 @@ def handle_state(slot, action, duration):
 
                 device.super_rule_start = now_rule(unique_uid, device_list, action)
                 device.super_rule_stop = now_rule(unique_uid, device_list, action.opposite(), time_delta=duration)
+        control.run()  # trigger controller update
     else:
         success = False
 

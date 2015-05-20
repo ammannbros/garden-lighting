@@ -24,6 +24,8 @@ class RaspberryMCP23017(MCP23017):
         #Set pin numbering mode
         GPIO.setmode(GPIO.BOARD)
 
+        GPIO.setwarnings(False)
+
         #Define the reset pin as output
         GPIO.setup(self.RstPin, GPIO.OUT)
         #Create a reset impulse

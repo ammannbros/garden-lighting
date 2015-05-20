@@ -1,17 +1,17 @@
 import os
 from datetime import timedelta
 from time import sleep
+import io
+from threading import Thread
+import sys
+import logging
+from logging.handlers import RotatingFileHandler
 
 from flask import Flask
 from flask.ext.libsass import Sass
 from flask.ext.bower import Bower
 from flask.ext.script import Manager
-import io
 import pkg_resources
-from threading import Thread
-import sys
-import logging
-from logging.handlers import RotatingFileHandler
 
 from garden_lighting.light_control import LightControl
 from garden_lighting.web.auth import Auth, fucked_auth
@@ -73,6 +73,14 @@ def shutdown(thread):
     thread.join()
     sys.exit(0)
 
+def run():
+    while running:
+        try:
+            scheduler.run()
+            control.run()
+        except Exception as e:
+            app.logger.exception(e)
+        sleep(2)
 
 @manager.option('-p', '--port', help='The port', default=80)
 @manager.option('-c', '--config', help='The config', default="config.py")
@@ -87,14 +95,13 @@ def runserver(port, config, token, secret, rules):
     control = LightControl(timedelta(seconds=3), 1, app.logger)
     control.init()
 
+    global devices
+    devices = new_group("root", "root")
+
     app.logger.warn("Initialising scheduling thread")
     global scheduler
     from garden_lighting.web.scheduler import DeviceScheduler
-    scheduler = DeviceScheduler(0.5, None, control, app.logger)
-
-    global devices
-    devices = new_group("root", "root")
-    scheduler.devices = devices
+    scheduler = DeviceScheduler(0.5, devices, control, app.logger)
 
     app.logger.info("Configuration %s" % {'port': port,
                                           'config': config,
@@ -146,18 +153,8 @@ def runserver(port, config, token, secret, rules):
 
 
 def new_group(display_name, short_name):
-    return DeviceGroup(display_name, short_name, control, scheduler)
+    return DeviceGroup(display_name, short_name, control)
 
 
 def new_device(slot, display_name, short_name):
-    return DefaultDevice(slot, display_name, short_name, control, scheduler)
-
-
-def run():
-    while running:
-        try:
-            scheduler.run()
-            control.run()
-        except Exception as e:
-            app.logger.exception(e)
-        sleep(2)
+    return DefaultDevice(slot, display_name, short_name, control)

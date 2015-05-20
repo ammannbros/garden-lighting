@@ -72,6 +72,7 @@ class LightControl:
         self.last_b = 0
 
         self.lock = Lock()
+        self.switch_lock = Lock()
 
     def init(self):
         """
@@ -147,7 +148,7 @@ class LightControl:
             else:
                 self.schedule_switch(light, state, datetime.now())
 
-    def _get_lights(self, state, a, b):
+    def build_lights(self, state, a, b):
         """
             :param state False for off, True for on
             :return: The lights which have the specified state
@@ -171,10 +172,11 @@ class LightControl:
             :return: The lights which have the specified state
         """
 
-        return self._get_lights(state, self.ControlUnitA.read_byte_port_a(), self.ControlUnitB.read_byte_port_a())
+        return self.build_lights(state, self.last_a, self.last_b)
 
     def run(self):
         self.lock.acquire()
+
         try:
             now = datetime.now()
 
@@ -187,6 +189,8 @@ class LightControl:
                 mode = value[1]
                 if time < now:
                     self.logger.info("Switching light %s %s" % (light, mode))
+
+                    self.update_switched(light)
 
                     if (light <= 7) and (light >= 0):  # between 0 and 7
                         a = calculate_bit_pattern(mode, light, a)
@@ -206,18 +210,26 @@ class LightControl:
             self.lock.release()
 
     def can_switch(self, light):
-        if light not in self.last_switched:
-            return True
-        return self.last_switched[light] < datetime.now() - self.max_switch
+        self.switch_lock.acquire()
+        try:
+            if light not in self.last_switched:
+                return True
+            ret = self.last_switched[light] < datetime.now() - self.max_switch
+        finally:
+            self.switch_lock.release()
+        return ret
 
     def update_switched(self, light):
-        self.last_switched[light] = datetime.now()
-        pass
+        self.switch_lock.acquire()
+        try:
+            self.last_switched[light] = datetime.now()
+        finally:
+            self.switch_lock.release()
 
     def schedule_switch(self, light, mode, time):
         self.lock.acquire()
         try:
-            is_on = self._get_lights(True, self.last_a, self.last_b)
+            is_on = self.build_lights(True, self.last_a, self.last_b)
 
             if light in is_on and mode:
                 return
