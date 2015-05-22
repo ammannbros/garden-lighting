@@ -41,22 +41,21 @@ control = None
 scheduler = None
 devices = None
 
+
 def setup_logging(logger, level):
     logger.setLevel(level)
+    formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s ' \
+                                  '[in %(pathname)s:%(lineno)d]')
 
     console = logging.StreamHandler(sys.stderr)
     console.setLevel(level)
+    console.setFormatter(formatter)
     logger.addHandler(console)
 
     file_handler = RotatingFileHandler("lighting.log")
     file_handler.setLevel(level)
+    file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
-
-    global log
-    log = io.StringIO()
-    handler = logging.StreamHandler(log)
-    handler.setLevel(level)
-    logger.addHandler(handler)
 
 
 @app.before_request
@@ -72,6 +71,7 @@ def shutdown(thread):
     thread.join()
     sys.exit(0)
 
+
 def run():
     while running:
         try:
@@ -80,6 +80,7 @@ def run():
         except Exception as e:
             app.logger.exception(e)
         sleep(2)
+
 
 @manager.option('-p', '--port', help='The port', default=80)
 @manager.option('-c', '--config', help='The config', default="config.py")
@@ -93,19 +94,22 @@ def runserver(port, config, token, secret, rules):
     global control
     try:
         from garden_lighting.light_control import LightControl
+
         control = LightControl(timedelta(seconds=3), 1, app.logger)
         control.init()
     except:
         from garden_lighting.light_control_dummy import LightControl
+
         control = LightControl(timedelta(seconds=3), 1, app.logger)
         control.init()
 
     global devices
     devices = new_group("root", "root")
 
-    app.logger.warn("Initialising scheduling thread")
+    app.logger.info("Initialising scheduling thread")
     global scheduler
     from garden_lighting.web.scheduler import DeviceScheduler
+
     scheduler = DeviceScheduler(0.5, devices, control, app.logger)
 
     app.logger.info("Configuration %s" % {'port': port,
@@ -149,7 +153,7 @@ def runserver(port, config, token, secret, rules):
 
     app.register_blueprint(lights)
 
-    app.logger.warn("Starting scheduling thread")
+    app.logger.info("Starting scheduling thread")
     thread = Thread(target=run)
     thread.start()
 
