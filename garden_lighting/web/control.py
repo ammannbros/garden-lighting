@@ -9,8 +9,12 @@ control = Blueprint('control', __name__, url_prefix='/control')
 def controls():
     return render_template("control.html", rules=scheduler.rules, devices=devices.get_all_devices_recursive())
 
+
 @control.route('/log/')
 def logs():
-    message = Markup(log.getvalue().replace('\n', '</br>'))
+    try:
+        with open("lighting.log", "r") as log_file:
+            message = Markup(log_file.read().replace('\n', '</br>'))
+    except FileNotFoundError:
+        message = "No log"
     return render_template("log.html", log=message)
-
