@@ -62,7 +62,7 @@ def collect_device_info(device, ons):
     next_action = scheduler.get_next_action_date(device)
 
     if next_action:
-        state['next_time'] = next_action[0].total_seconds()
+        state['next_time'] = next_action[0]
         state['next_action'] = str(next_action[1])
 
     if not state['group']:

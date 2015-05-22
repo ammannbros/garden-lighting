@@ -25,6 +25,17 @@ def now_rule(unique_uid, devices, action, time_delta=0):
 def to_timedelta(time):
     return timedelta(seconds=time.hour * 60 * 60 + time.minute * 60 + time.second)
 
+def next_weekday(d, weekday):
+    days_ahead = weekday - d.weekday()
+    if days_ahead < 0:  # Target day already happened this week
+        days_ahead += 7
+    return d + timedelta(days=days_ahead)
+
+def unix_time(dt):
+    epoch = datetime.utcfromtimestamp(0)
+    delta = dt - epoch
+    return delta.total_seconds()
+
 
 class Rule(object):
     def __getstate__(self):
@@ -59,6 +70,11 @@ class Rule(object):
 
         return self.time.total_seconds() < to_timedelta(current).total_seconds()
 
+    def get_date(self):
+        next_date = next_weekday(datetime.now(), self.weekday.value)
+        next_date = next_date.replace(hour=0, minute=0, second=0, microsecond=0)
+        return next_date + self.time
+
     def __lt__(self, other):
         return not self.__gt__(other)
 
@@ -76,6 +92,8 @@ def process_super_rule(rule, device, actions):
 
     actions[device.slot] = rule.action
 
+def sort_rules(rules):
+    rules.sort(key=lambda r: (r.get_date(), r.action.value))
 
 class DeviceScheduler:
     def __init__(self, delay, devices, control, logger):
@@ -92,6 +110,9 @@ class DeviceScheduler:
     def run(self):
         actions = {}
 
+        # print([rule for rule in self.rules if value == Action.ON])
+
+        # print(self.rules)
         for rule in self.rules:
 
             if rule.is_overdue():
@@ -121,22 +142,23 @@ class DeviceScheduler:
         self.control.set_lights(False, off)
 
     def get_next_action_date(self, device):
-        rules = [rule for rule in self.rules if device in rule.devices]
+        rules = [rule for rule in self.rules if device in rule.devices and device.is_controlled_automatically()]
 
-        rule = device.get_super_stop()
-        if rule is not None:
+        if device.is_controlled_manually() and device.get_super_start() is not None:
+            rules.append(device.get_super_start())
+            sort_rules(rules)
 
-            if rules:
-                if rule < rules[0]:
-                    return rule.time, rule.action
-            else:
-                return rule.time, rule.action
+        if device.is_controlled_manually() and device.get_super_stop() is not None:
+            rules.append(device.get_super_stop())
+            sort_rules(rules)
 
-        return None if not rules else (rules[0].time, rules[0].action)
+        rules = [rule for rule in rules if not rule.is_overdue()]
+
+        return None if not rules else (unix_time(rules[0].get_date()), rules[0].action)
 
     def add_rule(self, rule):
         self.rules.append(rule)
-        self.rules.sort(key=lambda r: (r.action.value, r.time))
+        sort_rules(self.rules)
 
     def remove_rule(self, uuid):
         previous = len(self.rules)

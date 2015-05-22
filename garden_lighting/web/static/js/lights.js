@@ -49,34 +49,38 @@ function reload() {
                     mode_button.addClass("hidden")
                 }
 
+                timer = html.find(".timer");
+
                 if ('next_time' in device) {
-                    timer = html.find(".timer");
 
-                    var date = new Date();
-                    date.setHours(0, 0, 0, 0);
-                    date.setSeconds(date.getSeconds() + device['next_time']);
-                    timer.countdown(date, function (event) {
-                        var action;
+                    var date = new Date(device['next_time'] * 1000);
+                    timer.data("action", device['next_action']);
 
-                        if (device['next_action'] == "on") {
+
+                    timer.countdown(new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),
+                        date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds(), date.getUTCMilliseconds()), function (event) {
+
+                        var action = $(this).data("action");
+
+                        if (action == "on") {
                             action = "Anschalten"
-                        } else if (device['next_action'] == "off") {
+                        } else if (action == "off") {
                             action = "Ausschalten"
                         }
 
                         var format = '';
 
                         if (event.offset.hours > 0) {
-                            format = '%Hh; ' + format;
+                            format += '%Hh ';
                         }
                         if (event.offset.minutes > 0) {
-                            format = '%Mm ' + format;
+                            format += '%Mm ';
                         }
                         if (event.offset.seconds > 0) {
-                            format = '%Ss ' + format;
+                            format += '%Ss ';
                         }
                         if (event.offset.days > 0) {
-                            format = '%dd ' + format;
+                            format += '%dd ';
                         }
 
                         var formattedTime = event.strftime(format);
@@ -87,7 +91,9 @@ function reload() {
                             $(this).text("");
                         }
 
-                    }).on('finish.countdown', reload);
+                    });
+                } else {
+                    timer.countdown('')
                 }
 
             }
@@ -165,6 +171,7 @@ $(document).ready(function () {
             on(id, duration);
         }
 
+        reload();
         disableButton(this);
     });
 
