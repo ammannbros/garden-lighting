@@ -13,7 +13,6 @@ from flask.ext.bower import Bower
 from flask.ext.script import Manager
 import pkg_resources
 
-from garden_lighting.light_control import LightControl
 from garden_lighting.web.auth import Auth, fucked_auth
 from garden_lighting.web.devices import DeviceGroup, DefaultDevice
 
@@ -92,8 +91,14 @@ def runserver(port, config, token, secret, rules):
 
     app.logger.info("Initialising hardware interface")
     global control
-    control = LightControl(timedelta(seconds=3), 1, app.logger)
-    control.init()
+    try:
+        from garden_lighting.light_control import LightControl
+        control = LightControl(timedelta(seconds=3), 1, app.logger)
+        control.init()
+    except:
+        from garden_lighting.light_control_dummy import LightControl
+        control = LightControl(timedelta(seconds=3), 1, app.logger)
+        control.init()
 
     global devices
     devices = new_group("root", "root")

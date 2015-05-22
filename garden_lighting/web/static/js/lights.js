@@ -67,19 +67,16 @@ function reload() {
                         var format = '';
 
                         if (event.offset.hours > 0) {
-                            format = '%H Stunde%!H:n; ' + format;
+                            format = '%Hh; ' + format;
                         }
                         if (event.offset.minutes > 0) {
-                            format = '%M Minute%!M:n; ' + format;
+                            format = '%Mm ' + format;
                         }
                         if (event.offset.seconds > 0) {
-                            format = '%S Sekunde%!S:n; ' + format;
+                            format = '%Ss ' + format;
                         }
                         if (event.offset.days > 0) {
-                            format = '%d Tag%!d:e; ' + format;
-                        }
-                        if (event.offset.weeks > 0) {
-                            format = '%w Woche%!w:n ' + format;
+                            format = '%dd ' + format;
                         }
 
                         var formattedTime = event.strftime(format);
@@ -90,7 +87,7 @@ function reload() {
                             $(this).text("");
                         }
 
-                    });
+                    }).on('finish.countdown', reload);
                 }
 
             }
