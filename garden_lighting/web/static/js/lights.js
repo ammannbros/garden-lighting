@@ -26,9 +26,8 @@ function apiRequest(path, sucess_msg, error_msg) {
 }
 
 function reload() {
-    //$("#lights").fadeOut(100);
     return $.getJSON(target + "/api/devices", function (data) {
-        data['devices'].map( function(device) {
+        data['devices'].map(function (device) {
             html = $("#" + device['short_name']);
             if (html.length == 1) {
                 var button = html.find(".light-switch");
@@ -44,16 +43,58 @@ function reload() {
                 }
 
                 var mode_button = html.find(".mode");
-                console.log(mode_button);
                 if (device['manual']) {
                     mode_button.removeClass("hidden")
                 } else {
                     mode_button.addClass("hidden")
                 }
+
+                if ('next_time' in device) {
+                    timer = html.find(".timer");
+
+                    var date = new Date();
+                    date.setHours(0, 0, 0, 0);
+                    date.setSeconds(date.getSeconds() + device['next_time']);
+                    timer.countdown(date, function (event) {
+                        var action;
+
+                        if (device['next_action'] == "on") {
+                            action = "Anschalten"
+                        } else if (device['next_action'] == "off") {
+                            action = "Ausschalten"
+                        }
+
+                        var format = '';
+
+                        if (event.offset.hours > 0) {
+                            format = '%H Stunde%!H:n; ' + format;
+                        }
+                        if (event.offset.minutes > 0) {
+                            format = '%M Minute%!M:n; ' + format;
+                        }
+                        if (event.offset.seconds > 0) {
+                            format = '%S Sekunde%!S:n; ' + format;
+                        }
+                        if (event.offset.days > 0) {
+                            format = '%d Tag%!d:e; ' + format;
+                        }
+                        if (event.offset.weeks > 0) {
+                            format = '%w Woche%!w:n ' + format;
+                        }
+
+                        var formattedTime = event.strftime(format);
+
+                        if (formattedTime != "") {
+                            $(this).text(action + " in " + formattedTime);
+                        } else {
+                            $(this).text("");
+                        }
+
+                    });
+                }
+
             }
         });
-
-         //$("#lights").fadeIn(100);
     });
 }
 
@@ -70,6 +111,13 @@ function getDuration() {
 
 function addManualModeButton(id) {
     $('.mode[data-value=' + id + ']').removeClass("hidden");
+}
+
+function disableButton(button) {
+    $(button).prop('disabled', true);
+    setTimeout(function () {
+        $(button).prop('disabled', false);
+    }, 3000);
 }
 
 $(document).ready(function () {
@@ -89,17 +137,24 @@ $(document).ready(function () {
         var duration = getDuration();
         var id = $(this).data("target");
         on(id, duration);
+        disableButton(this)
     });
 
     $('.off').click(function () {
         var duration = getDuration();
         var id = $(this).data("target");
         off(id, duration);
+        disableButton(this)
     });
 
     $('.mode').click(function () {
         var id = $(this).data("value");
         automatic(id);
+    });
+
+    $('#refresh').click(function () {
+        reload();
+        toastr.success("Neu geladen")
     });
 
     light_toggles.click(function () {
@@ -112,5 +167,9 @@ $(document).ready(function () {
         } else if ($(this).hasClass('btn-danger')) {
             on(id, duration);
         }
+
+        disableButton(this);
     });
+
+    reload()
 });
