@@ -85,15 +85,15 @@ class Rule(object):
 def process_super_rule(rule, device, actions):
     # todo: only modify actions if the action differs from the current situation
 
-    if rule.action == Action.ON:
+    if device.get_super_start() is not None and rule.action == device.get_super_start().action:
         device.control_manually()
-    elif rule.action == Action.OFF:
+    elif device.get_super_stop() is not None and rule.action == device.get_super_stop().action:
         device.control_automatically()
 
     actions[device.slot] = rule.action
 
 def sort_rules(rules):
-    rules.sort(key=lambda r: (r.get_date(), r.action.value))
+    rules.sort(key=lambda r: (r.time, r.action.value))
 
 class DeviceScheduler:
     def __init__(self, delay, devices, control, logger):
@@ -144,13 +144,13 @@ class DeviceScheduler:
     def get_next_action_date(self, device):
         rules = [rule for rule in self.rules if device in rule.devices and device.is_controlled_automatically()]
 
+        rules.sort(key=lambda r: (r.get_date(), r.action.value))
+
         if device.is_controlled_manually() and device.get_super_start() is not None:
             rules.append(device.get_super_start())
-            sort_rules(rules)
 
         if device.is_controlled_manually() and device.get_super_stop() is not None:
             rules.append(device.get_super_stop())
-            sort_rules(rules)
 
         rules = [rule for rule in rules if not rule.is_overdue()]
 
