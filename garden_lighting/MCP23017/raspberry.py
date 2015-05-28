@@ -1,11 +1,7 @@
-
 import time
-from garden_lighting.MCP23017.MCP23017 import MCP23017
 
-try:
-    import RPi.GPIO as GPIO
-except RuntimeError:
-    print("Error importing RPi.GPIO! Maybe you are not root?")
+import pigpio
+from garden_lighting.MCP23017.MCP23017 import MCP23017
 
 
 class RaspberryMCP23017(MCP23017):
@@ -13,23 +9,19 @@ class RaspberryMCP23017(MCP23017):
     def __init__(self, dev_addr, rst_pin=0xFF, i2cport=1):
         super().__init__(dev_addr, rst_pin, i2cport)
 
-    def __del__(self):
-        #needed to clear the RPi.GPIO channel
-        GPIO.cleanup(self.RstPin)
+    # def __del__(self):
+    #     #needed to clear the RPi.GPIO channel
+    #     self.io.cleanup(self.RstPin)
 
-    def initDevice(self):
+    def initDevice(self, pi):
         '''
         Does a reset to put all registers in initial state
         '''
-        #Set pin numbering mode
-        GPIO.setmode(GPIO.BOARD)
-
-        GPIO.setwarnings(False)
 
         #Define the reset pin as output
-        GPIO.setup(self.RstPin, GPIO.OUT)
+        pi.set_mode(self.RstPin, pigpio.OUTPUT)
         #Create a reset impulse
-        GPIO.output(self.RstPin, GPIO.LOW)
+        pi.write(self.RstPin, 0)
         #wait for 50 ms
         time.sleep(.050)
-        GPIO.output(self.RstPin, GPIO.HIGH)
+        pi.write(self.RstPin, 1)

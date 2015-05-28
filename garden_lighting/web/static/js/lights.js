@@ -70,17 +70,20 @@ function reload() {
 
                         var format = '';
 
-                        if (event.offset.hours > 0) {
-                            format += '%Hh ';
-                        }
-                        if (event.offset.minutes > 0) {
-                            format += '%Mm ';
-                        }
-                        if (event.offset.seconds > 0) {
-                            format += '%Ss ';
-                        }
                         if (event.offset.days > 0) {
                             format += '%dd ';
+                        }
+
+                        if (event.offset.days > 0 || event.offset.hours > 0) {
+                            format += '%Hh ';
+                        }
+
+                        if (event.offset.hours > 0 || event.offset.minutes > 0) {
+                            format += '%Mm ';
+                        }
+
+                        if (event.offset.minutes > 0 || event.offset.seconds > 0) {
+                            format += '%Ss ';
                         }
 
                         var formattedTime = event.strftime(format);

@@ -1,7 +1,7 @@
 import os
 from datetime import timedelta
+import threading
 from time import sleep
-import io
 from threading import Thread
 import sys
 import logging
@@ -12,6 +12,7 @@ from flask.ext.libsass import Sass
 from flask.ext.bower import Bower
 from flask.ext.script import Manager
 import pkg_resources
+
 
 from garden_lighting.web.auth import Auth, fucked_auth
 from garden_lighting.web.devices import DeviceGroup, DefaultDevice
@@ -40,6 +41,7 @@ running = True
 control = None
 scheduler = None
 devices = None
+# temperature_receiver = None
 
 
 def setup_logging(logger, level):
@@ -97,6 +99,11 @@ def runserver(port, config, token, secret, rules):
 
         control = LightControl(timedelta(seconds=3), 1, app.logger)
         control.init()
+
+        # from garden_lighting.temperature_receiver import TemperatureReceiver
+        # global temperature_receiver
+        # temperature_receiver = TemperatureReceiver(14, 2000)
+        # threading.Thread(target=temperature_receiver.start).start()
     except:
         from garden_lighting.light_control_dummy import LightControl
 
@@ -152,6 +159,10 @@ def runserver(port, config, token, secret, rules):
     from garden_lighting.web.lights import lights
 
     app.register_blueprint(lights)
+
+    # from garden_lighting.temperatures import temperatures
+    #
+    # app.register_blueprint(temperatures)
 
     app.logger.info("Starting scheduling thread")
     thread = Thread(target=run)
