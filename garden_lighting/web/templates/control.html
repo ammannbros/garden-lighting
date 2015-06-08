@@ -2,6 +2,15 @@
 
 {% import 'time_select.html' as time %}
 
+{% macro device_checkbox(device) -%}
+    <div class="col-md-2 device-checkbox">
+        <label class="checkbox-custom" data-initialize="checkbox">
+            <input class="light-selection sr-only" name="radioEx1" type="checkbox" value="{{ device.short_name }}">
+            {{ device.display_name }}
+        </label>
+    </div>
+{%- endmacro %}
+
 {% block head %}
 
     <script src="{{ url_for('bower.static', filename='clockpicker/dist/bootstrap-clockpicker.min.js') }}"></script>
@@ -37,21 +46,27 @@
                 <div class="step-pane active sample-pane" data-step="1">
                     <h4>Wähle Lichter or Bereiche</h4>
 
-                    <div class="checkbox">
+
+                    <div>Bereiche</div>
+                    <div class="checkbox row">
+
                         {% for device in devices %}
-                            <div class="col-md-2 device-checkbox">
-                                <label class="checkbox-custom" data-initialize="checkbox">
-                                    <input class="light-selection sr-only"
-                                            {% if n == 1 %}
-                                           checked="checked"
-                                            {% endif %} name="radioEx1" type="checkbox" value="{{ device.short_name }}">
-                                    {{ device.display_name }}
-                                </label>
-                            </div>
+                            {% if device.is_group() %}
+                                {{ device_checkbox(device) }}
+                            {% endif %}
                         {% endfor %}
                     </div>
 
-                    <p></p>
+                    <div>Einzelne Lichter</div>
+                    <div class="checkbox row">
+                        {% for device in devices %}
+                            {% if not device.is_group() %}
+                                {{ device_checkbox(device) }}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+
                 </div>
                 <div class="step-pane" data-step="2">
                     <h4>Wähle eine Zeitspanne</h4>
@@ -83,7 +98,11 @@
 
                     <div style="margin-bottom: 15px">
                         <h4 class="group inner list-group-item-heading">
-                            Regel {{ rule.action }}
+                            {% if rule.action == "on" %}
+                                Einschalten
+                            {% else %}
+                                Auschalten
+                            {% endif %}
                             <button class="remove btn btn-default pull-right glyphicon glyphicon-remove"></button>
                         </h4>
                     </div>
@@ -92,10 +111,7 @@
 
                         <div class="pull-left">
                             <div>
-                                {{ time.to_weekday(rule.weekday) }}
-                            </div>
-                            <div>
-                                {{ rule.time }}
+                                {{ time.to_weekday(rule.weekday.value) }} {{ rule.time }}
                             </div>
                         </div>
 

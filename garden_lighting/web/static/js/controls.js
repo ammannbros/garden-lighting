@@ -169,7 +169,7 @@ $(document).ready(function () {
     };
 
     if (getUrlVars()["completed"] == "true") {
-        toastr.success('Regeln erfolgreich hinzugefügt');
+        toastr.success('Regeln erfolgreich hinzugefügt.');
     }
 
     //Next/Previous updates
@@ -190,12 +190,12 @@ $(document).ready(function () {
             $("#summary").text(
                 "Die Lichter " +
                 getDeviceNames() +
-                " werden von am " +
+                " werden am " +
                 getLocalizedWeekdays() +
                 " von " +
                 getStartTimeText() +
                 " für " + getDuration() +
-                " Sekunden an sein."
+                " Sekunden eingeschalten sein."
             )
         }
     });

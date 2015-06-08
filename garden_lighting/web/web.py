@@ -12,12 +12,15 @@ from flask.ext.libsass import Sass
 from flask.ext.bower import Bower
 from flask.ext.script import Manager
 import pkg_resources
-
+from tornado.httpserver import HTTPServer
+from tornado.ioloop import IOLoop
+from tornado.wsgi import WSGIContainer
 
 from garden_lighting.web.auth import Auth, fucked_auth
 from garden_lighting.web.devices import DeviceGroup, DefaultDevice
 
 app = Flask(__name__)
+app.debug = True
 
 manager = Manager(app)
 
@@ -45,9 +48,10 @@ devices = None
 
 
 def setup_logging(logger, level):
+    logger.handlers = []
+
     logger.setLevel(level)
-    formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s ' \
-                                  '[in %(pathname)s:%(lineno)d]')
+    formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
 
     console = logging.StreamHandler(sys.stderr)
     console.setLevel(level)
@@ -71,7 +75,6 @@ def shutdown(thread):
     global running
     running = False
     thread.join()
-    sys.exit(0)
 
 
 def run():
@@ -84,46 +87,27 @@ def run():
         sleep(2)
 
 
-@manager.option('-p', '--port', help='The port', default=80)
-@manager.option('-c', '--config', help='The config', default="config.py")
-@manager.option('-t', '--token', help='The token', default="")
-@manager.option('-s', '--secret', help='The secret key', default="")
-@manager.option('-r', '--rules', help='The rules save file', default="rules.bin")
-def runserver(port, config, token, secret, rules):
-    setup_logging(app.logger, logging.INFO)
+# noinspection PyBroadException
+@manager.option('-p', '--port', dest='port_opt', help='The port', default=None)
+@manager.option('-c', '--config', dest='config', help='The config', default="config.py")
+@manager.option('-t', '--token', dest='token_opt', help='The token', default=None)
+@manager.option('-s', '--secret', dest='secret_opt', help='The secret key', default=None)
+@manager.option('-r', '--rules', dest='rules_opt', help='The rules save file', default=None)
+def runserver(port_opt, config, token_opt, secret_opt, rules_opt):
+    logger = app.logger
+    setup_logging(logger, logging.INFO)
 
-    app.logger.info("Initialising hardware interface")
-    global control
-    try:
-        from garden_lighting.light_control import LightControl
+    # Start configuration
 
-        control = LightControl(timedelta(seconds=3), 1, app.logger)
-        control.init()
+    port = 5000
+    token = ""
+    secret = ""
+    rules = "rules.bin"
+    root_display_name = "root"
+    mcp23017_addresses = []
+    mcp23017_reset_pins = []
 
-        # from garden_lighting.temperature_receiver import TemperatureReceiver
-        # global temperature_receiver
-        # temperature_receiver = TemperatureReceiver(14, 2000)
-        # threading.Thread(target=temperature_receiver.start).start()
-    except:
-        from garden_lighting.light_control_dummy import LightControl
-
-        control = LightControl(timedelta(seconds=3), 1, app.logger)
-        control.init()
-
-    global devices
-    devices = new_group("root", "root")
-
-    app.logger.info("Initialising scheduling thread")
-    global scheduler
-    from garden_lighting.web.scheduler import DeviceScheduler
-
-    scheduler = DeviceScheduler(0.5, devices, control, app.logger)
-
-    app.logger.info("Configuration %s" % {'port': port,
-                                          'config': config,
-                                          'token': token,
-                                          'secret': secret,
-                                          'rules': rules})
+    register_devices = None
 
     # Loading config
     if os.path.isfile(config):
@@ -137,9 +121,66 @@ def runserver(port, config, token, secret, rules):
             port = lcl['port']
             token = lcl['token']
             secret = lcl['secret']
+            register_devices = lcl['register_devices']
+            root_display_name = lcl['root_display_name']
+            mcp23017_addresses = lcl['mcp23017_addresses']
+            mcp23017_reset_pins = lcl['mcp23017_reset_pins']
+
+    if port_opt:
+        port = port_opt
+
+    if token_opt:
+        token = token_opt
+
+    if secret_opt:
+        secret = secret_opt
+
+    if rules_opt:
+        rules = rules_opt
+
+    logger.info("Configuration %s" % {'port': port,
+                                      'config': config,
+                                      'token': token,
+                                      'secret': secret,
+                                      'rules': rules,
+                                      'mcp23017_addresses': mcp23017_addresses,
+                                      'mcp23017_reset_pins': mcp23017_reset_pins})
+
+    # Start initialising
+
+    logger.info("Initialising hardware interface")
+    global control
+    try:
+        from garden_lighting.light_control import LightControl
+    except Exception:
+        from garden_lighting.light_control_dummy import LightControl
+
+        # from garden_lighting.temperature_receiver import TemperatureReceiver
+        # global temperature_receiver
+        # temperature_receiver = TemperatureReceiver(14, 2000)
+        # threading.Thread(target=temperature_receiver.start).start()
+
+    control = LightControl(timedelta(seconds=3), 1, logger,
+                           mcp23017_addresses[0], mcp23017_reset_pins[0],
+                           mcp23017_addresses[1], mcp23017_reset_pins[1])
+    control.init()
+
+    global devices
+    devices = new_group(root_display_name, "root")
+
+    logger.info("Initialising scheduling thread")
+    global scheduler
+    from garden_lighting.web.scheduler import DeviceScheduler
+
+    scheduler = DeviceScheduler(0.5, devices, control, logger)
+
+    if register_devices:
+        register_devices(devices)
+
+    # Start web stuff
 
     global auth
-    auth = Auth(token, app.logger)
+    auth = Auth(token, logger)
 
     global rules_path
     rules_path = rules
@@ -164,11 +205,17 @@ def runserver(port, config, token, secret, rules):
     #
     # app.register_blueprint(temperatures)
 
-    app.logger.info("Starting scheduling thread")
+    logger.info("Starting scheduling thread")
     thread = Thread(target=run)
     thread.start()
 
-    app.run(host='0.0.0.0', port=int(port), debug=False, use_reloader=False)
+    http_server = HTTPServer(WSGIContainer(app))
+    http_server.listen(port)
+    try:
+        IOLoop.instance().start()
+    except KeyboardInterrupt:
+        IOLoop.instance().stop()
+
     shutdown(thread)
 
 

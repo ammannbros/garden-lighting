@@ -1,5 +1,5 @@
 class LightControl:
-    def __init__(self, max_switch, delay, logger):
+    def __init__(self, max_switch, delay, logger, a_address, a_rst_pin, b_address, b_rst_pin):
         pass
 
     def run(self):

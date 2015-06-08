@@ -30,5 +30,14 @@
 
 
 <script type="text/javascript">
-    $('.clockpicker').clockpicker();
+    var now = new Date();
+    var time = now.getHours() + ":" + now.getMinutes();
+    var clockpicker = $(".clockpicker");
+
+    clockpicker.clockpicker({
+        'default': time
+    });
+
+
+    clockpicker.find("input").val(time)
 </script>

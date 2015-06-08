@@ -9,7 +9,7 @@
 {%- endmacro %}
 
 {% macro minutes(mins) -%}
-    {{ duration(mins, "Minutes", 60) }}
+    {{ duration(mins, "Minuten", 60) }}
 {%- endmacro %}
 
 {% macro hours(hrs) -%}
@@ -34,8 +34,8 @@
             <strong>{{ name }}</strong>
 
             <div class="pull-right">
-                <button data-target="all" class="on btn btn-success">Alle An</button>
-                <button data-target="all" class="off btn btn-danger">Alle Aus</button>
+                <button data-target="all" class="on btn btn-success">Alle Einschalten</button>
+                <button data-target="all" class="off btn btn-danger">Alle Auschalten</button>
                 <button id="refresh" class="btn btn-default"><span class="glyphicon glyphicon-refresh"></span></button>
             </div>
         </div>
@@ -89,15 +89,15 @@
                                     {% if not device.is_controlled_manually() %}
                                         hidden
                                     {% endif %}">
-                                        Setzte wieder Automatisch
+                                        Setzte automatischen Modus
                                     </button>
 
 
                                     {% if device.is_group() %}
 
-                                        <button data-target="{{ device.short_name }}" class="on btn btn-success">An
+                                        <button data-target="{{ device.short_name }}" class="on btn btn-success">Einschalten
                                         </button>
-                                        <button data-target="{{ device.short_name }}" class="off btn btn-danger">Aus
+                                        <button data-target="{{ device.short_name }}" class="off btn btn-danger">Ausschalten
                                         </button>
 
 
@@ -109,13 +109,12 @@
                                             {% if device.slot in ons %}
                                                 Ausschalten
                                             {% else %}
-                                                Anschalten
+                                                Einschalten
                                             {% endif %}
                                         </button>
 
 
                                     {% endif %}
-
 
                                 </div>
 

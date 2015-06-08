@@ -1,15 +1,15 @@
 target = "http://" + window.location.host;
 
 function on(name, duration) {
-    return apiRequest("/api/" + name + "/on/" + duration, 'Erfolgreich angeschalten', 'Anschalten fehlgeschlagen');
+    return apiRequest("/api/" + name + "/on/" + duration, 'Erfolgreich eingeschalten.', 'Einschalten fehlgeschlagen.');
 }
 
 function off(name, duration) {
-    return apiRequest("/api/" + name + "/off/" + duration, 'Erfolgreich ausgeschalten', 'Auschalten fehlgeschlagen');
+    return apiRequest("/api/" + name + "/off/" + duration, 'Erfolgreich ausgeschalten.', 'Auschalten fehlgeschlagen.');
 }
 
 function automatic(name) {
-    return apiRequest("/api/" + name + "/automatic/", 'Erfolgreich auf Autamatisch geschalten', 'Fehlgeschlagen auf Autamatisch zu schalten');
+    return apiRequest("/api/" + name + "/automatic/", 'Erfolgreich auf autamatischen Modus geschalten', 'Fehler beim Schalten auf automatischen Modus.');
 }
 
 function apiRequest(path, sucess_msg, error_msg) {
@@ -37,7 +37,7 @@ function reload() {
                     button.addClass("btn-success");
                     button.removeClass("btn-danger");
                 } else {
-                    button.text("Anschalten");
+                    button.text("Einschalten");
                     button.addClass("btn-danger");
                     button.removeClass("btn-success");
                 }
@@ -63,7 +63,7 @@ function reload() {
                         var action = $(this).data("action");
 
                         if (action == "on") {
-                            action = "Anschalten"
+                            action = "Einschalten"
                         } else if (action == "off") {
                             action = "Ausschalten"
                         }
@@ -160,7 +160,7 @@ $(document).ready(function () {
 
     $('#refresh').click(function () {
         reload();
-        toastr.success("Neu geladen")
+        toastr.success("Lichter neu geladen.")
     });
 
     light_toggles.click(function () {
