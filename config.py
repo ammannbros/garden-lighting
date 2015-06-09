@@ -6,8 +6,10 @@ port = 5000
 token = ""
 secret = ""
 
-mcp23017_addresses = [0x20, 0x21]
-mcp23017_reset_pins = [4, 17]
+mcp23017_address_a = 0x20
+mcp23017_address_b = 0x21
+mcp23017_reset_a = 4
+mcp23017_reset_b = 17
 
 
 def register_devices(devices):

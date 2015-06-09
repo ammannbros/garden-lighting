@@ -44,7 +44,6 @@ running = True
 control = None
 scheduler = None
 devices = None
-# temperature_receiver = None
 
 
 def setup_logging(logger, level):
@@ -93,7 +92,8 @@ def run():
 @manager.option('-t', '--token', dest='token_opt', help='The token', default=None)
 @manager.option('-s', '--secret', dest='secret_opt', help='The secret key', default=None)
 @manager.option('-r', '--rules', dest='rules_opt', help='The rules save file', default=None)
-def runserver(port_opt, config, token_opt, secret_opt, rules_opt):
+@manager.option('-d', '--dry', dest='dry', help='Run without accessing hardware', default=False)
+def runserver(port_opt, config, token_opt, secret_opt, rules_opt, dry):
     logger = app.logger
     setup_logging(logger, logging.INFO)
 
@@ -104,8 +104,10 @@ def runserver(port_opt, config, token_opt, secret_opt, rules_opt):
     secret = ""
     rules = "rules.bin"
     root_display_name = "root"
-    mcp23017_addresses = []
-    mcp23017_reset_pins = []
+    mcp23017_address_a = 0
+    mcp23017_address_b = 0
+    mcp23017_reset_a = 0
+    mcp23017_reset_b = 0
 
     register_devices = None
 
@@ -123,8 +125,10 @@ def runserver(port_opt, config, token_opt, secret_opt, rules_opt):
             secret = lcl['secret']
             register_devices = lcl['register_devices']
             root_display_name = lcl['root_display_name']
-            mcp23017_addresses = lcl['mcp23017_addresses']
-            mcp23017_reset_pins = lcl['mcp23017_reset_pins']
+            mcp23017_address_a = lcl['mcp23017_address_a']
+            mcp23017_address_b = lcl['mcp23017_address_b']
+            mcp23017_reset_a = lcl['mcp23017_reset_a']
+            mcp23017_reset_b = lcl['mcp23017_reset_b']
 
     if port_opt:
         port = port_opt
@@ -143,27 +147,31 @@ def runserver(port_opt, config, token_opt, secret_opt, rules_opt):
                                       'token': token,
                                       'secret': secret,
                                       'rules': rules,
-                                      'mcp23017_addresses': mcp23017_addresses,
-                                      'mcp23017_reset_pins': mcp23017_reset_pins})
+                                      'mcp23017_address_a': mcp23017_address_a,
+                                      'mcp23017_address_b': mcp23017_address_b,
+                                      'mcp23017_reset_a': mcp23017_reset_a,
+                                      'mcp23017_reset_b': mcp23017_reset_b})
 
     # Start initialising
 
     logger.info("Initialising hardware interface")
     global control
-    try:
-        from garden_lighting.light_control import LightControl
-    except Exception:
+
+    if dry:
         from garden_lighting.light_control_dummy import LightControl
+    else:
+        from garden_lighting.light_control import LightControl
 
-        # from garden_lighting.temperature_receiver import TemperatureReceiver
-        # global temperature_receiver
-        # temperature_receiver = TemperatureReceiver(14, 2000)
-        # threading.Thread(target=temperature_receiver.start).start()
+    control = LightControl(timedelta(seconds=3), logger,
+                           mcp23017_address_a, mcp23017_reset_a,
+                           mcp23017_address_b, mcp23017_reset_b
+                           )
 
-    control = LightControl(timedelta(seconds=3), 1, logger,
-                           mcp23017_addresses[0], mcp23017_reset_pins[0],
-                           mcp23017_addresses[1], mcp23017_reset_pins[1])
-    control.init()
+    try:
+        control.init()
+    except Exception:
+        logger.error("Failed to initialise hardware!")
+        return
 
     global devices
     devices = new_group(root_display_name, "root")
@@ -201,20 +209,20 @@ def runserver(port_opt, config, token_opt, secret_opt, rules_opt):
 
     app.register_blueprint(lights)
 
-    # from garden_lighting.temperatures import temperatures
-    #
-    # app.register_blueprint(temperatures)
-
     logger.info("Starting scheduling thread")
     thread = Thread(target=run)
     thread.start()
 
     http_server = HTTPServer(WSGIContainer(app))
-    http_server.listen(port)
+
     try:
-        IOLoop.instance().start()
-    except KeyboardInterrupt:
-        IOLoop.instance().stop()
+        http_server.listen(port)
+        try:
+            IOLoop.instance().start()
+        except KeyboardInterrupt:
+            IOLoop.instance().stop()
+    except Exception as e:
+        logger.exception(e)
 
     shutdown(thread)
 

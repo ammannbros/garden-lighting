@@ -1,7 +1,6 @@
 from datetime import datetime
 from threading import Lock
 from garden_lighting.MCP23017.raspberry import RaspberryMCP23017
-import pigpio
 
 pin_number_mapping = {
     0: 0b00000001,
@@ -59,13 +58,11 @@ class LightControl:
     ControlUnitA = 0x00
     ControlUnitB = 0x00
 
-    def __init__(self, max_switch, delay, logger, a_address, a_rst_pin, b_address, b_rst_pin):
+    def __init__(self, max_switch, logger, a_address, a_rst_pin, b_address, b_rst_pin):
         self.logger = logger
-        self.pi = pigpio.pi()
         self.ControlUnitA = RaspberryMCP23017(a_address, a_rst_pin)
         self.ControlUnitB = RaspberryMCP23017(b_address, b_rst_pin)
 
-        self.delay = delay
         self.last_switched = {}
         self.max_switch = max_switch
         self.schedules = {}
@@ -82,8 +79,8 @@ class LightControl:
         Configures it for interrupts, sets io-directions etc.
         """
         # First do a reset to init the devices
-        self.ControlUnitA.initDevice(self.pi)
-        self.ControlUnitB.initDevice(self.pi)
+        self.ControlUnitA.initDevice()
+        self.ControlUnitB.initDevice()
 
         # I/O EXPANDER CONFIGURATION REGISTER
         # Bit 7 = BANK 0 ->0

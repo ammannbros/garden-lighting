@@ -14,7 +14,8 @@ setup(
                       'Flask-libsass==1.1.0',
                       'Flask-Bower==1.1.1',
                       'tornado==4.2',
-                      'smbus-cffi==0.4.1'],
+                      'smbus-cffi==0.4.1',
+                      'wiringpi2==1.1.1'],
     scripts=['scripts/garden-lighting'],
     include_package_data=True,
 )
