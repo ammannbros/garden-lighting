@@ -14,7 +14,7 @@ def controls():
 def logs():
     try:
         with open("lighting.log", "r") as log_file:
-            message = Markup(log_file.read().replace('\n', '</br>'))
+            message = Markup('</br>'.join(reversed(log_file.readlines())))
     except FileNotFoundError:
         message = "No log"
     return render_template("log.html", log=message)

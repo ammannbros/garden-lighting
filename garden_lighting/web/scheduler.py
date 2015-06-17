@@ -120,7 +120,11 @@ class DeviceScheduler:
                 for device in rule.devices:
 
                     if device.is_controlled_automatically():  # Don't control while it's controlled by a super
-                        actions[device.slot] = rule.action  # rule or is in manual mode
+                        if device.is_group():
+                            for dev in device.get_real_devices_recursive():
+                                actions[dev.slot] = rule.action
+                        else:
+                            actions[device.slot] = rule.action  # rule or is in manual mode
 
         # Super rules
         for device in self.devices.get_real_devices_recursive():

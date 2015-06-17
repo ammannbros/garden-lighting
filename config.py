@@ -18,11 +18,11 @@ def register_devices(devices):
     west = new_group("Westen", "west")
     hall = new_group("Halle", "hall")
 
-    south.register_device(new_device(0, "Pavilion", "1"))
-    hall.register_device(new_device(1, "Halle", "2"))
+    south.register_device(new_device(5, "Pavilion", "1"))
+    hall.register_device(new_device(0, "Halle", "2"))
 
     south.register_device(new_device(4, "Brunnen", "3"))
-    west.register_device(new_device(5, "Wohnzimmer", "4"))
+    west.register_device(new_device(1, "Wohnzimmer", "4"))
 
     devices.register_device(south)
     devices.register_device(west)

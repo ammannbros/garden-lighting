@@ -151,7 +151,7 @@ class DeviceGroup(Device):
 
     def is_controlled_automatically(self):
         for device in self.get_real_devices_recursive():
-            if not device.is_controlled_manually():
+            if not device.is_controlled_automatically():
                 return False
         return True
 
@@ -159,7 +159,7 @@ class DeviceGroup(Device):
         devices = self.get_real_devices_recursive()
         rules = [device.super_rule_start for device in devices]
 
-        if rules.count(rules[0]) == len(rules):
+        if rules and rules.count(rules[0]) == len(rules):
             return rules[0]
 
         return None

@@ -169,7 +169,8 @@ def runserver(port_opt, config, token_opt, secret_opt, rules_opt, dry):
 
     try:
         control.init()
-    except Exception:
+    except Exception as e:
+        logger.exception(e)
         logger.error("Failed to initialise hardware!")
         return
 
