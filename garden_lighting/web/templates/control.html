@@ -98,7 +98,7 @@
 
                     <div style="margin-bottom: 15px">
                         <h4 class="group inner list-group-item-heading">
-                            {% if rule.action == "on" %}
+                            {% if rule.action.__str__() == "on" %}
                                 Einschalten
                             {% else %}
                                 Auschalten

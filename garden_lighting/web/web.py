@@ -210,6 +210,10 @@ def runserver(port_opt, config, token_opt, secret_opt, rules_opt, dry):
 
     app.register_blueprint(lights)
 
+    from garden_lighting.web.temperature import temperature
+
+    app.register_blueprint(temperature)
+
     logger.info("Starting scheduling thread")
     thread = Thread(target=run)
     thread.start()
@@ -228,9 +232,9 @@ def runserver(port_opt, config, token_opt, secret_opt, rules_opt, dry):
     shutdown(thread)
 
 
-def new_group(display_name, short_name):
-    return DeviceGroup(display_name, short_name, control)
+def new_group(display_name, short_name, parent=None):
+    return DeviceGroup(display_name, short_name, control, parent)
 
 
-def new_device(slot, display_name, short_name):
-    return DefaultDevice(slot, display_name, short_name, control)
+def new_device(slot, display_name, short_name, parent=None):
+    return DefaultDevice(slot, display_name, short_name, control, parent)

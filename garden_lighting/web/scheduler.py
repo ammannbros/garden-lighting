@@ -146,6 +146,21 @@ class DeviceScheduler:
         self.control.set_lights(False, off)
 
     def get_next_action_date(self, device):
+        # if device is in a device group -> calculate based on group
+        device_date = self.get_next_action_date_single(device)
+
+        if device.parent:
+            parent_date = self.get_next_action_date_single(device.parent)
+
+            if not device_date:
+                return parent_date
+            elif not parent_date:
+                return device_date
+
+            return device_date if parent_date < device_date else parent_date
+        return device_date
+
+    def get_next_action_date_single(self, device):
         rules = [rule for rule in self.rules if device in rule.devices and device.is_controlled_automatically()]
 
         rules.sort(key=lambda r: (r.get_date(), r.action.value))

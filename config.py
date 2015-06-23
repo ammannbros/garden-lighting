@@ -13,16 +13,16 @@ mcp23017_reset_b = 17
 
 
 def register_devices(devices):
-    south = new_group("Süden", "south")
+    south = new_group("Süden", "south", devices)
 
-    west = new_group("Westen", "west")
-    hall = new_group("Halle", "hall")
+    west = new_group("Westen", "west", devices)
+    hall = new_group("Halle", "hall", devices)
 
-    south.register_device(new_device(5, "Pavilion", "1"))
-    hall.register_device(new_device(0, "Halle", "2"))
+    south.register_device(new_device(5, "Pavilion", "1", south))
+    hall.register_device(new_device(0, "Halle", "2", hall))
 
-    south.register_device(new_device(4, "Brunnen", "3"))
-    west.register_device(new_device(1, "Wohnzimmer", "4"))
+    south.register_device(new_device(4, "Brunnen", "3", south))
+    west.register_device(new_device(1, "Wohnzimmer", "4", west))
 
     devices.register_device(south)
     devices.register_device(west)

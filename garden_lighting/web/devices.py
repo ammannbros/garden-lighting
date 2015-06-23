@@ -25,7 +25,8 @@ class Device(object):
         result = {'display_name': state['display_name'], 'short_name': state['short_name']}
         return result
 
-    def __init__(self, display_name, short_name, light_control):
+    def __init__(self, display_name, short_name, light_control, parent=None):
+        self.parent = parent
         self.light_control = light_control
         self.short_name = short_name
         self.display_name = display_name
@@ -87,8 +88,8 @@ class DeviceGroup(Device):
     def is_group(self):
         return True
 
-    def __init__(self, display_name, short_name, light_control):
-        super().__init__(display_name, short_name, light_control)
+    def __init__(self, display_name, short_name, light_control, parent=None):
+        super().__init__(display_name, short_name, light_control, parent)
         self.light_control = light_control
         self.devices = collections.OrderedDict()
 
@@ -188,8 +189,8 @@ class DefaultDevice(Device):
     def is_group(self):
         return False
 
-    def __init__(self, slot, display_name, short_name, light_control):
-        super().__init__(display_name, short_name, light_control)
+    def __init__(self, slot, display_name, short_name, light_control, parent):
+        super().__init__(display_name, short_name, light_control, parent)
         self.slot = slot
         self.manually = False
         self.super_rule_start = None
