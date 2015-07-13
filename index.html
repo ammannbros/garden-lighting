@@ -7,7 +7,6 @@
 
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/github-light.css">
-    <script src="javascripts/scale.fix.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -16,18 +15,17 @@
   <body>
     <div class="wrapper">
       <header>
-        <h1 class="header">Garden-lighting</h1>
-        <p class="header">Command center of our imperial residence</p>
+        <h1>Garden-lighting</h1>
+        <p>Command center of our imperial residence</p>
+
+        <p class="view"><a href="https://github.com/ammannbros/garden-lighting">View the Project on GitHub <small>ammannbros/garden-lighting</small></a></p>
+
 
         <ul>
-          <li class="download"><a class="buttons" href="https://github.com/ammannbros/garden-lighting/zipball/master">Download ZIP</a></li>
-          <li class="download"><a class="buttons" href="https://github.com/ammannbros/garden-lighting/tarball/master">Download TAR</a></li>
-          <li><a class="buttons github" href="https://github.com/ammannbros/garden-lighting">View On GitHub</a></li>
+          <li><a href="https://github.com/ammannbros/garden-lighting/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/ammannbros/garden-lighting/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/ammannbros/garden-lighting">View On <strong>GitHub</strong></a></li>
         </ul>
-
-        <p class="header">This project is maintained by <a class="header name" href="https://github.com/ammannbros">ammannbros</a></p>
-
-
       </header>
       <section>
         <h1>
@@ -40,7 +38,11 @@
 
 <p>So the output registers of the chip can be written via I2C. The output registers are connected to a standard OR-Gate to allow the user to control the relys manually through a simple switch. The two inputs are the Output of the MCP23017 registers and the debounced switch. The output of the OR-Gate controles a TTL-Logic-Level MOSFET which switches the indudctors of the rails. (An EAGLE schematic is available for more details)</p>
 
+<hr>
+
 <p><img src="https://github.com/ammannbros/garden-lighting/blob/master/PICS/board_1.0_assembled1.jpg?raw=true" alt="RelaisArray, front and back view"></p>
+
+<hr>
 
 <h2>
 <a id="issues" class="anchor" href="#issues" aria-hidden="true"><span class="octicon octicon-link"></span></a>Issues</h2>
@@ -48,7 +50,7 @@
 <p>A major Issue was, that the MCP2017 resetted after switching the relias if consumers were connected. The relais induced noise to the 12V power line. This noise caused a voltage drop on the reset line of the MCP2017. So after switching the configuration of the Chip got lost. A capacitor from the reset-pin to ground solved the problem.</p>
 
 <h2>
-<a id="improvements" class="anchor" href="#improvements" aria-hidden="true"><span class="octicon octicon-link"></span></a>Improvements</h2>
+<a id="possible-improvements" class="anchor" href="#possible-improvements" aria-hidden="true"><span class="octicon octicon-link"></span></a>Possible Improvements</h2>
 
 <p>If the load which is connected to the relais is known, a Snubber could be added to improve the durabiltiy of the relays.</p>
 
@@ -58,10 +60,11 @@
 <p>Having trouble with Pages? Check out our <a href="https://help.github.com/pages">documentation</a> or <a href="https://github.com/contact">contact support</a> and we’ll help you sort it out.</p>
       </section>
       <footer>
-        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+        <p>This project is maintained by <a href="https://github.com/ammannbros">ammannbros</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
       </footer>
     </div>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
-		
+    <script src="javascripts/scale.fix.js"></script>
+    
   </body>
 </html>
