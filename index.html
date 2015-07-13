@@ -1,42 +1,42 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
+    <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-dark.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
     <title>Garden-lighting by ammannbros</title>
-
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/github-light.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
   </head>
+
   <body>
-    <div class="wrapper">
-      <header>
+
+    <header>
+      <div class="container">
         <h1>Garden-lighting</h1>
-        <p>Command center of our imperial residence</p>
+        <h2>Command center of our imperial residence</h2>
 
-        <p class="view"><a href="https://github.com/ammannbros/garden-lighting">View the Project on GitHub <small>ammannbros/garden-lighting</small></a></p>
+        <section id="downloads">
+          <a href="https://github.com/ammannbros/garden-lighting/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/ammannbros/garden-lighting/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/ammannbros/garden-lighting" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
 
-
-        <ul>
-          <li><a href="https://github.com/ammannbros/garden-lighting/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/ammannbros/garden-lighting/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/ammannbros/garden-lighting">View On <strong>GitHub</strong></a></li>
-        </ul>
-      </header>
-      <section>
+    <div class="container">
+      <section id="main_content">
         <h1>
 <a id="welcome-to-our-short-project-documentation" class="anchor" href="#welcome-to-our-short-project-documentation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Welcome to our short Project Documentation</h1>
 
 <h2>
 <a id="hardware---relaisarray" class="anchor" href="#hardware---relaisarray" aria-hidden="true"><span class="octicon octicon-link"></span></a>Hardware - RelaisArray</h2>
 
-<p>The board was designed for low power consumption. The overall functionality is very simple. It offers a I2C interface to be addressed by any standard purpose Microcontroller. The boards heard is the well known MCP23017 IO-Expander(input-output) from Microchip. </p>
+<p>The board was designed for low power consumption. The overall functionality is very simple. It offers a I2C interface to be addressed by any standard purpose Microcontroller. The boards heard is the well known MCP23017 IO-Expander(input-output) from Microchip. <a href="16-Bit%20I/O%20Expander%20with%20Serial%20Interface">http://ww1.microchip.com/downloads/en/DeviceDoc/21952b.pdf</a></p>
 
-<p>So the output registers of the chip can be written via I2C. The output registers are connected to a standard OR-Gate to allow the user to control the relys manually through a simple switch. The two inputs are the Output of the MCP23017 registers and the debounced switch. The output of the OR-Gate controles a TTL-Logic-Level MOSFET which switches the indudctors of the rails. (An EAGLE schematic is available for more details)</p>
+<p>So the output registers of the chip can be written via I2C. The output registers are connected to a standard OR-Gate to allow the user to control the relys manually through a simple switch. The two inputs are the Output of the MCP23017 registers and the debounced switch. The output of the OR-Gate controles a TTL-Logic-Level MOSFET which switches the indudctors of the rails. (An EAGLE schematic is available in repository for more details)</p>
 
 <hr>
 
@@ -44,27 +44,49 @@
 
 <hr>
 
-<h2>
-<a id="issues" class="anchor" href="#issues" aria-hidden="true"><span class="octicon octicon-link"></span></a>Issues</h2>
+<p><img src="https://github.com/ammannbros/garden-lighting/blob/master/PICS/board_1.0_assembled2.JPG?raw=true" alt="RelaisArray, front back view"></p>
+
+<hr>
+
+<h3>
+<a id="issues" class="anchor" href="#issues" aria-hidden="true"><span class="octicon octicon-link"></span></a>Issues</h3>
 
 <p>A major Issue was, that the MCP2017 resetted after switching the relias if consumers were connected. The relais induced noise to the 12V power line. This noise caused a voltage drop on the reset line of the MCP2017. So after switching the configuration of the Chip got lost. A capacitor from the reset-pin to ground solved the problem.</p>
 
-<h2>
-<a id="possible-improvements" class="anchor" href="#possible-improvements" aria-hidden="true"><span class="octicon octicon-link"></span></a>Possible Improvements</h2>
+<h3>
+<a id="possible-improvements" class="anchor" href="#possible-improvements" aria-hidden="true"><span class="octicon octicon-link"></span></a>Possible Improvements</h3>
 
 <p>If the load which is connected to the relais is known, a Snubber could be added to improve the durabiltiy of the relays.</p>
 
 <h3>
-<a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
+<a id="characteristics" class="anchor" href="#characteristics" aria-hidden="true"><span class="octicon octicon-link"></span></a>Characteristics</h3>
 
-<p>Having trouble with Pages? Check out our <a href="https://help.github.com/pages">documentation</a> or <a href="https://github.com/contact">contact support</a> and we’ll help you sort it out.</p>
+<ul>
+<li>Controlable via I2C</li>
+<li>I2C Pullups not included (to provide the opporunity to use a Raspberry PI)</li>
+<li>12V Power supply needed</li>
+<li>Designed for 230V/16A Switching load </li>
+<li>8 independet Channels</li>
+</ul>
+
+<h2>
+<a id="hardware---overall-system" class="anchor" href="#hardware---overall-system" aria-hidden="true"><span class="octicon octicon-link"></span></a>Hardware - Overall System</h2>
+
+<p>The Overall System include a RaspberryPI2 which runs a website to control the hardware. So a cheap 12V -&gt; 5V stepdown converter for the raspberry power supply was ordered from china (ebay). A 12V powersuppy is needed for the RelaisArrays.
+All compontens are included in a IP55-Metal case so provide an earth wire protection. </p>
+
+<hr>
+
+<p><img src="https://github.com/ammannbros/garden-lighting/blob/master/PICS/system1.jpg?raw=true" alt="Overall System"></p>
+
+<hr>
+
+<p><img src="https://github.com/ammannbros/garden-lighting/blob/master/PICS/system2.jpg?raw=true" alt="Overall System"></p>
+
+<hr>
       </section>
-      <footer>
-        <p>This project is maintained by <a href="https://github.com/ammannbros">ammannbros</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
-      </footer>
     </div>
-    <script src="javascripts/scale.fix.js"></script>
+
     
   </body>
 </html>
