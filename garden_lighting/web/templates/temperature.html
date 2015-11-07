@@ -1,5 +1,11 @@
 {% extends "layout.html" %}
 
 {% block body %}
-    Temperature: {{ temperature }}
+    Time: {{ millis }}
+    ID: {{ id }}
+    Temperatures:
+    {% for temp in temperatures %}
+        {{ temp }}
+    {% endfor %}
+
 {% endblock %}

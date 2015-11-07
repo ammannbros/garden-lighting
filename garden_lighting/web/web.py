@@ -113,7 +113,7 @@ def runserver(port_opt, config, token_opt, secret_opt, rules_opt, dry):
 
     # Loading config
     if os.path.isfile(config):
-        with open(config) as f:
+        with open(config, encoding="utf-8") as f:
             code = compile(f.read(), config, 'exec')
 
             lcl = {}
@@ -210,9 +210,9 @@ def runserver(port_opt, config, token_opt, secret_opt, rules_opt, dry):
 
     app.register_blueprint(lights)
 
-    from garden_lighting.web.temperature import temperature
-
-    app.register_blueprint(temperature)
+    # from garden_lighting.web.temperature import temperature
+    #
+    # app.register_blueprint(temperature)
 
     logger.info("Starting scheduling thread")
     thread = Thread(target=run)
