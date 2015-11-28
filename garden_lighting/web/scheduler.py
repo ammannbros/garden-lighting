@@ -140,7 +140,10 @@ class DeviceScheduler:
                 device.clear_super_stop()
 
         on = [light for light, value in actions.items() if value == Action.ON]
-        off = [light for light, value in actions.items() if value == Action.OFF]
+
+        # Turn all other devices off
+        all_devices = self.devices.get_real_devices_recursive()
+        off = [light.slot for light in all_devices if light.is_controlled_automatically() and light.slot not in on]
 
         self.control.set_lights(True, on)
         self.control.set_lights(False, off)
