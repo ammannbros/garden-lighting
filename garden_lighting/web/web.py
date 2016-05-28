@@ -6,7 +6,6 @@ from threading import Thread
 import sys
 import logging
 from logging.handlers import RotatingFileHandler
-
 from flask import Flask
 from flask.ext.libsass import Sass
 from flask.ext.bower import Bower
@@ -15,7 +14,6 @@ import pkg_resources
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 from tornado.wsgi import WSGIContainer
-
 from garden_lighting.web.auth import Auth, fucked_auth
 from garden_lighting.web.devices import DeviceGroup, DefaultDevice
 
@@ -38,6 +36,7 @@ Sass(
 
 auth = None
 rules_path = None
+temperature_path = None
 log = None
 
 running = True
@@ -86,6 +85,41 @@ def run():
         sleep(2)
 
 
+def run_control(control):
+    while running:
+        try:
+            control.run()
+        except Exception as e:
+            app.logger.exception(e)
+        sleep(2)
+
+
+@manager.command
+def test_lights():
+    # from garden_lighting.light_control_dummy import LightControl
+    from garden_lighting.light_control import LightControl
+
+    control = LightControl(
+        timedelta(seconds=3), app.logger,
+        0x20, 4,
+        0x21, 17
+    )
+
+    thread = Thread(target=run_control, args=[control])
+    thread.start()
+
+    print("Press ENTER to switch though the lights")
+
+    for i in range(0, 16):
+        input()
+        control.set_lights(0, range(0, 16))
+        control.set_lights(1, [i])
+        print("Switched light %d on" % i)
+
+    print("Testing finished")
+    pass
+
+
 # noinspection PyBroadException
 @manager.option('-p', '--port', dest='port_opt', help='The port', default=None)
 @manager.option('-c', '--config', dest='config', help='The config', default="config.py")
@@ -93,7 +127,8 @@ def run():
 @manager.option('-s', '--secret', dest='secret_opt', help='The secret key', default=None)
 @manager.option('-r', '--rules', dest='rules_opt', help='The rules save file', default=None)
 @manager.option('-d', '--dry', dest='dry', help='Run without accessing hardware', default=False)
-def runserver(port_opt, config, token_opt, secret_opt, rules_opt, dry):
+@manager.option('-te', '--temperature', dest='temperature_opt', help='The temperature database path', default="temperature.json")
+def runserver(port_opt, config, token_opt, secret_opt, rules_opt, dry, temperature_opt):
     logger = app.logger
     setup_logging(logger, logging.INFO)
 
@@ -102,7 +137,8 @@ def runserver(port_opt, config, token_opt, secret_opt, rules_opt, dry):
     port = 5000
     token = ""
     secret = ""
-    rules = "rules.bin"
+    rules_path_tmp = "rules.bin"
+    temperature_path_tmp = "temperature.json"
     root_display_name = "root"
     mcp23017_address_a = 0
     mcp23017_address_b = 0
@@ -140,13 +176,16 @@ def runserver(port_opt, config, token_opt, secret_opt, rules_opt, dry):
         secret = secret_opt
 
     if rules_opt:
-        rules = rules_opt
+        rules_path_tmp = rules_opt
+
+    if temperature_opt:
+        temperature_path_tmp = temperature_opt
 
     logger.info("Configuration %s" % {'port': port,
                                       'config': config,
                                       'token': token,
                                       'secret': secret,
-                                      'rules': rules,
+                                      'rules_path': rules_path_tmp,
                                       'mcp23017_address_a': mcp23017_address_a,
                                       'mcp23017_address_b': mcp23017_address_b,
                                       'mcp23017_reset_a': mcp23017_reset_a,
@@ -192,9 +231,12 @@ def runserver(port_opt, config, token_opt, secret_opt, rules_opt, dry):
     auth = Auth(token, logger)
 
     global rules_path
-    rules_path = rules
+    rules_path = rules_path_tmp
 
-    scheduler.read(rules, devices)
+    global temperature_path
+    temperature_path = temperature_path_tmp
+
+    scheduler.read(rules_path, devices)
 
     app.secret_key = secret
 
@@ -210,9 +252,9 @@ def runserver(port_opt, config, token_opt, secret_opt, rules_opt, dry):
 
     app.register_blueprint(lights)
 
-    # from garden_lighting.web.temperature import temperature
-    #
-    # app.register_blueprint(temperature)
+    from garden_lighting.web.temperature import temperature
+
+    app.register_blueprint(temperature)
 
     logger.info("Starting scheduling thread")
     thread = Thread(target=run)

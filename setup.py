@@ -15,7 +15,8 @@ setup(
                       'Flask-Bower==1.1.1',
                       'tornado==4.2',
                       'smbus-cffi==0.4.1',
-                      'wiringpi2==1.1.1'],
+                      'wiringpi2==1.1.1',
+                      'tinydb==3.2.0'],
     scripts=['scripts/garden-lighting'],
     include_package_data=True,
 )
