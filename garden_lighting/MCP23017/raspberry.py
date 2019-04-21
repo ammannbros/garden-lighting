@@ -1,5 +1,4 @@
 import time
-import os
 import wiringpi
 from garden_lighting.MCP23017.MCP23017 import MCP23017
 
@@ -13,11 +12,10 @@ class RaspberryMCP23017(MCP23017):
         Does a reset to put all registers in initial state
         '''
 
-        os.system("gpio export " + str(self.RstPin) + " out")
         # Set pin numbering mode
-        #  We don't need performance, don't want root and don't want to interfere with
-        #  other wiringpi instances -> sysfspy
-        wiringpi.wiringPiSetupSys()
+        #  wiringPiSetupSys() did not work because pins were low after booting and running the write commands
+        # This requires root!
+        wiringpi.wiringPiSetupGpio()
 
         # Define the reset pin as output
         wiringpi.pinMode(self.RstPin, wiringpi.GPIO.OUTPUT)
