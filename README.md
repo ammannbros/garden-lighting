@@ -9,4 +9,5 @@
 * Check out this repo and run `virtualenv dev-env`
 * Activate by running `source dev-env/bin/activate`
 * Install by running `python setup.py develop`
+* cd garden_lighting/web && bower install
 * Run `garden-lighting`. That's it!
