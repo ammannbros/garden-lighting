@@ -61,3 +61,4 @@ dev-env
 garden_lighting.egg-info
 
 bower_components
+temperature.*

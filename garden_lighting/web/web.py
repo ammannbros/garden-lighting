@@ -103,7 +103,7 @@ def test_lights():
 #@click.option('-c', '--config', help='The config', default="config.py")
 #@click.option('-d', '--dry', help='Run without accessing hardware', default=False)
 def create_app():
-    dry = True
+    dry = False
     config = "config.py"
     logger = app.logger
     setup_logging(logger, logging.INFO)

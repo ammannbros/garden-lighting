@@ -4,18 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4146cbfd-1a87-44f1-8ebf-9b4ae97b1ea9" name="Changes" comment="Update project setup">
-      <change afterPath="$PROJECT_DIR$/.bowerrc" afterDir="false" />
+    <list default="true" id="4146cbfd-1a87-44f1-8ebf-9b4ae97b1ea9" name="Changes" comment="Fix bower setup">
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/garden_lighting/web/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/garden_lighting/web/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/garden_lighting/web/bower.json" beforeDir="false" afterPath="$PROJECT_DIR$/garden_lighting/web/bower.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/garden_lighting/web/templates/control.html" beforeDir="false" afterPath="$PROJECT_DIR$/garden_lighting/web/templates/control.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/garden_lighting/web/templates/layout.html" beforeDir="false" afterPath="$PROJECT_DIR$/garden_lighting/web/templates/layout.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/garden_lighting/web/templates/lights.html" beforeDir="false" afterPath="$PROJECT_DIR$/garden_lighting/web/templates/lights.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/garden_lighting/web/web.py" beforeDir="false" afterPath="$PROJECT_DIR$/garden_lighting/web/web.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/garden-lighting" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/garden-lighting" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -78,7 +70,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1671899113600</updated>
-      <workItem from="1671899115077" duration="5853000" />
+      <workItem from="1671899115077" duration="6200000" />
     </task>
     <task id="LOCAL-00001" summary="Remove wiringpi dependency">
       <created>1671962025407</created>
@@ -108,7 +100,14 @@
       <option name="project" value="LOCAL" />
       <updated>1671962211711</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Fix bower setup">
+      <created>1671963979649</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1671963979649</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -119,7 +118,8 @@
     <MESSAGE value="Remove sass dependency" />
     <MESSAGE value="Remove script dependency" />
     <MESSAGE value="Update project setup" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update project setup" />
+    <MESSAGE value="Fix bower setup" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix bower setup" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
