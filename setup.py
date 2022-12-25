@@ -12,7 +12,7 @@ setup(
     install_requires=['Flask==2.2.2',
                       'Flask-Bower==1.1.1',
                       'click==8.1.3',
-                      'tornado==4.2',
+                      'waitress==2.1.2',
                       'smbus-cffi',
                       'tinydb==3.2.0'],
     scripts=['scripts/garden-lighting'],

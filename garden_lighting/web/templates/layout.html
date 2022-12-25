@@ -10,23 +10,23 @@
           type="image/png"
           href="{{ url_for('static', filename='favicon.ico') }}">
 
-    <script src="{{ url_for('bower.static', filename='jquery/dist/jquery.min.js') }}"></script>
-    <script src="{{ url_for('bower.static', filename='bootstrap/dist/js/bootstrap.min.js') }}"></script>
-    <script src="{{ url_for('bower.static', filename='fuelux/dist/js/fuelux.min.js') }}"></script>
-    <script src="{{ url_for('bower.static', filename='toastr/toastr.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bower_components/jquery/dist/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bower_components/bootstrap/dist/js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bower_components/fuelux/dist/js/fuelux.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bower_components/toastr/toastr.min.js') }}"></script>
     {% block head %}{% endblock %}
 
 
     <link rel=stylesheet type=text/css
-          href="{{ url_for('bower.static', filename='bootstrap/dist/css/bootstrap.min.css') }}">
-    <link rel=stylesheet type=text/css href="{{ url_for('bower.static', filename='fuelux/dist/css/fuelux.min.css') }}">
+          href="{{ url_for('static', filename='bower_components/bootstrap/dist/css/bootstrap.min.css') }}">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='bower_components/fuelux/dist/css/fuelux.min.css') }}">
     <link rel=stylesheet type=text/css
-          href="{{ url_for('bower.static', filename='fontawesome/css/font-awesome.min.css') }}">
+          href="{{ url_for('static', filename='bower_components/fontawesome/css/font-awesome.min.css') }}">
     <link rel=stylesheet type=text/css
-          href="{{ url_for('bower.static', filename='toastr/toastr.min.css') }}">
+          href="{{ url_for('static', filename='bower_components/toastr/toastr.min.css') }}">
 
 
-    <link rel=stylesheet type=text/css href="{{ url_for("css", filename="layout") }}">
+    <link rel=stylesheet type=text/css href="{{ url_for("static", filename="css/layout.css") }}">
 </head>
 <body>
 <header class="navbar navbar-default navbar-fixed-top garden-docs-nav" role="banner">

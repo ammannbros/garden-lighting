@@ -60,4 +60,4 @@ target/
 dev-env
 garden_lighting.egg-info
 
-garden_lighting/web/bower_components
+bower_components

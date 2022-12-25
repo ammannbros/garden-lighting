@@ -1,3 +1,4 @@
+import atexit
 import os
 from datetime import timedelta
 from time import sleep
@@ -6,18 +7,11 @@ import sys
 import logging
 from logging.handlers import RotatingFileHandler
 from flask import Flask
-from flask.ext.bower import Bower
-from tornado.httpserver import HTTPServer
-from tornado.ioloop import IOLoop
-from tornado.wsgi import WSGIContainer
 from garden_lighting.web.auth import Auth, fucked_auth
 from garden_lighting.web.devices import DeviceGroup, DefaultDevice
-import click
 
 app = Flask(__name__)
 app.debug = True
-
-Bower(app)
 
 auth = None
 rules_path = None
@@ -105,10 +99,12 @@ def test_lights():
     pass
 
 
-@app.cli.command("runserver")
-@click.option('-c', '--config', help='The config', default="config.py")
-@click.option('-d', '--dry', help='Run without accessing hardware', default=False)
-def runserver(config, dry):
+#@app.cli.command("runserver")
+#@click.option('-c', '--config', help='The config', default="config.py")
+#@click.option('-d', '--dry', help='Run without accessing hardware', default=False)
+def create_app():
+    dry = True
+    config = "config.py"
     logger = app.logger
     setup_logging(logger, logging.INFO)
 
@@ -225,18 +221,9 @@ def runserver(config, dry):
     thread = Thread(target=run)
     thread.start()
 
-    http_server = HTTPServer(WSGIContainer(app))
+    atexit.register(lambda: shutdown(thread))
 
-    try:
-        http_server.listen(port)
-        try:
-            IOLoop.instance().start()
-        except KeyboardInterrupt:
-            IOLoop.instance().stop()
-    except Exception as e:
-        logger.exception(e)
-
-    shutdown(thread)
+    return app
 
 
 def new_group(display_name, short_name, parent=None):

@@ -1,6 +1,3 @@
-#!/usr/bin/python
-from garden_lighting.web.web import manager
+#!/bin/bash
 
-
-if __name__ == '__main__':
-    manager.run()
+waitress-serve --call 'garden_lighting:web.web.create_app'
