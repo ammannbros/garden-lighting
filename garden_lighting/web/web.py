@@ -1,6 +1,5 @@
 import os
 from datetime import timedelta
-import threading
 from time import sleep
 from threading import Thread
 import sys
@@ -8,18 +7,15 @@ import logging
 from logging.handlers import RotatingFileHandler
 from flask import Flask
 from flask.ext.bower import Bower
-from flask.ext.script import Manager
-import pkg_resources
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 from tornado.wsgi import WSGIContainer
 from garden_lighting.web.auth import Auth, fucked_auth
 from garden_lighting.web.devices import DeviceGroup, DefaultDevice
+import click
 
 app = Flask(__name__)
 app.debug = True
-
-manager = Manager(app)
 
 Bower(app)
 
@@ -83,7 +79,7 @@ def run_control(control):
         sleep(2)
 
 
-@manager.command
+@app.cli.command("test_lights")
 def test_lights():
     # from garden_lighting.light_control_dummy import LightControl
     from garden_lighting.light_control import LightControl
@@ -109,15 +105,10 @@ def test_lights():
     pass
 
 
-# noinspection PyBroadException
-@manager.option('-p', '--port', dest='port_opt', help='The port', default=None)
-@manager.option('-c', '--config', dest='config', help='The config', default="config.py")
-@manager.option('-t', '--token', dest='token_opt', help='The token', default=None)
-@manager.option('-s', '--secret', dest='secret_opt', help='The secret key', default=None)
-@manager.option('-r', '--rules', dest='rules_opt', help='The rules save file', default=None)
-@manager.option('-d', '--dry', dest='dry', help='Run without accessing hardware', default=False)
-@manager.option('-te', '--temperature', dest='temperature_opt', help='The temperature database path', default="temperature.json")
-def runserver(port_opt, config, token_opt, secret_opt, rules_opt, dry, temperature_opt):
+@app.cli.command("runserver")
+@click.option('-c', '--config', help='The config', default="config.py")
+@click.option('-d', '--dry', help='Run without accessing hardware', default=False)
+def runserver(config, dry):
     logger = app.logger
     setup_logging(logger, logging.INFO)
 
@@ -154,21 +145,6 @@ def runserver(port_opt, config, token_opt, secret_opt, rules_opt, dry, temperatu
             mcp23017_address_b = lcl['mcp23017_address_b']
             mcp23017_reset_a = lcl['mcp23017_reset_a']
             mcp23017_reset_b = lcl['mcp23017_reset_b']
-
-    if port_opt:
-        port = port_opt
-
-    if token_opt:
-        token = token_opt
-
-    if secret_opt:
-        secret = secret_opt
-
-    if rules_opt:
-        rules_path_tmp = rules_opt
-
-    if temperature_opt:
-        temperature_path_tmp = temperature_opt
 
     logger.info("Configuration %s" % {'port': port,
                                       'config': config,
