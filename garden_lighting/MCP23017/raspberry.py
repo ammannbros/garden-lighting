@@ -1,8 +1,8 @@
 import time
 import os
-import wiringpi
 from garden_lighting.MCP23017.MCP23017 import MCP23017
 
+GPIO_ROOT = '/sys/class/gpio'
 
 class RaspberryMCP23017(MCP23017):
     def __init__(self, dev_addr, rst_pin=0xFF, i2cport=1):
@@ -13,16 +13,29 @@ class RaspberryMCP23017(MCP23017):
         Does a reset to put all registers in initial state
         '''
 
-        os.system("gpio export " + str(self.RstPin) + " out")
-        # Set pin numbering mode
-        #  We don't need performance, don't want root and don't want to interfere with
-        #  other wiringpi instances -> sysfspy
-        wiringpi.wiringPiSetupSys()
-
-        # Define the reset pin as output
-        wiringpi.pinMode(self.RstPin, wiringpi.GPIO.OUTPUT)
+        self.initRstPin()
         # Create a reset impulse
-        wiringpi.digitalWrite(self.RstPin, wiringpi.GPIO.LOW)
+        self.digitalWrite(False)
         # wait for 50 ms
         time.sleep(.050)
-        wiringpi.digitalWrite(self.RstPin, wiringpi.GPIO.HIGH)
+        self.digitalWrite(True)
+
+    def initRstPin(self):
+        with open(os.path.join(GPIO_ROOT, "export"), 'w+') as f:
+            f.write(str(self.RstPin))
+            f.flush()
+
+        # Define the reset pin as output
+        with open(os.path.join(GPIO_ROOT, str(self.RstPin), 'direction'), 'w+') as f:
+            f.write(str('out'))
+            f.flush()
+
+    def deinitRstPin(self):
+        with open(os.path.join(GPIO_ROOT, "unexport"), 'w+') as f:
+            f.write(str(self.RstPin))
+            f.flush()
+
+    def digitalWrite(self, high):
+        with open(os.path.join(GPIO_ROOT, str(self.RstPin), "value"), 'w+') as f:
+            f.write('1' if high else '0')
+            f.flush()
