@@ -99,9 +99,6 @@ def test_lights():
     pass
 
 
-#@app.cli.command("runserver")
-#@click.option('-c', '--config', help='The config', default="config.py")
-#@click.option('-d', '--dry', help='Run without accessing hardware', default=False)
 def create_app():
     dry = False
     config = "config.py"
