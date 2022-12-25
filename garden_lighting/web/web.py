@@ -100,7 +100,7 @@ def test_lights():
 
 
 def create_app():
-    dry = True
+    dry = False
     config = "config.py"
     logger = app.logger
     setup_logging(logger, logging.INFO)
