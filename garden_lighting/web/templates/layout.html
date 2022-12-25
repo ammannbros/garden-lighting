@@ -19,7 +19,8 @@
 
     <link rel=stylesheet type=text/css
           href="{{ url_for('static', filename='bower_components/bootstrap/dist/css/bootstrap.min.css') }}">
-    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='bower_components/fuelux/dist/css/fuelux.min.css') }}">
+    <link rel=stylesheet type=text/css
+          href="{{ url_for('static', filename='bower_components/fuelux/dist/css/fuelux.min.css') }}">
     <link rel=stylesheet type=text/css
           href="{{ url_for('static', filename='bower_components/fontawesome/css/font-awesome.min.css') }}">
     <link rel=stylesheet type=text/css
@@ -57,11 +58,11 @@
                 {% endif %}>
                     <a href="/all_lights/">Alle Lichter</a>
                 </li>
-                <!--<li {% if request.path == "/temperature/" %}-->
-                    <!--class="active"-->
-                <!--{% endif %}>-->
-                    <!--<a href="/temperature/">Temperaturen</a>-->
-                <!--</li>-->
+                <li {% if request.path == "/temperature/" %}
+                    class="active"
+                {% endif %}>
+                    <a href="/temperature/">Temperaturen</a>
+                </li>
                 <li {% if request.path == "/control/log/" %}
                     class="active"
                 {% endif %}>
