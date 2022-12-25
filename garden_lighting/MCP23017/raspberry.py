@@ -21,21 +21,24 @@ class RaspberryMCP23017(MCP23017):
         self.digitalWrite(True)
 
     def initRstPin(self):
-        with open(os.path.join(GPIO_ROOT, "export"), 'w+') as f:
+        if os.path.exists(os.path.join(GPIO_ROOT, f"gpio{self.RstPin}")):
+            self.deinitRstPin()
+
+        with open(os.path.join(GPIO_ROOT, "export"), 'w') as f:
             f.write(str(self.RstPin))
             f.flush()
 
         # Define the reset pin as output
-        with open(os.path.join(GPIO_ROOT, str(self.RstPin), 'direction'), 'w+') as f:
+        with open(os.path.join(GPIO_ROOT, f"gpio{self.RstPin}", 'direction'), 'w') as f:
             f.write(str('out'))
             f.flush()
 
     def deinitRstPin(self):
-        with open(os.path.join(GPIO_ROOT, "unexport"), 'w+') as f:
+        with open(os.path.join(GPIO_ROOT, "unexport"), 'w') as f:
             f.write(str(self.RstPin))
             f.flush()
 
     def digitalWrite(self, high):
-        with open(os.path.join(GPIO_ROOT, str(self.RstPin), "value"), 'w+') as f:
+        with open(os.path.join(GPIO_ROOT, f"gpio{self.RstPin}", "value"), 'w') as f:
             f.write('1' if high else '0')
             f.flush()
