@@ -7,7 +7,6 @@ import sys
 import logging
 from logging.handlers import RotatingFileHandler
 from flask import Flask
-from flask.ext.libsass import Sass
 from flask.ext.bower import Bower
 from flask.ext.script import Manager
 import pkg_resources
@@ -23,16 +22,6 @@ app.debug = True
 manager = Manager(app)
 
 Bower(app)
-
-Sass(
-    {'layout': 'static/sass/layout.scss',
-     'lights': 'static/sass/lights.scss',
-     'control': 'static/sass/control.scss'}, app,
-    url_path='/static/sass/',
-    include_paths=[
-        pkg_resources.resource_filename('garden_lighting.web', 'static/sass'),
-    ]
-)
 
 auth = None
 rules_path = None
