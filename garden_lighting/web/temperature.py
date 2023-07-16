@@ -1,14 +1,15 @@
 from flask import Blueprint, request, render_template, jsonify
 import time
-from tinydb import TinyDB
+#from tinydb import TinyDB
 import statsd
 
 from garden_lighting.web.web import temperature_path
 
 temperature = Blueprint('temperature', __name__, url_prefix='/temperature')
 
-db = TinyDB(temperature_path)
-temperature_db = db.table('temperature')
+# Disabled because requests take a long time (>2s) if the json DB reaches a few megabytes
+#db = TinyDB(temperature_path)
+#temperature_db = db.table('temperature')
 
 
 @temperature.route('/update', methods=['POST'])
@@ -18,7 +19,7 @@ def get_temperature():
         json = request.json
 
         temp_c = json["temp"]
-        temperature_db.insert({'temp': temp_c, 'date': round(time.time())})
+        #temperature_db.insert({'temp': temp_c, 'date': round(time.time())})
 
         client = statsd.StatsClient('localhost', 8125)
         client.gauge('temp', temp_c)
