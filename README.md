@@ -1,7 +1,11 @@
 # Building
 
 * Install *Python 3*
-* Check out this repo and run `python setup.py build`.
+* Check out this repo and run `python setup.py build && python setup.py sdist`.
+
+# Deploy
+
+`scp dist/garden-lighting-0.2.tar.gz pi@ammann.dyn.maxammann.org:`
 
 # Running using virtualenv
 
