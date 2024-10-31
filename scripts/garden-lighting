@@ -1,3 +1,3 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 waitress-serve --call 'garden_lighting:web.web.create_app'
