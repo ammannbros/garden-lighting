@@ -10,7 +10,7 @@ setup(
     author_email='',
     description='',
     install_requires=['Flask==2.3.3',
-                      'Werkzeug==2.2.2',
+                      'Werkzeug==2.3.8',
                       'waitress==3.0.1',
                       'smbus-cffi',
                       'tinydb==3.2.0',
